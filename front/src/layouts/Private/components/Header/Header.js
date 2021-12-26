@@ -9,7 +9,7 @@ const { Header } = Layout
 export default ({ currentUser, logoutHandler  }) => (
   <Header id="header" theme="dark">
     <Col span={3}>
-      <Logo clientId={ currentUser.client.id } />
+      {/*<Logo clientId={ currentUser.client.id } />*/}
     </Col>
     <Col span={3}>
       <CurrentUser

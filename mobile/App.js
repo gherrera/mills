@@ -6,107 +6,107 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useEffect, useState, useContext} from "react";
 import type {Node} from 'react';
 import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  StyleSheet,
-  Text,
   useColorScheme,
   View,
+  Dimensions
 } from 'react-native';
 
 import {
   Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+import { authTokenValidatorHelper, sessionStorageCleanerHelper, authTokenRenewerHelper } from './src/helpers'
+import { animateLogoutPromise, changePasswordPromise, getCurrentUserPromise, logoutPromise, removeLoginAnimationsPromise } from './src/promises'
+import { LoginPage } from "./src/pages"
+import Private from "./src/layouts/Private";
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [ currentUser, setCurrentUser ] = useState({})
+  const [ isLoggedIn, setIsLoggedIn ] = useState(false)
+  
+  const getCurrentUser = async () => {
+    const currentU = await getCurrentUserPromise()
+
+    return currentU
+  }
+  
+  useEffect(() => {
+    async function init() {
+      const isValidAuthToken = await authTokenValidatorHelper()
+      console.log('autenticado: '+(isValidAuthToken?'si':'no'))
+      if (isValidAuthToken) {
+        const currentU = await getCurrentUser()
+        const isActivated = currentU.feActivacion !== null
+
+        if(isActivated) {
+          setCurrentUser(currentU)
+          setIsLoggedIn(true)
+        }
+      }
+    }
+    init()
+  }, [])
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    padding: 0,
   };
+
+  const {width, height} = Dimensions.get('window');
+  const metrics = {
+    screenWidth: width < height ? width : height,
+    screenHeight: width < height ? height : width,
+  };
+  
+  const handleLogout = async () => {
+    await logoutPromise()
+    await sessionStorageCleanerHelper()
+    //await animateLogoutPromise()
+
+    setIsLoggedIn(false)
+    setCurrentUser({})
+  }
+
+  const handleLogin = async () => {
+    const currentU = await getCurrentUser()
+    if (!currentU.error) {
+      const isActivated = currentU.feActivacion !== null
+
+      if (!isActivated) {
+        //this.handleOpenModalChangePassword()
+      }else {
+        setCurrentUser(currentU)
+        setIsLoggedIn(true)
+        //new authTokenRenewerHelper(handleLogout)
+        //console.log('b2')
+      }
+    }
+  }
 
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
+      <ScrollView style={backgroundStyle} contentContainerStyle={{height: metrics.screenHeight + StatusBar.currentHeight}}>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+          { isLoggedIn ? 
+          <Private currentUser={currentUser} logoutHandler={handleLogout} />
+          :
+          <LoginPage successHandler={ handleLogin } />
+          }
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;

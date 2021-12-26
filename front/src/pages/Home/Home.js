@@ -34,6 +34,7 @@ class Home extends Component {
 
   async componentDidMount() {
     const { currentUser } = this.props
+    /*
     statsPromise().then(r => {
       this.setState({
         stats: r,
@@ -70,6 +71,7 @@ class Home extends Component {
         formsStatus: list
       })
     })
+    */
   }
 
   columnsForms = [

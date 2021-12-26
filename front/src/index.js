@@ -73,9 +73,9 @@ class App extends Component {
               this.handleOpenModalChangePassword()
             }
 
-            if (currentUser.client.pais !== 'CHI') {
-              i18nextConfig.changeLanguage(language.substring(0,2) + currentUser.client.pais)
-            }
+            //if (currentUser.client.pais !== 'CHI') {
+            //  i18nextConfig.changeLanguage(language.substring(0,2) + currentUser.client.pais)
+            //}
           }
         }
     //}
