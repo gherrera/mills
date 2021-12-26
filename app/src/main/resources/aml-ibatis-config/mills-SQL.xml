@@ -107,4 +107,11 @@
 		delete from users
 		where id = #value#
 	</delete>
+
+	<select id="getUsers" resultMap="UsuarioCore">
+		select id user_id, creation_date, nombre, login, _password, email, tipo tipo_user, modulos user_modulos, estado user_estado, fe_activacion
+		from users
+		order by tipo, nombre
+	</select>
+
 </sqlMap>

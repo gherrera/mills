@@ -9,11 +9,10 @@ import { datasourcesContext } from './contexts'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { LayoutPrivate, LayoutPublic } from './layouts'
 import { Loading, ModalChangePassword } from './layouts/Private/components'
-import { AdminPage,HomePage, LoginPage, NotAuthorizedPage, NotFoundPage, DesignPage, Form, ManagePage, RecipientsPage, AdminUsersPage } from './pages'
+import { AdminPage,HomePage, LoginPage, NotAuthorizedPage, NotFoundPage, AdminUsersPage } from './pages'
 import { LocalStorageService } from './services'
 import { authTokenValidatorHelper, sessionStorageCleanerHelper, authTokenRenewerHelper } from './helpers'
 import { animateLogoutPromise, changePasswordPromise, getCurrentUserPromise, logoutPromise, removeLoginAnimationsPromise } from './promises'
-import { getDataSourcesCatalogoPromise, getDataSourcesFormPromise } from "./promises/";
 
 class App extends Component {
   state = {
@@ -22,29 +21,6 @@ class App extends Component {
     isLoading: true,
     isLoggedIn: false,
     isModalChangePasswordVisible: false,
-    datasources: {},
-    datasourcesCat: {}
-  }
-
-  loadDatasourcesCatalogo() {
-    getDataSourcesCatalogoPromise().then(ds => {
-      let datasources = { }
-      if(Object.keys(ds).length > 0) {
-        datasources = { CAT: ds }
-      }
-      this.setState({ datasourcesCat: ds, datasources})
-    })
-  }
-
-  loadFormDatasource(formId, callback) {
-    getDataSourcesFormPromise(formId).then(ds => {
-      const { datasources } = this.state
-      if(Object.keys(ds).length > 0) {
-        datasources.FORM = ds 
-      }
-      this.setState({ datasources })
-      if(callback) callback()
-    })
   }
 
   async componentDidMount() {
@@ -79,7 +55,6 @@ class App extends Component {
           }
         }
     //}
-    this.loadDatasourcesCatalogo()
     await this.setState({ isLoading: false })
     
   }
@@ -164,7 +139,7 @@ class App extends Component {
   }
 
   render() {
-    const { currentUser, isLoading, isLoggedIn, isModalChangePasswordVisible, datasources } = this.state
+    const { currentUser, isLoading, isLoggedIn, isModalChangePasswordVisible } = this.state
     const Layout = isLoggedIn ? LayoutPrivate : LayoutPublic
 
     if (isLoading) {
@@ -172,18 +147,14 @@ class App extends Component {
     } else {
       return (
         <I18nextProvider i18n={ i18nextConfig }>
-          <datasourcesContext.Provider value={{ currentUser, datasources, loadFormDatasource: this.loadFormDatasource.bind(this) }} >
+          <datasourcesContext.Provider value={{ currentUser }} >
             <Router>
               <Layout currentUser={ currentUser } logoutHandler={ this.handleLogout.bind(this) }>
                 <Switch>
                   <Route path="/" exact render={ () => this.renderComponent(HomePage) } />
                   <Route path="/admin" exact render={ () => this.renderComponent(AdminPage) } />
                   <Route path="/accounts" exact render={ () => this.renderComponent(AdminUsersPage) } />
-                  <Route path="/design" exact render={ () => this.renderComponent(DesignPage, 'design') } />
-                  <Route path="/manage/:status?" exact render={ () => this.renderComponent(ManagePage, 'manage') } />
-                  <Route path="/recipients" exact render={ () => this.renderComponent(RecipientsPage, 'recipients') } />
-                  <Route path="/forms/:id/:view?" exact render={ () => <Form /> } />
-                  <Route path="/form/:hash" exact render={ () => <Form /> } />
+                  
 
                   <Route render={ () => <NotFoundPage /> } />
                 </Switch>

@@ -1,4 +1,4 @@
-import './dddd.scss'
+import './CurrentUser.scss'
 import React from 'react'
 import { withRouter } from 'react-router'
 import { withTranslation } from 'react-i18next'
@@ -47,7 +47,7 @@ class User extends React.Component {
     const dropdownMenu = (
       <Menu>
         {
-          ( currentUser.type === 'SADMIN' ) &&
+          ( currentUser.type === 'ADMIN' ) &&
             <Menu.Item key="1">
               <Link to={ '/accounts' }>
                 <Icon type="setting" /> &nbsp;Administración de cuentas

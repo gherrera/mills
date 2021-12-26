@@ -5,7 +5,7 @@ export default {
 
   read: () => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/usersByClient',
+      url: apiConfig.url + '/users',
       method: 'post'
     })
   },

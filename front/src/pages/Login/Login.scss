@@ -2,248 +2,16 @@ body {
     padding: 0px !important;
 }
 .login-page {
-        a {
-            color: #000;
+    height: 100vh;
+    background-color: rgba(0,0,0,.4);
+    a {
+            color: #fff;
           }
-          
-/* I.- HEADER */  
-        .header {
-            background-color: #061551;
-            padding: 10px 0px 0px 0px;
-         }
-        .header ul {
-            list-style: none;
-            overflow: hidden;
-            padding: 8px 35px 0px 0px;
-        } 
-        .header li a {
-            display: block;
-            padding: 20px 20px;
-            text-decoration: none;
-        } 
-        .header li a:hover,
-        .header .menu-btn:hover {
-            border-bottom: 1px solid rgb(250, 119, 60);
-            padding: 12px 20px 8px 20px;
-        }
-        .header #textoMenu:hover {
-            color: rgb(250, 119, 60);
-        }
-        .header .logo {
-            display: block;
-            float: left;
-            padding: 10px 20px;
-        }
-        /* menu */
-        .header .menu {
-            clear: both;
-            max-height: 0;
-            transition: max-height .2s ease-out;
-            z-index: 100;
-        }
-        #textoMenu {
-            font: 400 16px / 18px Raleway, sans-serif;
-            color:rgb(255, 255, 255);
-            letter-spacing: 1.2px;
-        }
-        /* menu icon */  
-        .header .menu-icon {
-            position: fixed;
-            flex-direction: column;
-            top: 3rem;
-            left: 80%;
-            width: 100%;
-        }  
-        .header .menu-icon .navicon {
-            background: rgb(255, 255, 255);
-            display: block;
-            height: 3px;
-            position: relative;
-            transition: background .2s ease-out;
-            width: 25px;
-        }  
-        .header .menu-icon .navicon:before,
-        .header .menu-icon .navicon:after {
-            background: rgb(255, 255, 255);
-            content: '';
-            display: block;
-            height: 100%;
-            position: absolute;
-            transition: all .2s ease-out;
-            width: 100%;
-        }
-        .header .menu-icon .navicon:before {
-            top: 7px;
-        }
-        .header .menu-icon .navicon:after {
-            top: -7px;
-        }
-        /* menu btn */
-        .header .menu-btn {
-            display: none;
-        }
-        .header .menu-btn:checked ~ .menu {
-            max-height: 240px;
-        }
-        .header .menu-btn:checked ~ .menu-icon .navicon {
-            background: transparent;
-        }
-        .header .menu-btn:checked ~ .menu-icon .navicon:before {
-            transform: rotate(-45deg);
-        }
-        .header .menu-btn:checked ~ .menu-icon .navicon:after {
-            transform: rotate(45deg);
-        }
-          .header .menu-btn:checked ~ .menu-icon:not(.steps) .navicon:before,
-          .header .menu-btn:checked ~ .menu-icon:not(.steps) .navicon:after {
-            top: 0;
-        }
-        /* 48em = 768px */
-        @media (min-width: 48em) {
-        .header li {
-              float: left;
-              padding: 0px 20px;
-        }
-        .header .menu {
-              clear: none;
-              float: right;
-              max-height: 100%;
-        }
-        .header .menu-icon {
-              display: none;
-        }
-       }
-       @media only screen and (max-width: 500px) {
-        .header .logo {
-            padding-bottom: 45px;
-        }
-    }
-
-/* II.- PRIMER BLOQUE - BENEFICIOS */
-    .primerBloque {
-        display: block;
-        position: relative;
-        background: url("https://htgsoluciones.com/wp-content/uploads/2021/07/Imagen-1.jpg") repeat scroll 50% 50% / cover padding-box border-box;
-    }
-    .primerBloque::after {
-        content:"";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #061551;
-        opacity: .8;
-    }
-    .primerBloque::after {
-        z-index: 1;
-    }
-    .primerBloque > * {
-        z-index: 100;
-    }
-    .tituloprimerBloque {
-        display: flex;
-        justify-content: center;
-        padding: 70px 100px 20px 100px;
-    }
-    #titulo1B {
-        text-align: center;
-        font: 750 50px / 45px Raleway, sans-serif;
-        color:rgb(255, 255, 255);
-        letter-spacing: 0.6px;
-        line-height: 1.25em; 
-    }
-    #cualquier {
-        color: rgb(250, 119, 60);
-    }
-    .textoprincipalesBeneficios {
-        align-content: center;
-        padding: 30px;
-    }
-    .beneficios {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-    }
-    #logoPB {
-        align-content: center;
-    }
-    #tituloPB {
-        color: rgb(255, 255, 255);
-        text-align: center;
-        font: 800 25px Raleway, sans-serif;
-        letter-spacing: 0.8px;
-    }
-    #parrafoPB {
-        color: rgb(255, 255, 255);
-        text-align: center;
-        font: 300 14px Raleway, sans-serif;
-        letter-spacing: 0.4px;
-        line-height: 1.8em; 
-    }
-
-/* III.- SEGUNDO BLOQUE - FUNCIONAMIENTO */
-    .segundoBloque {
-        block-size: 1049px;
-        position: relative;
-        background-color: white;
-        top: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-    }
-    #titulo2B {
-        text-align: left;
-        font: 800 50px / 45px Raleway, sans-serif;
-        color:#061551;
-        letter-spacing: 0.6px;
-        padding: 50px;
-        line-height: 1.25em;
-    }
-    .contenidoBox {
-        display: block;
-    }
-    #imagenF {
-        display: block;
-        margin: auto;
-    }
-    #tituloF {
-        text-align: center;
-        font: 700 22px / 37.4px Raleway, sans-serif;
-        padding: 20px 50px 10px 20px;
-    }
-    #parrafoF {
-        font: 300 15px / 24px Raleway, sans-serif;
-        text-align: center;
-        padding: 10px 50px 20px 20px;
-        margin: 0px 0px 22.5px;
-    }
-    .funciona3 {
-        padding-bottom: 5%;
-    }
-    @media only screen and (max-width: 500px) {
-        .funciona3 {
-            padding-bottom: 18%;
-        }
-        #tituloF, #parrafoF {
-            text-align: center;
-            justify-content: center;
-            padding: 0px 10px 5px 10px;
-        }
-        #imagenF {
-            padding-bottom: 20px;
-        }
-        #titulo2B {
-            padding-bottom: 20px;
-        }
-    }
 
 /* III.- TERCER BLOQUE - INICIO DE SESIÓN */      
     .tercerBloque {
         block-size: 480px;
         position: relative;
-        background: url("https://htgsoluciones.com/wp-content/uploads/2021/02/pexels-canva-studio-3194519-scaled.jpg") repeat scroll 50% 50% / cover padding-box border-box;
     }
     .tercerBloque::after {
         content:"";
@@ -252,7 +20,6 @@ body {
         bottom: 0;
         width: 100%;
         height: 100%;
-        background-color: #061551;
         opacity: .95;
     }
     .tercerBloque::after {
@@ -291,17 +58,19 @@ body {
         padding: 70px 0px 30px 0px;
     }
     .cajaIngreso {
-        background: rgb(255, 255, 255);
+        background-color:rgba(0,0,0,.7);
         border-radius: 3px;
         block-size: 340px;
+
+        .row-image {
+            text-align: center;
+            padding: 10px;
+            img {
+                width: 400px;
+            }
+        }
     }
-    .cajaAzulIngreso {
-        background: rgb(6, 21, 81);
-        margin: 25px;
-    }
-    .cajaAzulIngresoAnt {
-        padding: 10px 5px 10px 5px;
-    }
+    
     #logoIngreso {
         width: 100%;
     }

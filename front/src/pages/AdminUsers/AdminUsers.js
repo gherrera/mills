@@ -4,7 +4,6 @@ import { withTranslation } from 'react-i18next'
 import { UsersService } from '../../services'
 import { getUsersByClientPromise } from '../../promises'
 import { Button, Icon, Modal, notification, Popconfirm, Table, Tooltip, Spin } from 'antd'
-import { Wrapper } from '../Design/layout'
 import { Page, PageContent,  PageHeader } from '../../layouts/Private/components'
 import ModalCreateContent from './ModalContentCreate'
 import { generatePasswordHelper } from '../../helpers'
@@ -181,30 +180,10 @@ class AdminUsers extends React.Component {
     const tableColumns = [
       { title: 'Perfil', dataIndex: 'type', render: (text => {
         switch(text) {
-          case 'SADMIN':
-            return t('messages.aml.sadmin')
           case 'ADMIN':
             return t('messages.aml.admin')
-          case 'SERVICIO':
-            return t('messages.aml.service')
-          case 'USUARIO':
-            return t('messages.aml.user')
-          case 'APOYO':
-            return 'Apoyo'
-          case 'APROBADOR':
-            return 'Aprobador'
-          case 'CALLCENTER':
-            return 'Callcenter'
-          case 'SUPERVISOR':
-            return 'Supervisor'
-          case 'ANALISTA':
-            return 'Analista'
-          case 'AUDIT':
-            return t('messages.aml.audit')
-          case 'MOP':
-            return 'Mop'
-          case 'SOPORTE':
-            return 'Soporte'
+          case 'CONTROLLER':
+            return 'Controlador'
           default:
             return text
         }
@@ -231,7 +210,7 @@ class AdminUsers extends React.Component {
       { title: '', dataIndex: 'id', render: (id, user) => (
         <div className="actions">
           <Icon type="eye" theme="filled" onClick={ this.renderModal.bind(this, 'view', user) } /> &nbsp;&nbsp;
-          { !(currentUser.type === 'SADMIN' || (currentUser.type === 'ADMIN' && ( user.type === 'AUDIT' || user.type === 'USUARIO' || user.type === 'SERVICIO' || currentUser.id === id ))) ?
+          { !(currentUser.type === 'ADMIN' || (currentUser.id === id )) ?
             <Icon className="disabled" type="edit" theme="filled" />
             :
             <Icon type="edit" theme="filled" onClick={ this.renderModal.bind(this, 'edit', user) } />
@@ -256,7 +235,6 @@ class AdminUsers extends React.Component {
             breadcrumbs={breadcrumbs}
             />
           <PageContent>
-            <Wrapper>
               <div className="tools-area">
               { currentUser.type !== 'AUDIT' &&
                 <Button id="create-user" type="primary" icon="plus" onClick={ this.renderModal.bind(this, 'create', currentUser) }>{ t('messages.aml.createNewUser') }</Button>
@@ -284,7 +262,6 @@ class AdminUsers extends React.Component {
                   { this.state.modal.content }
               </Modal>
               </div>
-            </Wrapper>
           </PageContent>
         </Page>
       </div>

@@ -89,8 +89,8 @@ class ModalContentCreate extends React.Component {
     const { t, currentUser, modalType } = this.props
     let options = []
 
-    if(modalType !== 'create') options.push( <Select.Option value="SADMIN">Administrador</Select.Option>)
-    options.push( <Select.Option value="USUARIO">Usuario</Select.Option>)
+    if(modalType !== 'create') options.push( <Select.Option value="ADMIN">Administrador</Select.Option>)
+    options.push( <Select.Option value="CONTROLLER">Controlador</Select.Option>)
 
     return options
 
@@ -194,7 +194,7 @@ class ModalContentCreate extends React.Component {
                         }
                         onChange={(value) => this.handleOnChangeType(value)}
                         value={this.state.type}
-                        disabled={modalType === 'view' || this.state.type === 'SADMIN'}
+                        disabled={modalType === 'view' || this.state.type === 'ADMIN'}
                       >
                           {
                             this.getOptionsUsers()
@@ -282,7 +282,6 @@ class ModalContentCreate extends React.Component {
                           value={this.state.login}
                           disabled={modalType === 'view'}
                         />
-                        <span className="username-suffix">@{this.props.currentUser.client.subdomain}</span>
                       </div>
                     )
                     }
@@ -341,32 +340,10 @@ class ModalContentCreate extends React.Component {
                 }
               </Row>
             </Tabs.TabPane>
+            {/*
             <Tabs.TabPane tab={[<Icon type="lock" />, 'Permisos']} key="2">
               <Row gutter={[8]}>
-                <Col span={24}>
-                  <Form.Item label="Diseño">
-                    {getFieldDecorator('design', {
-                    })(
-                      <Switch onChange={(checked) => this.handleOnChangeModule('DESIGN', checked)} defaultChecked={this.state.modules.includes('DESIGN') ? true : false} disabled={modalType === 'view'} />
-                    )}
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item label="Gestión">
-                    {getFieldDecorator('manage', {
-                    })(
-                      <Switch onChange={(checked) => this.handleOnChangeModule('FORMS', checked)} defaultChecked={this.state.modules.includes('FORMS') ? true : false} disabled={modalType === 'view'} />
-                    )}
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item label="Destinatarios">
-                    {getFieldDecorator('destinatarios', {
-                    })(
-                      <Switch onChange={(checked) => this.handleOnChangeModule('DEST', checked)} defaultChecked={this.state.modules.includes('DEST') ? true : false} disabled={modalType === 'view'} />
-                    )}
-                  </Form.Item>
-                </Col>
+                
                 <Col span={24}>
                   <Form.Item label="Informes">
                     {getFieldDecorator('reports', {
@@ -377,6 +354,7 @@ class ModalContentCreate extends React.Component {
                 </Col>
               </Row>
             </Tabs.TabPane>
+            */}
           </Tabs>
           <div className="ant-modal-footer">
             {modalType !== 'view' && <Button onClick={this.props.onCancel}>{t('messages.aml.cancel')}</Button>}

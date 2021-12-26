@@ -3,10 +3,7 @@ import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
 import { Col, Row, Spin, Card, Statistic, Table, Tooltip, Select } from 'antd'
-import { Column } from '@ant-design/charts';
 import { Page, PageContent } from '../../layouts/Private/components'
-import { statsPromise, statsCategoryPromise, statsCategoryStatusPromise } from '../../promises'
-import { getFormByClienteIdPromise } from '../Manage/promises'
 import moment from "moment";
 
 class Home extends Component {
@@ -220,13 +217,14 @@ class Home extends Component {
             <Row gutter={26}>
               <Col span={24}>
                 <Card title="Actividad en los últimos 30 días" className="stats-forms" loading={loading}>
-                  { stats.formsGroupDay &&
+                  {/* stats.formsGroupDay &&
                       <Column {...this.getConfigChart()} 
                       />
-                  }
+                  */}
                 </Card>
               </Col>
             </Row>
+            {/*
             <Row gutter={[26,42]}>
               <Col span={12}>
                 <Card title="Formularios recibidos por Categoría" className="stats-forms" loading={loading}>
@@ -239,6 +237,7 @@ class Home extends Component {
                 </Card>
               </Col>
             </Row>
+            */}
           </PageContent>
         </Page>
       </div>
