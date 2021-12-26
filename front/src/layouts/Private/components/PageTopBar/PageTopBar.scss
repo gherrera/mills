@@ -1,0 +1,10 @@
+.page-top-bar {
+  .page-top-bar-inner {
+    height: 50px;
+    line-height: 1.8em;
+
+    li, a {
+      mix-blend-mode: multiply;
+    }
+  }
+}

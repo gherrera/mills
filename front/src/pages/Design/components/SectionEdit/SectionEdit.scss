@@ -1,0 +1,134 @@
+.section-edit {
+    .section-top {
+        text-align: center;
+        background-color: rgba(255,255,0,.05);
+        margin: 0px -10px 5px -10px;
+        border-bottom: 1px solid rgba(0,0,0,.1);
+    }
+    .row-component-section {
+        margin-bottom: 5px;
+        //transition: transform 250ms;
+
+        &.row-FIELD {
+            border: 1px solid rgba(0,0,0,.1);
+            padding: 5px;
+        }
+
+        .header-section-component-custom {
+            background-color: rgba(255,255,255,.8);
+            padding: 3px 10px 3px 10px;
+            border: 1px solid rgba(0,0,0,0.1);
+
+            .tools-section-component-custom {
+                text-align: right;
+            }
+        }
+        .row-component-text {
+            padding: 10px;
+        }
+    }
+    .section-type-CUSTOM {
+        .row-component-section:hover {
+            //transform: scale(1.01);
+            background-color: rgba(0,0,240,.03);
+            //border: 1px solid rgba(0,0,120,.1);
+            padding: 1px;
+            border-radius: 3px;
+        }
+    }
+    .tools {
+        text-align: right;
+        margin-bottom: 9px;
+
+        button {
+            margin-left: 5px;
+        }
+    }
+    .catalogos {
+        border: 1px solid rgba(0,0,0,.2);
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+    .section-components {
+        border: 1px solid rgba(0,0,0,.2);
+        padding: 5px;
+        margin-bottom: 5px;
+    }
+
+    .custom-tools {
+        border: 2px solid rgba(0,0,0,.2);
+        margin-bottom: 5px;
+        text-align: center;
+
+        .custom-tools-group-menu {
+          list-style: none;
+          display: flex;
+          justify-content: center;
+          color: #aaaebc;
+          margin-bottom: 5px;
+          font: 16px sans-serif;
+          border-radius: 20px;
+
+          li {
+            background-color: rgba(26,28,29, .5);
+            margin-top: 5px;
+            width: 140px;
+            border: 1px solid rgba(255,255,255,.3);
+
+            &:hover {
+                background-color: #6877b1;
+                //border: 10px solid rgba(0,0,0,.1);
+
+                span:first-child {
+                    transform: translateY(100%);
+                }
+                span:last-child, .custom-tools-group-menu[data-animation] a:hover span:last-child {
+                    transform: none;
+                }
+            }
+
+            a {
+                color: rgba(255,255,255,.6);
+                display: block;
+                position: relative;
+                overflow: hidden;
+                
+                span {
+                    transition: transform 0.2s ease-out;
+                }
+                span:first-child {
+                    display: inline-block;
+                    padding: 5px;
+                }
+
+                span:last-child {
+                    font-size: 25px;
+                    font-weight: bold;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transform: translateY(-100%);
+
+                }
+            }
+          }
+        }
+    }
+}
+
+.overlayExample {
+    .explain-component {
+        padding: 5px 0px 5px 10px;
+        border: 1px solid rgba(0,0,0,.1);
+        background-color: rgba(221, 221, 179,.2);
+    }
+    .component-example {
+        padding: 10px;
+        border: 1px solid rgba(0,0,0,.1);
+    }
+}

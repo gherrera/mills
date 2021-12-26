@@ -1,0 +1,35 @@
+.admin-audit {
+  .tools-area {
+    border-radius: 5px;
+    margin-bottom: 20px;
+    padding: 20px;
+
+    .ant-btn {
+      margin-right: 10px;
+    }
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  .params-cell {
+    div {
+      max-width: 300px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+
+  .ant-pagination {
+    position: relative;
+    text-align: center;
+    top: 73px;
+    z-index: 10;
+  }
+
+  div.table-wrapper {
+    height: 419px;
+  }
+}

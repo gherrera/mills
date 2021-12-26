@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="htg">
+	
+	<resultMap id="UsuarioCore" class="com.htg.mills.entities.Usuario">
+		<result property="id" column="user_id"/>
+		<result property="creationDate" column="creation_date"/>
+		<result property="login" column="login"/>
+		<result property="password" column="_password"/>
+		<result property="name" column="nombre"/>
+		<result property="email" column="email"/>
+		<result property="type" column="tipo_user"/>
+		<result property="modulesStr" column="user_modulos"/>
+		<result property="status" column="user_estado"/>
+		<result property="feActivacion" column="fe_activacion"/>
+	</resultMap>
+
+	<resultMap id="Usuario" class="com.htg.mills.entities.Usuario" extends="UsuarioCore">
+	</resultMap>
+	
+	<resultMap id="Comment" class="com.htg.mills.entities.Comment">
+		<result property="comment" column="comentario"/>
+		<result property="date" column="fecha"/>
+		<result property="autor" column="autor"/>	
+	</resultMap>
+
+	<insert id="insertToken">
+		insert into tokens(id, user_id, token, expiration, creation)
+			values(#id#, #user.id#, #token#, #expiration#, #creation#)
+	</insert>
+	
+	<delete id="deleteToken">
+		delete from tokens
+		where token = #value#
+	</delete>
+
+	<select id="selectToken" resultClass="com.htg.mills.entities.Token">
+		select id, token, expiration, creation
+		from tokens
+		where token = #value#
+	</select>
+	
+	<delete id="deleteOtherTokens">
+		delete from tokens
+		where user_id = #user.id#
+			and token != #token#
+	</delete>
+	
+	<select id="getUserById" resultMap="Usuario">
+		select id user_id, creation_date, nombre, login, _password, email, tipo tipo_user, modulos user_modulos, estado user_estado, fe_activacion
+		from users
+		WHERE id = #value#
+	</select>
+	
+	<select id="getTotalRows" resultClass="java.lang.Integer">
+		SELECT FOUND_ROWS()
+	</select>
+
+	<select id="getParametros" resultClass="java.util.HashMap">
+		select nombre, valor
+		from parametros
+	</select>
+		
+	<select id="getUserByLogin" resultMap="Usuario">
+		select a.id user_id, a.creation_date, a.nombre, a.login, a._password, a.email, a.tipo tipo_user, a.modulos user_modulos, a.estado user_estado, a.fe_activacion
+		FROM users a
+		WHERE a.login = #login#
+	</select>
+	
+	<update id="resetPassword">
+		update users
+			set _password = #password#
+				, fe_activacion = null
+		where id = #id#
+	</update>
+	
+	<insert id="insertUser">
+		insert into users(id, creation_date, nombre, tipo, email, login, _password, modulos, estado)
+			values(#id#, #creationDate#, #name#, #type#, #email#, #login#, #password#, #modulesStr#, #status#)
+	</insert>
+	
+	<update id="updateUser">
+		update users
+			set nombre = #name#,
+				tipo = #type#,
+				email = #email#,
+				login = #login#,
+				modulos = #modulesStr#,
+				estado = #status#
+				<isNotNull property="feActivacion">
+				, fe_activacion = #feActivacion#
+				</isNotNull>
+				<isNotNull property="password">
+				, _password = #password#
+				</isNotNull>
+		where id = #id#
+	</update>
+
+	<insert id="insertNotificationAWS">
+		insert into aws_notifications(id, message_id, notification_type, json, form_id, _from, destination, _to, message, subject, timestamp)
+			values(#id#, #messageId#, #type#, #json#, #formId#, #from#, #destination#, #to#, #message#, #subject#, #timestamp#)
+	</insert>
+
+	<delete id="deleteUser">
+		delete from users
+		where id = #value#
+	</delete>
+</sqlMap>

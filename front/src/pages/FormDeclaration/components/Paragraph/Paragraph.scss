@@ -1,0 +1,25 @@
+.paragraph-form {
+
+    .paragraph-text {
+        text-align: justify;
+    }
+
+    .field-paragraph {
+        width: 250px;
+        margin-bottom: 5px;
+
+        &.ant-calendar-picker {
+            width: 170px;
+        }
+
+        &.required {
+            &.noval {
+                border: 1px solid rgba(255,0,0,.5);
+                border-radius: 4px;
+            }
+        }
+    }
+    p {
+        margin-bottom: .3em;
+    }
+}

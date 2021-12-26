@@ -1,0 +1,42 @@
+#content {
+  border-radius: 5px;
+  margin: 0 auto 0px auto;
+  position: relative;
+  width: 100%;
+  min-height: 583px;
+
+  &.login-animation {
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-name: content-slide-up;
+  }
+
+  &.logout-animation {
+    animation-duration: 0.5s;
+    animation-name: content-slide-down;
+  }
+}
+
+@keyframes content-slide-up {
+  from {
+    margin-top: 50px;
+    opacity: 0;
+  }
+
+  to {
+    margin-top: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes content-slide-down {
+  from {
+    margin-top: 0;
+    opacity: 1;
+  }
+
+  to {
+    margin-top: 50px;
+    opacity: 0;
+  }
+}

@@ -1,0 +1,102 @@
+#inicio {
+  #header {
+    .navigation li#home-button {
+      background-color: #1890ff;
+
+      a {
+        color: #fff;
+      }
+    }
+  }
+
+
+  .home {
+    min-height: 450px;
+    
+    .page-content {
+      margin-top: 20px;
+
+      .ant-card {
+        .ant-card-body {
+          padding: 12px;
+
+          .ant-statistic {
+            .ant-statistic-title {
+              font-size: 1.3em;
+            }
+            .ant-statistic-content {
+              font-size: 1.4em;
+            }
+          }
+        }
+      }
+
+      .cardLogo {
+        margin: 15px 0px 15px;
+        background-color: rgba(6,21,81,.85);
+        img {
+          max-width: 100%;
+          max-height: 105px;
+        }
+      }
+
+      .stats-forms {
+        .ant-card-head {
+          color: rgba(0, 0, 0, 0.45);
+          min-height: unset;
+          padding-left: 14px;
+          font-size: 14px;
+        }
+
+        .ant-card-head-title {
+          padding: 6px 0px;
+        }
+        .ant-card-body {
+          padding: 6px;
+        }
+
+        .ant-table {
+          border: unset;
+
+          .ant-table-body {
+            margin: 0px 4px;
+            font-size: .85em;
+
+            .ant-table-thead {
+              th {
+                color: rgba(0,0,0,.4);
+                font-style: italic;
+              }
+            }
+            .ant-table-tbody {
+              tr {
+                td {
+                  white-space: nowrap;
+                  padding: 6px 6px;
+
+                  &:first-child {
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    max-width: 100px;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    h3.references-title {
+      border-bottom: 1px rgba(0, 0, 0, .2) solid;
+      color: rgba(0, 0, 0, .5);
+      margin: 0 0 20px 0px;
+      padding-bottom: 10px;
+    }
+
+  }
+
+  .select-category {
+    width: 200px;
+  }
+}

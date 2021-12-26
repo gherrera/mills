@@ -1,0 +1,145 @@
+// ################
+// # Themes mixin #
+// ################
+
+@mixin render-theme($theme-color, $action-color, $custom-color-light, $custom-color-dark, $custom-color-register-cake-bg, $custom-register-card-gradient-top-color, $custom-register-card-gradient-bottom-color) {
+  background-image: linear-gradient(135deg, #fff 0%, $theme-color 100%) !important;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  .ant-btn-primary, .page-icon {
+    background-color: $action-color !important;
+    border-color: $action-color !important;
+  }
+
+  .login-link {
+    color: $action-color;
+  }
+
+  #profile-navigation {
+    .nav-item.selected {
+      background-color: $custom-color-light;
+    }
+  }
+
+  .tools-area, .admin-search-filters, .conflicts-of-interest .conflicts-filters, .monitoring .conflicts-filters {
+    background-color: $custom-color-dark !important;
+  }
+
+  .profile {
+    .navigation {
+      .nav-item a {
+        //border-bottom: 1px $action-color solid !important;
+        color: $action-color;
+        opacity: 1;
+      }
+
+      &.is-loading {
+        .nav-item a {
+          background-color: $action-color;
+          opacity: 0.1;
+        }
+
+        .nav-item.selected a {
+          border-bottom: 0 !important;
+          opacity: 0.3;
+        }
+      }
+    }
+  }
+
+  #inicio #header .navigation li#home,
+  #design #header .navigation li#design,
+  #manage #header .navigation li#manage,
+  #recipients #header .navigation li#recipients,
+  {
+    background-color: $action-color !important;
+    color: #fff;
+  }
+
+  .ant-pagination-item-active {
+    background-color: $action-color !important;
+    border-color: $action-color !important;
+
+    a {
+      background-color: $custom-color-dark !important;
+      color: white;
+    }
+  }
+
+  .ant-spin-dot-item {
+    background-color: $custom-color-dark !important;
+  }
+
+  .register-new {
+    .content-top-bar {
+      .cake-wrapper {
+        background-color: $custom-color-register-cake-bg;
+
+        &:after {
+          border-left-color: $custom-color-register-cake-bg;
+        }
+      }
+    }
+
+    .client-card-inner {
+      background-image: linear-gradient(180deg, $custom-register-card-gradient-top-color 0%, $custom-register-card-gradient-bottom-color 100%) !important;
+    }
+  }
+
+	.service1 {
+		.item, td {
+			background-image: linear-gradient(180deg, $custom-register-card-gradient-top-color 0%, $custom-register-card-gradient-bottom-color 100%) !important;
+		}
+	}
+
+  .ant-descriptions-item-label {
+    text-align: left;
+  }
+
+  /*
+  .actions-false-positive {
+    background-color: $action-color !important;
+  }
+
+  .reviewed {
+    .actions-false-positive {
+      background-color: $action-color !important;
+    }
+  } */
+}
+
+// ################
+// # Themes begin #
+// ################
+
+.theme-metal {
+  @include render-theme(#c9c7c7, #6877b1, #f8f6f6, #6877b1, #fbfbfb, #f6f6f6, #f3f3f3);
+}
+
+.theme-sepia {
+  @include render-theme(#cebb7d, #6c6759, #f7f3e9, #8C8778, #fbfaf5, #f8f5ec, #f4f0e3);
+}
+
+.theme-ice {
+  @include render-theme(#c7d4ff, #6b6f7f, #f5f7fe, #888c97, #fbfcff, #f6f8ff, #f3f5ff);
+}
+
+// ###############
+// # Themes ends #
+// ###############
+
+.ant-layout {
+  background: transparent;
+}
+
+.ant-pagination-item-active {
+  border-radius: 4px;
+  border: 0;
+  overflow: hidden;
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  border-color: none;
+  box-shadow: none;
+}

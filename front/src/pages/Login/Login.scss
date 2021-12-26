@@ -1,0 +1,508 @@
+body {
+    padding: 0px !important;
+}
+.login-page {
+        a {
+            color: #000;
+          }
+          
+/* I.- HEADER */  
+        .header {
+            background-color: #061551;
+            padding: 10px 0px 0px 0px;
+         }
+        .header ul {
+            list-style: none;
+            overflow: hidden;
+            padding: 8px 35px 0px 0px;
+        } 
+        .header li a {
+            display: block;
+            padding: 20px 20px;
+            text-decoration: none;
+        } 
+        .header li a:hover,
+        .header .menu-btn:hover {
+            border-bottom: 1px solid rgb(250, 119, 60);
+            padding: 12px 20px 8px 20px;
+        }
+        .header #textoMenu:hover {
+            color: rgb(250, 119, 60);
+        }
+        .header .logo {
+            display: block;
+            float: left;
+            padding: 10px 20px;
+        }
+        /* menu */
+        .header .menu {
+            clear: both;
+            max-height: 0;
+            transition: max-height .2s ease-out;
+            z-index: 100;
+        }
+        #textoMenu {
+            font: 400 16px / 18px Raleway, sans-serif;
+            color:rgb(255, 255, 255);
+            letter-spacing: 1.2px;
+        }
+        /* menu icon */  
+        .header .menu-icon {
+            position: fixed;
+            flex-direction: column;
+            top: 3rem;
+            left: 80%;
+            width: 100%;
+        }  
+        .header .menu-icon .navicon {
+            background: rgb(255, 255, 255);
+            display: block;
+            height: 3px;
+            position: relative;
+            transition: background .2s ease-out;
+            width: 25px;
+        }  
+        .header .menu-icon .navicon:before,
+        .header .menu-icon .navicon:after {
+            background: rgb(255, 255, 255);
+            content: '';
+            display: block;
+            height: 100%;
+            position: absolute;
+            transition: all .2s ease-out;
+            width: 100%;
+        }
+        .header .menu-icon .navicon:before {
+            top: 7px;
+        }
+        .header .menu-icon .navicon:after {
+            top: -7px;
+        }
+        /* menu btn */
+        .header .menu-btn {
+            display: none;
+        }
+        .header .menu-btn:checked ~ .menu {
+            max-height: 240px;
+        }
+        .header .menu-btn:checked ~ .menu-icon .navicon {
+            background: transparent;
+        }
+        .header .menu-btn:checked ~ .menu-icon .navicon:before {
+            transform: rotate(-45deg);
+        }
+        .header .menu-btn:checked ~ .menu-icon .navicon:after {
+            transform: rotate(45deg);
+        }
+          .header .menu-btn:checked ~ .menu-icon:not(.steps) .navicon:before,
+          .header .menu-btn:checked ~ .menu-icon:not(.steps) .navicon:after {
+            top: 0;
+        }
+        /* 48em = 768px */
+        @media (min-width: 48em) {
+        .header li {
+              float: left;
+              padding: 0px 20px;
+        }
+        .header .menu {
+              clear: none;
+              float: right;
+              max-height: 100%;
+        }
+        .header .menu-icon {
+              display: none;
+        }
+       }
+       @media only screen and (max-width: 500px) {
+        .header .logo {
+            padding-bottom: 45px;
+        }
+    }
+
+/* II.- PRIMER BLOQUE - BENEFICIOS */
+    .primerBloque {
+        display: block;
+        position: relative;
+        background: url("https://htgsoluciones.com/wp-content/uploads/2021/07/Imagen-1.jpg") repeat scroll 50% 50% / cover padding-box border-box;
+    }
+    .primerBloque::after {
+        content:"";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #061551;
+        opacity: .8;
+    }
+    .primerBloque::after {
+        z-index: 1;
+    }
+    .primerBloque > * {
+        z-index: 100;
+    }
+    .tituloprimerBloque {
+        display: flex;
+        justify-content: center;
+        padding: 70px 100px 20px 100px;
+    }
+    #titulo1B {
+        text-align: center;
+        font: 750 50px / 45px Raleway, sans-serif;
+        color:rgb(255, 255, 255);
+        letter-spacing: 0.6px;
+        line-height: 1.25em; 
+    }
+    #cualquier {
+        color: rgb(250, 119, 60);
+    }
+    .textoprincipalesBeneficios {
+        align-content: center;
+        padding: 30px;
+    }
+    .beneficios {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+    }
+    #logoPB {
+        align-content: center;
+    }
+    #tituloPB {
+        color: rgb(255, 255, 255);
+        text-align: center;
+        font: 800 25px Raleway, sans-serif;
+        letter-spacing: 0.8px;
+    }
+    #parrafoPB {
+        color: rgb(255, 255, 255);
+        text-align: center;
+        font: 300 14px Raleway, sans-serif;
+        letter-spacing: 0.4px;
+        line-height: 1.8em; 
+    }
+
+/* III.- SEGUNDO BLOQUE - FUNCIONAMIENTO */
+    .segundoBloque {
+        block-size: 1049px;
+        position: relative;
+        background-color: white;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #titulo2B {
+        text-align: left;
+        font: 800 50px / 45px Raleway, sans-serif;
+        color:#061551;
+        letter-spacing: 0.6px;
+        padding: 50px;
+        line-height: 1.25em;
+    }
+    .contenidoBox {
+        display: block;
+    }
+    #imagenF {
+        display: block;
+        margin: auto;
+    }
+    #tituloF {
+        text-align: center;
+        font: 700 22px / 37.4px Raleway, sans-serif;
+        padding: 20px 50px 10px 20px;
+    }
+    #parrafoF {
+        font: 300 15px / 24px Raleway, sans-serif;
+        text-align: center;
+        padding: 10px 50px 20px 20px;
+        margin: 0px 0px 22.5px;
+    }
+    .funciona3 {
+        padding-bottom: 5%;
+    }
+    @media only screen and (max-width: 500px) {
+        .funciona3 {
+            padding-bottom: 18%;
+        }
+        #tituloF, #parrafoF {
+            text-align: center;
+            justify-content: center;
+            padding: 0px 10px 5px 10px;
+        }
+        #imagenF {
+            padding-bottom: 20px;
+        }
+        #titulo2B {
+            padding-bottom: 20px;
+        }
+    }
+
+/* III.- TERCER BLOQUE - INICIO DE SESIÓN */      
+    .tercerBloque {
+        block-size: 480px;
+        position: relative;
+        background: url("https://htgsoluciones.com/wp-content/uploads/2021/02/pexels-canva-studio-3194519-scaled.jpg") repeat scroll 50% 50% / cover padding-box border-box;
+    }
+    .tercerBloque::after {
+        content:"";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #061551;
+        opacity: .95;
+    }
+    .tercerBloque::after {
+        z-index: 1;
+    }
+    .tercerBloque > * {
+        z-index: 100;
+    }
+    .seccionSesion {
+        padding: 100px 0px 30px 70px;
+    }
+    #tituloS {
+        font: 600 60px / 60px Raleway, sans-serif;
+        color: rgb(255, 255, 255);
+        width: 242px;
+        height: 120px;
+    }
+    #separadorS {
+        block-size: 1px;
+        border-block-start-color: rgb(255, 255, 255);
+        border-block-start-style: solid;
+        border-block-start-width: 1px;
+        display: flex;
+        width: 242px;
+    }
+    #parrafoS {
+        block-size: 72px;
+        color: white;
+        height: 72px;
+        text-align: left;
+        width: 242px;
+        font: 300 15px / 24px Raleway, sans-serif;
+        padding: 40px 0px 0px 0px;
+    }
+    .seccionIngreso {
+        padding: 70px 0px 30px 0px;
+    }
+    .cajaIngreso {
+        background: rgb(255, 255, 255);
+        border-radius: 3px;
+        block-size: 340px;
+    }
+    .cajaAzulIngreso {
+        background: rgb(6, 21, 81);
+        margin: 25px;
+    }
+    .cajaAzulIngresoAnt {
+        padding: 10px 5px 10px 5px;
+    }
+    #logoIngreso {
+        width: 100%;
+    }
+    .cajaContraseña {
+        width: 89%;
+    }
+    #ingresoUsuario {
+        inline-size: 510px;
+        border: 0px none rgb(109, 109, 109);
+        font: 16px / 27.2px Raleway, sans-serif;
+        margin: 10px 0px 0px 33px;
+        margin-bottom: 0px;
+        display: inline-block;
+        width: 93%;
+    }
+    .ant-form-item {
+        margin-bottom: 15px;
+    }
+    #botonIngresar {
+        block-size: 30px;
+        background-color: rgb(250, 119, 60);
+        color: white;
+        font: 12px / 22.2px Raleway, sans-serif;
+        margin: 0px 0px 0px 250px;
+    }
+    .olvidoCon {
+        block-size: 13px;
+        color: white;
+        text-align: right;
+        font: 12px Raleway, sans-serif;
+        padding-top: 10px;
+    }
+    @media only screen and (max-width: 500px) {
+        .seccionIngreso {
+            padding: 50px 0px 0px 0px;
+        }
+        .cajaIngreso {
+            padding: 40px 0px 0px 0px;
+        }
+        .seccionSesion {
+            padding: 70px 0px 30px 70px;
+        }
+      }
+      @media screen and (max-width: 992px) {
+        .seccionIngreso {
+            width: 100%;
+        }
+      }
+
+/* IV.- CUARTO BLOQUE - CONTACTANOS */
+    .cuartoBloque {
+        background-color: white;
+    }
+    .seccionContacto {
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+    #tituloC {
+        color: white;
+        text-align: left;
+        font: 600 60px Roboto, sans-serif;
+    }
+    #tienes, #parrafoC {
+        color: white;
+        font: 300 15px / 24px Raleway, sans-serif;
+    }
+    .columnaContacto {
+        margin-top: 3%;
+        margin-bottom: 3%;
+    }
+    .cajaContacto {
+        border-radius: 15px;
+        padding: 4%;
+        vertical-align: middle;
+        background: url("https://htgsoluciones.com/wp-content/uploads/2021/02/soluciones-1.jpg") no-repeat fixed center / cover padding-box border-box;
+    }
+    .cajaContacto::after {
+        content:"";
+        border-radius: 15px;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: #061551;
+        opacity: .85;
+    }
+    .cajaContacto::after {
+        z-index: 1;
+    }
+    .cajaContacto > * {
+        z-index: 100;
+    }
+    #iconoContacto {
+        width: 20%;
+        filter: brightness(0) invert(1);
+        display: block;
+        margin: auto;
+    }
+    #tituloContacto {
+        color: white;
+        font: 600 24px Raleway, sans-serif;
+        letter-spacing: 0.6px;
+        display: block;
+        margin: auto;
+    }
+    #parrafoContacto {
+        color: white;
+        font: 400 16px Raleway, sans-serif;
+    }
+    @media only screen and (max-width: 1016px) {
+        #tituloC {
+          font-size: 45px;
+        }
+        #tituloContacto, #parrafoContacto {
+            text-align: center;
+        }
+        #tituloContacto {
+            padding-top: 2%;
+        }
+        #parrafoContacto {
+            padding-bottom: 3%;
+        }
+        #iconoContacto {
+            width: 15%;
+        }
+        .columnaContacto {
+            margin-top: 10%;
+            margin-bottom: 10%;
+        }
+        .cajaContacto {
+            padding: 8%;
+        }
+      }
+
+/* V.- FOOTER*/
+    .footer1 {
+        background-color: #061551;  
+    }
+    #logoHtgFooter1, #logoForFooter1 {
+        width: 80%;
+        display:block;
+        margin:auto;
+    }
+    #parrafoFooter1 {
+        color: white;
+        text-align: left;
+        font: 300 14px / 18px Raleway, sans-serif;
+        padding-left: 10%;
+        padding-top: 3%;
+    }
+    #usoLink1 {
+        font: 300 14px / 18px Raleway, sans-serif;
+        color: white;
+    }
+    #copyrightMensaje1 {
+        font: 300 14px / 18px Raleway, sans-serif;
+        color: white;
+        padding: 25px 0px 0px 0px;
+    }
+    .demoBox1 {
+        padding:3%;
+    }
+    #solicite1 {
+        color: white;
+        font: 600 18px / 18px Raleway, sans-serif;
+    }
+    #comuniquese1 {
+        color: white;
+        font: 300 14px / 18px Raleway, sans-serif;
+    }
+    #textoicono1 {
+        color: white;
+        font: 300 14px / 18px Raleway, sans-serif;
+        height: auto;
+        word-wrap: break-word;
+        width: 100px;
+    }
+    #iconoCorreo1, #iconoTelefono1 {
+        color: white;
+        padding: 0px 20px 0px 0px;
+    }
+    #quitar1 {
+        list-style: none;
+    }
+    @media only screen and (max-width: 575px) {
+        .politicas1  {
+            text-align: center;
+            width: 90%;
+        }
+        .demoBox1 {
+            padding:10%;
+        }
+        #logoHtgFooter1 {
+            margin: 10%;
+        }
+      }
+      @media screen and (max-width: 992px) {
+        .footer1 {
+            width: 100%;
+            height: 100%;
+        }
+      }
+
+
+    }

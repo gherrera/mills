@@ -1,0 +1,77 @@
+.fieldset-edit {
+  padding: 15px;
+  border: 1px solid rgba(0,0,0,.1);
+  position: relative;
+  margin-bottom: 10px;
+
+  .leyend {
+    position: absolute;
+    top: -15px;
+    background-color: white;
+    padding: 0px 5px 0px 5px;
+  }
+
+  .comp-fieldSet-edit {
+    
+    .chk-title {
+      left: 10px;
+    }
+
+    input.ant-input {
+      border: 1px dashed rgba(0,0,0,.2);
+
+      &:hover {
+          border: 1px solid rgba(0,0,0,.3);
+      }
+    }
+    
+    .titles-section {
+      margin-top: 10px;
+      .ant-col {
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+    }
+    .center {
+      text-align: center;
+    }
+    .fields-body {
+      .rows-section {
+
+        .drag-area {
+          text-align: center;
+          cursor: move;
+        }
+        .ant-col {
+          padding-left: 5px;
+          padding-right: 5px;
+  
+          .ant-select-selection-selected-value {
+            width: 100%;
+          }
+        }
+  
+        .tools-fieldset {
+          text-align: right;
+          padding-right: 50px;
+          button {
+            margin-left: 2px;
+          }
+        }
+      }
+    }
+
+    .ant-form-item {
+      margin-bottom: 12px;
+
+      .ant-form-item-label {
+        line-height: 16px;
+      }
+
+      input {
+        background-color: white;
+      }
+    }
+  }
+}
+

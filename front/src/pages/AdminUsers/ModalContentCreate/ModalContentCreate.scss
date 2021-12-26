@@ -1,0 +1,243 @@
+.modal-user-create {
+  .ant-tabs-bar {
+    margin: 0 0 20px;
+  }
+  .ant-modal-content {
+    overflow: hidden;
+  }
+
+  .ant-modal-body {
+    background: url('./footer-bg.png') repeat-x left bottom !important;
+    padding-bottom: 12px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+  }
+
+  .ant-form-item-control {
+    line-height: auto !important;
+  }
+
+  .ant-row {
+    padding: 0 0 10px;
+
+    .ant-form-item {
+      margin: 0px 0px 10px 0px;
+      padding: 0;
+      width: 100%;
+
+      .ant-form-item-label {
+        width: 30%;
+        padding-right: 20px;
+      }
+      .ant-form-item-control-wrapper {
+        width: 60%;
+      }
+    }
+   }
+
+   .type-wrapper {
+     .anticon-question-circle {
+       padding-right: 5px;
+       position: relative;
+       top: 2px;
+     }
+
+     .ant-form-item-required {
+
+     }
+   }
+
+   .type {
+     padding-bottom: 0;
+   }
+
+   .token-wrapper {
+     input {
+       float: left;
+       width: 85%;
+     }
+     .ant-btn {
+       float: right;
+     }
+   }
+
+   .login-username {
+     background: #eee;
+     border-radius: 5px;
+     margin-top: 10px;
+     padding: 15px 20px 20px;
+
+     p {
+       line-height: 1.5em;
+       margin-bottom: 1em;
+     }
+
+
+     .username-wrapper {
+       line-height: 1.5em;
+
+       .ant-btn {
+         float: right;
+       }
+
+       input {
+         float: left;
+         margin-right: 10px;
+         text-transform: lowercase;
+         width: 220px;
+       }
+
+       span.username-suffix {
+         position: relative;
+         top: -12px;
+       }
+     }
+
+     .ant-divider {
+       padding: 0;
+       margin: 12px 0 10px;
+     }
+
+     .password-wrapper {
+       .password-inner {
+         line-height: 0.8em;
+       }
+
+       .ant-input-affix-wrapper {
+         width: auto;
+       }
+
+       .ant-btn {
+         float: right;
+         top: 0 !important;
+       }
+
+       input {
+         float: left;
+         width: 220px;
+       }
+
+       .edit-button {
+         position: relative;
+         top: 50px;
+       }
+
+       .password-reset {
+         float: left;
+         width: 220px;
+       }
+     }
+   }
+
+   .ant-divider {
+     background: #ccc !important;
+     margin: 15px 0;
+   }
+
+   .username-input.ant-input-affix-wrapper {
+     width: 213px;
+     padding-right: 10px;
+   }
+
+   .switches {
+     background: #eee;
+     border-radius: 5px;
+     overflow: hidden;
+
+     &.first {
+       margin-bottom: 20px;
+
+       & li.penultimate {
+         border-bottom: 0;
+       }
+
+       & li:last-child {
+         border-bottom: 0;
+         margin-bottom: 0;
+         -webkit-box-shadow: inset 0px 4px 5px 0px rgba(0,0,0,0.03);
+-moz-box-shadow: inset 0px 4px 5px 0px rgba(0,0,0,0.03);
+box-shadow: inset 0px 4px 5px 0px rgba(0,0,0,0.03);
+
+         & > span {
+           .ant-select {
+             margin-top: -5px;
+           }
+         }
+       }
+
+       .ant-select {
+         margin: 0;
+         width: 100%;
+       }
+     }
+
+     .switches-items {
+       list-style: none;
+       padding: 0;
+       margin: 0;
+
+       .switches-item {
+         border-bottom: 1px #ddd solid;
+         padding: 11px 15px;
+
+         .ant-switch {
+           float: right;
+         }
+       }
+       .row-subgrant {
+         margin-bottom: 10px;
+         &:nth-of-type(1) {
+           margin-top: 10px;
+         }
+         border-top: 1px #ddd solid;
+         padding: 10px 0px 0px;
+
+         .row-subgrant1 {
+           padding: 0 0 10px;
+           &:last-child {
+             padding: 0px;
+           }
+           &:nth-of-type(1) {
+             margin-top: 10px;
+           }
+         }
+       }
+     }
+   }
+
+   .required-description {
+     float: left;
+     position: relative;
+     top: 10px;
+   }
+
+   .ant-modal-footer {
+     background: transparent;
+     border-top: 0;
+     height: 65px;
+     padding: 20px 0 0;
+
+     .ant-btn {
+       position: relative;
+       top: 13px;
+     }
+   }
+}
+
+.ant-tabs {
+  overflow: visible;
+}
+
+.tooltip {
+  .tooltip-title {
+    border-bottom: 1px rgba(255, 255, 255, .3) solid !important;
+    display: block;
+    margin-bottom: 10px;
+    padding: 2px 0 7px;
+  }
+
+  dd {
+    padding-left: 1em;
+  }
+}

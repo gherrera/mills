@@ -1,0 +1,61 @@
+.admin-search-filters {
+  border-radius: 5px;
+  color: #fff;
+  margin-bottom: 20px;
+  padding: 20px;
+
+  .ant-radio-wrapper {
+    color: #fff;
+  }
+
+  .module {
+    &.rut-name {
+      padding: 0 0 5px;
+    }
+
+    &.user {
+    }
+
+    &.dates {
+      padding-top: 0;
+    }
+
+    &.certificate {
+      .module-inner {
+        padding-top: 10px;
+      }
+    }
+
+    &.date-pickers {
+      padding-top: 0;
+
+      .module-inner {
+
+      }
+    }
+
+    &.submit {
+      padding-top: 21px;
+    }
+
+    .module-inner {
+      padding: 5px 20px 5px 0;
+    }
+
+    &.outcome {
+      padding-top: 1px;
+
+      .module-inner {
+        padding-top: 10px;
+
+        .ant-radio {
+          span {
+            font-size: 0.1em !important;
+            line-height: 0.5em;
+          }
+        }
+
+      }
+    }
+  }
+}

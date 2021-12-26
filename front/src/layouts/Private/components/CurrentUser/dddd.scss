@@ -1,0 +1,24 @@
+.current-user {
+  border-left: 1px rgba(0, 0, 0, .1) solid;
+  color: #fff;
+  line-height: 50px;
+
+  .ant-btn {
+    background-color: transparent;
+    border: 0;
+    font-size: 0.9em;
+    height: 44px;
+    padding: 0 20px;
+  }
+
+  .ant-dropdown {
+    font-size: 0.9em !important;
+    width: 500px !important;
+  }
+}
+
+.menu-current-user .ant-dropdown-menu {
+  //background-color: rgba(255, 255, 255, .7) !important;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}

@@ -1,0 +1,30 @@
+.manage-form-detail {
+
+    .ant-drawer-header, .ant-drawer-body {
+        padding: 16px;
+    }
+
+    .block {
+        padding: 5px 5px 15px 5px;
+
+        h3 {
+            border-bottom: 1px solid rgba(112, 85, 85, 0.8);
+            color: rgba(219, 134, 22, 0.8);
+        }
+
+        .ant-col {
+            margin-bottom: 10px;
+            font-style: italic;
+
+            .data-value {
+                font-weight: 700;
+            }
+        }
+
+        .btns {
+            button {
+                margin: 5px 10px 0px 0px;
+            }
+        }
+    }
+}

@@ -1,0 +1,21 @@
+.text-form {
+    .text-title {
+        padding: 2px 2px 2px 5px;
+    }
+
+    pre.text {
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        background-color: #fff;
+        padding: 5px;
+        min-height: 30px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+        line-height: 25px;
+        white-space: pre-line;                 /* CSS3 browsers  */
+        white-space: -moz-pre-line !important; /* 1999+ Mozilla  */
+        white-space: -pre-line;                /* Opera 4 thru 6 */
+        white-space: -o-pre-line;              /* Opera 7 and up */
+        word-wrap: break-word;               /* IE 5.5+ and up */
+    }
+  
+}
