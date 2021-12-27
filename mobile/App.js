@@ -14,7 +14,9 @@ import {
   StatusBar,
   useColorScheme,
   View,
-  Dimensions
+  Dimensions,
+  Alert,
+  Text
 } from 'react-native';
 
 import {
@@ -79,8 +81,8 @@ const App: () => Node = () => {
     if (!currentU.error) {
       const isActivated = currentU.feActivacion !== null
 
-      if (!isActivated) {
-        //this.handleOpenModalChangePassword()
+      if (currentU.type !== 'CONTROLLER') {
+        Alert.alert('Login', 'Usuario no permitido');
       }else {
         setCurrentUser(currentU)
         setIsLoggedIn(true)
@@ -93,7 +95,7 @@ const App: () => Node = () => {
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView style={backgroundStyle} contentContainerStyle={{height: metrics.screenHeight + StatusBar.currentHeight}}>
+      <ScrollView style={backgroundStyle} contentContainerStyle={{height: metrics.screenHeight /*+ StatusBar.currentHeight*/}}>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,

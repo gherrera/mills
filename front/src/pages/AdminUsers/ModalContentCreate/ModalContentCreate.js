@@ -14,10 +14,11 @@ class ModalContentCreate extends React.Component {
       email: '',
       type: '',
       login: '',
-      password: null,
+      password: props.password,
       token: null,
       status: 'ACTIVE',
-      modules: []
+      modules: [],
+      isPasswordReset: false
     }
   }
 
@@ -116,28 +117,10 @@ class ModalContentCreate extends React.Component {
   }
 
   handlePasswordReset = async () => {
-    const { t } = this.props
-    let login = this.props.user.fullUser
-    const reset = await resetPasswordPromise(login)
-
-    if (reset.success) {
-      notification.success({
-        message: t('messages.aml.successfulOperation'),
-        description: t('messages.aml.checkYourEmail')
-      })
-    }
-  }
-
-  getEmpresas = (empresas) => {
-    let _emp = []
-    if (empresas != null) {
-      for (let i = 0; i < empresas.length; i++) {
-        if (empresas[i] !== null && empresas[i].id !== null && empresas[i].id !== undefined) {
-          _emp.push(empresas[i].id)
-        }
-      }
-    }
-    return _emp
+    this.setState({
+      isPasswordReset: true,
+      password: this.props.password
+    })
   }
 
   async handleSubmit(e) {
@@ -153,12 +136,6 @@ class ModalContentCreate extends React.Component {
         description: 'Uno o mas campos requeridos no han sido completados.'
       })
     } else {
-      if (this.props.modalType === 'create') {
-        await this.setState({
-          password: this.props.password
-        })
-      }
-
       this.props.onOk(this.props.modalType, this.state)
     }
   }
@@ -238,30 +215,6 @@ class ModalContentCreate extends React.Component {
                     }
                   </Form.Item>
                 </Col>                 
-                {modalType === 'view' && this.props.user.type === 'SERVICIO' &&
-                  <Col span={24}>
-                    <Form.Item label={t('messages.aml.token')}>
-                      {getFieldDecorator('token', {
-                        rules: [
-                          {
-                            message: t('messages.aml.token')
-                          },
-                        ],
-                      })(
-                        <div className="token-wrapper">
-                          <Input value={this.state.token} className="token-input" disabled={true} />
-                          <Tooltip placement="top" title={t('messages.aml.copyTokenToClipboard')}>
-                            <CopyToClipboard text={this.state.token} onCopy={() => this.handleCopyToClipboard('token')}>
-                              <Button type="primary">
-                                <Icon type="copy" />
-                              </Button>
-                            </CopyToClipboard>
-                          </Tooltip>
-                        </div>
-                      )}
-                    </Form.Item>
-                  </Col>
-                }
                 <Col xs={24}>
                   <Form.Item className="username" label="Usuario">
                     {getFieldDecorator('login', {
@@ -291,11 +244,13 @@ class ModalContentCreate extends React.Component {
                   <Col xs={24}>
                     <Form.Item label="Contraseña">
                       {getFieldDecorator('password')(
+                        modalType === 'create' ?
                         <>
                           <Col span={17}>
                             <Input
                               prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                              value={modalType === 'create' ? this.props.password : null}
+                              value={this.state.password}
+                              onChange={(e) => this.handleOnChange('password', e.target.value)}
                             />
                           </Col>
                           <Col span={6} offset={1}>
@@ -308,6 +263,27 @@ class ModalContentCreate extends React.Component {
                             </Tooltip>
                           </Col>
                         </>
+                        : this.state.isPasswordReset ?
+                        <>
+                          <Col span={17}>
+                            <Input
+                              prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                              value={this.state.password}
+                              onChange={(e) => this.handleOnChange('password', e.target.value)}
+                            />
+                          </Col>
+                          <Col span={6} offset={1}>
+                            <Tooltip placement="top" title={t('messages.aml.copyPasswordToClipboard')}>
+                              <CopyToClipboard text={this.props.password} onCopy={() => this.handleCopyToClipboard('password')}>
+                                <Button type="primary">
+                                  <Icon type="copy" />
+                                </Button>
+                              </CopyToClipboard>
+                            </Tooltip>
+                          </Col>
+                        </>
+                        :
+                        <Button type="primary" className="password-reset" onClick={this.handlePasswordReset.bind(this)}><Icon type="lock" /> {t('messages.aml.resetPassword')}</Button>
                       )
                       }
                     </Form.Item>

@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         fontFamily: 'Verdana',
-        color: '#595856',
+        color: 'rgba(255,255,255,.8)',
     }
 });
  

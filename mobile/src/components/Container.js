@@ -15,7 +15,7 @@ const Container = (props) => {
  
 const styles = StyleSheet.create({
     labelContainer: {
-        padding: 2,
+        padding: 2
     }
 });
  

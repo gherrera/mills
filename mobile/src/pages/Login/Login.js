@@ -14,10 +14,11 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 import Container from '../../components/Container';
 import Label  from '../../components/Label';
-import { Button } from 'react-native-elements';
+import { Button, Image } from 'react-native-elements';
 
 import { getAuthTokenPromise } from '../../promises';
 import { authTokenSessionStorageSaverHelper } from '../../helpers';
+import apiConfig from '../../config/api';
 
 const {width, height} = Dimensions.get('window');
 const metrics = {
@@ -27,16 +28,9 @@ const metrics = {
 
 const styles = StyleSheet.create({
     scroll: {
-        backgroundColor: '#E1D7D8',
+        backgroundColor: 'rgba(0,0,0,.9)',
         padding: 30,
         height: metrics.screenHeight
-    },
-    label: {
-        color: '#0d8898',
-        fontSize: 20
-    },
-    alignRight: {
-        alignSelf: 'flex-end'
     },
     textInput: {
         height: 42,
@@ -44,30 +38,21 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         color: 'black',
     },
-    buttonWhiteText: {
-        fontSize: 20,
-        color: '#FFF',
-    },
-    buttonBlackText: {
-        fontSize: 20,
-        color: '#595856'
-    },
-    primaryButton: {
-        height:40,
-        backgroundColor: '#34A853'
-    },
     footer: {
-       marginTop: 100
+       marginTop: 30
     },
-    container: {
-        flex: 1,
-        justifyContent: "center"
+    logo: {
+        width: 200,
+        height: 100,
+        margin: 1,
+        alignContent: 'center'
     },
-    horizontal: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        padding: 10
-    }
+    logoText: {
+        width: 200,
+        height: 50,
+        margin: 1,
+        alignContent: 'center'
+    },
 });
 
 export default class Login extends Component {
@@ -88,9 +73,8 @@ export default class Login extends Component {
                 await authTokenSessionStorageSaverHelper(authToken)
                 const { successHandler } = this.props
                 await successHandler()
-            }else {
-                this.setState({ isLoading: false })
             }
+            this.setState({ isLoading: false })
         }else {
             Alert.alert('Login', 'Debe ingresar usuario y clave');
             this.setState({ isLoading: false })
@@ -107,6 +91,26 @@ export default class Login extends Component {
                     visible={true}
                 />
               }
+              <Container styles={{alignItems: 'center'}}>
+                <Image
+                    style={styles.logo}
+                    source={{
+                        uri: apiConfig.url + '/../images/logo.png',
+                    }}
+                    resizeMode="contain"
+                />
+                <Image
+                    style={styles.logoText}
+                    source={{
+                        uri: apiConfig.url + '/../images/mills.png',
+                    }}
+                    resizeMode="contain"
+                />
+                <Text 
+                    style={{color: '#A9562F', fontSize: 30, width:200, textAlign: 'center', paddingBottom: 20, fontWeight: "600"}}>
+                        Operational Software
+                </Text>
+              </Container>
               <Container>
                     <Label text="Usuario" />
                     <TextInput
@@ -129,6 +133,10 @@ export default class Login extends Component {
                             title="Entrar"
                             titleStyle={{
                                 fontSize: 20,
+                                color: 'black'
+                            }}
+                            buttonStyle={{
+                                backgroundColor:'orange'
                             }}
                             onPress={this.loginClick.bind(this)} />
                 </View>
