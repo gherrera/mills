@@ -25,5 +25,14 @@ export default {
       url: apiConfig.url + '/logout',
       method: 'post'
     })
+  },
+  forgotPwd: (username) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/forgotPwd',
+      method: 'post',
+      body: {
+        username
+      }
+    })
   }
 }

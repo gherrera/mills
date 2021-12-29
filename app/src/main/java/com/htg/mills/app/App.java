@@ -19,6 +19,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -370,4 +371,19 @@ public class App {
 		return htmlToPdf(html, os);
 	}
 
+	public String resetPassword(Usuario usuario) {
+		try {
+			String newPwd = RandomStringUtils.randomAlphanumeric(8);
+			usuario.setPassword(Security.getSha256Value(newPwd));
+			log.debug(newPwd);
+			dao.resetPassword(usuario);
+			//insertRegistroMovimiento(usuario, Movimiento.Type.UPDATE, "Reset clave", null, usuario, usuario.getClass());
+			email.sendEmail("", usuario.getEmail(), null, null, "Nueva clave MILL'S", null, newPwd, folderTemplate, "views/resetPassword.ftl", apiUrl, usuario);
+			return newPwd;
+		} catch (Exception e) {
+			log.error("Error al resetear clave", e);
+			return null;
+		}
+	}
+	
 }

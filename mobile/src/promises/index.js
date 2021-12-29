@@ -5,7 +5,7 @@ import getCurrentUser from './getCurrentUser'
 import getUsersByClient from './getUsersByClient'
 import logout from './logout'
 import removeLoginAnimations from './removeLoginAnimations'
-import stats from './stats'
+import forgotPwd from './forgotPwd'
 import statsCategory from './statsCategory'
 import statsCategoryStatus from './statsCategoryStatus'
 
@@ -16,6 +16,6 @@ export const getCurrentUserPromise = getCurrentUser
 export const getUsersByClientPromise = getUsersByClient
 export const logoutPromise = logout
 export const removeLoginAnimationsPromise = removeLoginAnimations
-export const statsPromise = stats
+export const forgotPwdPromise = forgotPwd
 export const statsCategoryPromise = statsCategory
 export const statsCategoryStatusPromise = statsCategoryStatus

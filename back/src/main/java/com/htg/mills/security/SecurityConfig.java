@@ -80,6 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       	  .antMatchers("/error**").permitAll()
 
 	      .antMatchers("/api/authenticate").permitAll()
+	      .antMatchers("/api/forgotPwd").permitAll()
 	      .antMatchers("/api/getFormById/**").permitAll()
 	      .antMatchers("/api/getDataSourcesCatalogo").permitAll()
 	      .antMatchers("/api/getDataSourcesForm/**").permitAll()

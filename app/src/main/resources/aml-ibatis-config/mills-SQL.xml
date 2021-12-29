@@ -26,6 +26,106 @@
 		<result property="autor" column="autor"/>	
 	</resultMap>
 
+	<resultMap id="TurnoCore" class="com.htg.mills.entities.maintenance.Turno">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fec_creacion"/>
+		<result property="name" column="nombre"/>
+		<result property="status" column="estado"/>
+		<result property="personas" column="id" select="getPersonasTurno"/>
+		<result property="history" column="id" select="getHistorialTurno"/>
+	</resultMap>
+
+	<resultMap id="Turno" class="com.htg.mills.entities.maintenance.Turno" extends="TurnoCore">
+		<result property="molino" column="molino_id" select="getMolino"/>
+	</resultMap>
+
+	<resultMap id="Persona" class="com.htg.mills.entities.maintenance.Persona">
+		<result property="name" column="nombre"/>
+		<result property="rut" column="rut"/>
+		<result property="controllerId" column="user_id_controller"/>
+	</resultMap>
+
+	<resultMap id="TurnoHistorial" class="com.htg.mills.entities.maintenance.TurnoHistorial">
+		<result property="status" column="estado"/>
+		<result property="openDate" column="fecha_inicio"/>
+		<result property="closedDate" column="fecha_termino"/>
+	</resultMap>
+	
+	<resultMap id="Molino" class="com.htg.mills.entities.maintenance.Molino">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fec_creacion"/>
+		<result property="name" column="nombre"/>
+		<result property="type" column="tipo"/>
+		<result property="status" column="estado"/>
+		<result property="stage" column="etapa"/>
+		<result property="turns" column="id" select="getTurnosByMolino"/>
+		<result property="stages" column="id" select="getEtapasByMolino"/>
+		<result property="parts" column="id" select="getPartesByMolino"/>
+		<result property="faena" column="faena_id" select="getFaenaById"/>
+	</resultMap>
+
+	<resultMap id="Faena" class="com.htg.mills.entities.maintenance.Faena">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fec_creacion"/>
+		<result property="name" column="nombre"/>
+		<result property="client" column="cliente_id" select="getClienteById"/>
+	</resultMap>
+	
+	<resultMap id="Cliente" class="com.htg.mills.entities.maintenance.Cliente">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fec_creacion"/>
+		<result property="name" column="nombre"/>
+	</resultMap>
+	
+	<resultMap id="Etapa" class="com.htg.mills.entities.maintenance.Etapa">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fecha_inicio"/>
+		<result property="stage" column="etapa"/>
+		<result property="finishDate" column="fecha_termino"/>
+		<result property="status" column="estado"/>
+		<result property="userStart" column="user_inicio"/>
+		<result property="userFinish" column="user_termino"/>
+		<result property="tasks" column="id" select="getTareasByEtapa"/>
+		<result property="events" column="id" select="getEventosByEtapa"/>
+	</resultMap>
+
+	<resultMap id="Evento" class="com.htg.mills.entities.maintenance.Evento">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fecha_inicio"/>
+		<result property="type" column="tipo"/>
+		<result property="comments" column="comentarios"/>
+		<result property="finishDate" column="fecha_termino"/>
+		<result property="userStart" column="user_inicio"/>
+		<result property="userFinish" column="user_termino"/>
+	</resultMap>
+	
+	<resultMap id="Tarea" class="com.htg.mills.entities.maintenance.Tarea">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fecha_inicio"/>
+		<result property="task" column="tarea"/>
+		<result property="finishDate" column="fecha_termino"/>
+		<result property="userStart" column="user_inicio"/>
+		<result property="userFinish" column="user_termino"/>
+		<result property="parts" column="id" select="getPartesByTarea"/>
+	</resultMap>
+
+	<resultMap id="Parte" class="com.htg.mills.entities.maintenance.Parte">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fec_creacion"/>
+		<result property="name" column="nombre"/>
+		<result property="type" column="tipo"/>
+		<result property="qty" column="cantidad"/>
+	</resultMap>
+	
+	<resultMap id="TareaParte" class="com.htg.mills.entities.maintenance.TareaParte">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fecha"/>
+		<result property="user" column="usuario"/>
+		<result property="qty" column="cantidad"/>
+		<result property="part" column="parte_id" select="getParteById"/>
+		<result property="turn" column="turno_id" select="getTurnoCoreById"/>
+	</resultMap>
+
 	<insert id="insertToken">
 		insert into tokens(id, user_id, token, expiration, creation)
 			values(#id#, #user.id#, #token#, #expiration#, #creation#)
@@ -112,6 +212,96 @@
 		select id user_id, creation_date, nombre, login, _password, email, tipo tipo_user, modulos user_modulos, estado user_estado, fe_activacion
 		from users
 		order by tipo, nombre
+	</select>
+	
+	<select id="getPersonasTurno" resultMap="Persona">
+		select nombre, rut, user_id_controller
+		from turno_personas
+		where turno_id = #value#
+	</select>
+	
+	<select id="getHistorialTurno" resultMap="TurnoHistorial">
+		select estado, fecha_inicio, fecha_termino
+		from turno_turno_historial
+		where turno_id = #value#
+		order by fecha_inicio
+	</select>
+	
+	<select id="getTurnosActivosController" resultMap="Turno">
+		select a.id, a.fec_creacion, a.nombre, a.estado, a.molino_id
+		from turnos a, turno_personas b, molinos c
+		where b.turno_id = a.id
+			and b.user_id_controller = #value#
+			and c.id = a.molino_id
+			and c.estado = 'ACTIVE'
+	</select>
+	
+	<select id="getTurnosByMolino" resultMap="TurnoCore">
+		select a.id, a.fec_creacion, a.nombre, a.estado
+		from turnos a
+		where molino_id = #value#
+	</select>
+	
+	<select id="getTurnoCoreById" resultMap="TurnoCore">
+		select a.id, a.fec_creacion, a.nombre, a.estado
+		from turnos a
+		where id = #value#
+	</select>
+	
+	<select id="getMolino" resultMap="Molino">
+		select id, fec_creacion, nombre, tipo, estado, etapa, faena_id
+		from molinos
+		where id = #value#
+	</select>
+	
+	<select id="getEtapasByMolino" resultMap="Etapa">
+		select id, fecha_inicio, etapa, estado, fecha_termino, user_inicio, user_termino
+		from molino_etapas
+		where molino_id = #value#
+	</select>
+	
+	<select id="getEventosByEtapa" resultMap="Evento">
+		select id, fecha_inicio, tipo, comentarios, fecha_termino, user_inicio, user_termino
+		from etapa_eventos
+		where etapa_id = #value#
+		order by fecha_inicio
+	</select>
+	
+	<select id="getTareasByEtapa" resultMap="Tarea">
+		select id, fecha_inicio, tarea, fecha_termino, user_inicio, user_termino
+		from etapa_tareas
+		where etapa_id = #value#
+		order by fecha_inicio
+	</select>
+
+	<select id="getPartesByMolino" resultMap="Parte">
+		select id, fec_creacion, nombre, tipo, cantidad
+		from molino_partes
+		where molino_id = #value#
+	</select>
+	
+	<select id="getParteById" resultMap="Parte">
+		select id, fec_creacion, nombre, tipo, cantidad
+		from molino_partes
+		where id = #value#
+	</select>
+
+	<select id="getPartesByTarea" resultMap="TareaParte">
+		select id, fecha, usuario, cantidad, parte_id, turno_id
+		from tarea_partes
+		where tarea_id = #value#
+	</select>
+	
+	<select id="getFaenaById" resultMap="Faena">
+		select id, fec_creacion, nombre, cliente_id
+		from faenas
+		where id = #value#
+	</select>
+	
+	<select id="getClienteById" resultMap="Cliente">
+		select id, fec_creacion, nombre
+		from clientes
+		where id = #value#	
 	</select>
 
 </sqlMap>

@@ -13,10 +13,9 @@ import {
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import Container from '../../components/Container';
-import Label  from '../../components/Label';
-import { Button, Image } from 'react-native-elements';
+import { Button, Image, Input } from 'react-native-elements';
 
-import { getAuthTokenPromise } from '../../promises';
+import { getAuthTokenPromise, forgotPwdPromise, getCurrentUserPromise } from '../../promises';
 import { authTokenSessionStorageSaverHelper } from '../../helpers';
 import apiConfig from '../../config/api';
 
@@ -28,7 +27,7 @@ const metrics = {
 
 const styles = StyleSheet.create({
     scroll: {
-        backgroundColor: 'rgba(0,0,0,.9)',
+        backgroundColor: 'rgba(0,0,0,.85)',
         padding: 30,
         height: metrics.screenHeight
     },
@@ -59,7 +58,8 @@ export default class Login extends Component {
     state = {
         username: '',
         password: '',
-        isLoading: false
+        isLoading: false,
+        isForgotPwd: false
     }
 
     async loginClick() {
@@ -71,18 +71,54 @@ export default class Login extends Component {
             const authToken = await getAuthTokenPromise(username, password)
             if (!authToken.error) {
                 await authTokenSessionStorageSaverHelper(authToken)
-                const { successHandler } = this.props
-                await successHandler()
+                const currentU = await getCurrentUserPromise()
+                if (currentU) {
+                    if (currentU.type !== 'CONTROLLER') {
+                        Alert.alert('Login', 'Usuario no permitido');
+                        this.setState({ isLoading: false })
+                    }else {
+                        const { successHandler } = this.props
+                        await successHandler(currentU)
+                    }
+                }else {
+                    Alert.error('Login', 'Ocurrrio un error');
+                    this.setState({ isLoading: false })
+                }
+            }else {
+                this.setState({ isLoading: false })
             }
-            this.setState({ isLoading: false })
         }else {
             Alert.alert('Login', 'Debe ingresar usuario y clave');
             this.setState({ isLoading: false })
         }
     }
 
+    async forgotPassword() {
+        this.setState({ isForgotPwd: true })
+    }
+
+    async resendPwd() {
+        this.setState({ isLoading: true })
+        const { username } = this.state
+        if(username && username !== '') {
+            const fp = await forgotPwdPromise(username)
+            if(fp) {
+                Alert.alert('Login', 'Se envió una nueva clave');
+            }else {
+                Alert.alert('Login', 'Uuario no existe');
+            }
+        }else {
+            Alert.alert('Login', 'Debe ingresar usuario');
+        }
+        this.setState({ isLoading: false, isForgotPwd: false })
+    }
+
+    async exitForgotPassword() {
+        this.setState({ isForgotPwd: false })
+    }
+
     render() {
-      const { isLoading } = this.state
+      const { isLoading, isForgotPwd } = this.state
       
       return (
           <View style={styles.scroll} >
@@ -107,39 +143,80 @@ export default class Login extends Component {
                     resizeMode="contain"
                 />
                 <Text 
-                    style={{color: '#A9562F', fontSize: 30, width:200, textAlign: 'center', paddingBottom: 20, fontWeight: "600"}}>
+                    style={{color: '#A9572F', fontSize: 30, width:200, textAlign: 'center', paddingBottom: 20, fontWeight: "600"}}>
                         Operational Software
                 </Text>
               </Container>
               <Container>
-                    <Label text="Usuario" />
-                    <TextInput
+                    <Input
+                        placeholder="Usuario"
+                        leftIcon={{ type: 'ant-design', name: 'user', color:'white' }}
                         style={styles.textInput}
                         value={this.state.username}
                         onChangeText={(username) => this.setState({ username })}
                     />
               </Container>
-              <Container>
-                    <Label text="Clave" />
-                    <TextInput
-                        secureTextEntry={true}
-                        style={styles.textInput}
-                        value={this.state.password}
-                        onChangeText={(password) => this.setState({ password })}
-                    />
-              </Container>
+              { !isForgotPwd &&
+                <Container>
+                        <Input
+                            placeholder="Contraseña"
+                            leftIcon={{ type: 'ant-design', name: 'key', color: 'white' }}
+                            secureTextEntry={true}
+                            style={styles.textInput}
+                            value={this.state.password}
+                            onChangeText={(password) => this.setState({ password })}
+                        />
+                </Container>
+              }
               <View style={styles.footer}>
+                { isForgotPwd ?
+                    <>
                         <Button 
-                            title="Entrar"
+                            title="Enviar Contraseña"
                             titleStyle={{
                                 fontSize: 20,
                                 color: 'black'
                             }}
                             buttonStyle={{
-                                backgroundColor:'orange'
+                                backgroundColor:'#f79c39'
                             }}
-                            onPress={this.loginClick.bind(this)} />
-                </View>
+                            onPress={this.resendPwd.bind(this)} />
+                        <Button 
+                            title="Volver"
+                            titleStyle={{
+                                fontSize: 18,
+                                color: 'white'
+                            }}
+                            buttonStyle={{
+                                backgroundColor:'transparent'
+                            }}
+                            onPress={this.exitForgotPassword.bind(this)} />
+                    </>
+                    :
+                    <Button 
+                        title="Entrar"
+                        titleStyle={{
+                            fontSize: 20,
+                            color: 'black'
+                        }}
+                        buttonStyle={{
+                            backgroundColor:'#f79c39'
+                        }}
+                        onPress={this.loginClick.bind(this)} />
+                }                
+                { !isForgotPwd &&
+                    <Button 
+                        title="Reestablecer Contraseña"
+                        titleStyle={{
+                            fontSize: 18,
+                            color: 'white'
+                        }}
+                        buttonStyle={{
+                            backgroundColor:'transparent'
+                        }}
+                        onPress={this.forgotPassword.bind(this)} />
+                }
+              </View>
           </View>
       );
     }

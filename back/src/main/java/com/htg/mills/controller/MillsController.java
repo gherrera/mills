@@ -187,6 +187,15 @@ public class MillsController {
 		return json;
 	}
 	
+	@RequestMapping("forgotPwd")
+	public Usuario forgotPwd(@RequestBody Map<String, String> user) {
+		Usuario usuario = app.getUserByLogin(user.get("username"));
+		if(usuario != null) {
+			app.resetPassword(usuario);
+		}
+		return usuario;
+	}
+	
 	@PostMapping("saveUser/{mode}")
 	@ResponseBody
 	public ResponseEntity<String> saveUser(@PathVariable("mode") String mode, @RequestBody Usuario user) {
@@ -215,7 +224,7 @@ public class MillsController {
 	@PostMapping("users")
     @ResponseBody
 	public Results users() {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		//CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return app.getUsers();
 	}
 	

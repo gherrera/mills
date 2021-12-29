@@ -76,19 +76,12 @@ const App: () => Node = () => {
     setCurrentUser({})
   }
 
-  const handleLogin = async () => {
-    const currentU = await getCurrentUser()
+  const handleLogin = async (currentU) => {
     if (!currentU.error) {
-      const isActivated = currentU.feActivacion !== null
-
-      if (currentU.type !== 'CONTROLLER') {
-        Alert.alert('Login', 'Usuario no permitido');
-      }else {
-        setCurrentUser(currentU)
-        setIsLoggedIn(true)
-        //new authTokenRenewerHelper(handleLogout)
-        //console.log('b2')
-      }
+      setCurrentUser(currentU)
+      setIsLoggedIn(true)
+      //new authTokenRenewerHelper(handleLogout)
+      //console.log('b2')
     }
   }
 

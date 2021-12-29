@@ -19,7 +19,6 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 public class Dao {
 
 	private static Logger log = LogManager.getLogger(Dao.class);
-	private Map<String, Country> countries = new HashMap<String, Country>();
 	private static DateTimeZone dtZone;
 
 	private SqlMapClient sqlMap;
@@ -28,16 +27,6 @@ public class Dao {
 		sqlMap = AppSqlConfig.getSqlMapInstance();
 		
 		//dtZone = DateTimeZone.forTimeZone(country.getTimeZone());
-	}
-
-	@SuppressWarnings("unchecked")
-	public List<Country> getCountries() {
-		try {
-			return (List<Country>)sqlMap.queryForList("getCountries");
-		} catch (SQLException e) {
-			log.error("Error al obtener datos de paises", e);
-			return null;
-		}
 	}
 	
 	public void createToken(Token token) {
@@ -148,19 +137,6 @@ public class Dao {
 			log.error("Error al leer parametros", e);
 			return null;
 		}
-	}
-	
-	public Date getDateByCountry(String country) {
-		Date currDate;
-		try {
-			Country _country = countries.get(country);
-			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.MILLISECOND, _country.getDiffMiliseconds());
-			currDate = cal.getTime();
-		} catch (Exception e) {
-			currDate = new Date();
-		}
-		return currDate;
 	}
 	
 	private static int getDiasHabiles(Date fecIni, Date fecFin) {
