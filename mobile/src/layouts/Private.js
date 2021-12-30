@@ -6,8 +6,9 @@ import {
     Text
 } from 'react-native';
 import { Header, Button, ListItem, Icon, Image } from 'react-native-elements';
+import { HomePage } from '../pages';
 
-import apiConfig from '../config/api';
+import StylesGlobal from '../pages/StylesGlobal';
 
 const {width, height} = Dimensions.get('window');
 const metrics = {
@@ -17,7 +18,6 @@ const metrics = {
 
 const styles = StyleSheet.create({
     scroll: {
-        backgroundColor: '#E1D7D8',
         height: metrics.screenHeight,
     },
     primaryButton: {
@@ -94,41 +94,7 @@ export default class Private extends Component {
                         />
                     }
                 />
-                { menu === null ?
-                    <View>
-                        <ListItem key="item1" bottomDivider
-                            onPress={() => this.clickMenu('menu1')}
-                        >
-                            <Icon name="build" />
-                            <ListItem.Content>
-                                <ListItem.Title>Mantenimiento1</ListItem.Title>
-                            </ListItem.Content>
-                            <ListItem.Chevron />
-                        </ListItem>
-                        <ListItem key="item2" bottomDivider
-                            onPress={() => this.clickMenu('menu2')}
-                        >
-                            <Icon name="build" />
-                            <ListItem.Content>
-                                <ListItem.Title>Mantenimiento2</ListItem.Title>
-                            </ListItem.Content>
-                            <ListItem.Chevron />
-                        </ListItem>
-                    </View>
-                    :
-                    <View style={{flexGrow:1, padding: 5}} textAlign="flex-start">
-                        <Button
-                            buttonStyle={{padding:0, width:30, height:30, backgroundColor:"transparent", marginBottom:10}}
-                            style={{color:"#000"}}
-                            onPress={this.returnMenu.bind(this)}
-                            icon={{
-                                name: "arrow-back-ios",
-                                color: "black"
-                            }}
-                        />
-                        <Text>{menu}</Text>
-                    </View>
-                }
+                <HomePage currentUser={currentUser} />
             </View>
         )
     }

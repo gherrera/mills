@@ -5,6 +5,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ import com.htg.mills.app.App;
 import com.htg.mills.entities.CurrentUser;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
 import com.htg.mills.security.JwtRequest;
 import com.htg.mills.security.JwtResponse;
@@ -252,5 +254,12 @@ public class MillsController {
 	    response.getWriter().flush();
 	    return null;
 	}
-	
+
+	@PostMapping("getTurnosActivosController")
+    @ResponseBody
+	public List<Turno> getTurnosActivosController() {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Turno> turnos = app.getTurnosActivosController(currentUser.getUser().getId());
+		return turnos;
+	}
 }

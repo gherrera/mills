@@ -9,6 +9,9 @@ public class Parte extends Entity {
 	private String name;
 	private String type;
 	private int qty;
+	private int botadas;
+	private int limpiadas;
+	private int montadas;
 	
 	public String getName() {
 		return name;
@@ -27,5 +30,23 @@ public class Parte extends Entity {
 	}
 	public void setQty(int qty) {
 		this.qty = qty;
+	}
+	public int getBotadas() {
+		return botadas;
+	}
+	public void setBotadas(int botadas) {
+		this.botadas = botadas;
+	}
+	public int getLimpiadas() {
+		return limpiadas;
+	}
+	public void setLimpiadas(int limpiadas) {
+		this.limpiadas = limpiadas;
+	}
+	public int getMontadas() {
+		return montadas;
+	}
+	public void setMontadas(int montadas) {
+		this.montadas = montadas;
 	}
 }

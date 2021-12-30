@@ -33,6 +33,7 @@ import com.htg.mills.dao.Dao;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
 import com.htg.mills.utils.EmailUtil;
 import com.htg.mills.utils.Security;
@@ -385,5 +386,8 @@ public class App {
 			return null;
 		}
 	}
-	
+
+	public List<Turno> getTurnosActivosController(String userId) {
+		return dao.getTurnosActivosController(userId);
+	}
 }

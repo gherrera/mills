@@ -1,5 +1,7 @@
-import Login from './Login/Login'
-import MainMenu from './MainMenu/MainMenu'
+import Login from './Login'
+import Home from './Home'
+import Turno from './Turno'
 
 export const LoginPage = Login
-export const MainMenuPage = MainMenu
+export const HomePage = Home
+export const TurnoPage = Turno

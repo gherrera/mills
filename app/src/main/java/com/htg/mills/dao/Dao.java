@@ -11,9 +11,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTimeZone;
 
-import com.htg.mills.entities.Country;
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Turno;
 import com.ibatis.sqlmap.client.SqlMapClient;
 
 public class Dao {
@@ -234,4 +234,13 @@ public class Dao {
 	}
 	*/
 
+	@SuppressWarnings("unchecked")
+	public List<Turno> getTurnosActivosController(String userId) {
+		try {
+			return (List<Turno>)sqlMap.queryForList("getTurnosActivosController", userId);
+		} catch (SQLException e) {
+			log.error("Error al leer usuarios", e);
+			return null;
+		}
+	}
 }

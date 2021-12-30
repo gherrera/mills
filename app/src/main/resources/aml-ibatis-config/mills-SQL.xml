@@ -115,6 +115,9 @@
 		<result property="name" column="nombre"/>
 		<result property="type" column="tipo"/>
 		<result property="qty" column="cantidad"/>
+		<result property="botadas" column="botadas"/>
+		<result property="limpiadas" column="limpiadas"/>
+		<result property="montadas" column="montadas"/>
 	</resultMap>
 	
 	<resultMap id="TareaParte" class="com.htg.mills.entities.maintenance.TareaParte">
@@ -222,7 +225,7 @@
 	
 	<select id="getHistorialTurno" resultMap="TurnoHistorial">
 		select estado, fecha_inicio, fecha_termino
-		from turno_turno_historial
+		from turno_historial
 		where turno_id = #value#
 		order by fecha_inicio
 	</select>
@@ -275,13 +278,13 @@
 	</select>
 
 	<select id="getPartesByMolino" resultMap="Parte">
-		select id, fec_creacion, nombre, tipo, cantidad
+		select id, fec_creacion, nombre, tipo, cantidad, botadas, limpiadas, montadas
 		from molino_partes
 		where molino_id = #value#
 	</select>
 	
 	<select id="getParteById" resultMap="Parte">
-		select id, fec_creacion, nombre, tipo, cantidad
+		select id, fec_creacion, nombre, tipo, cantidad, botadas, limpiadas, montadas
 		from molino_partes
 		where id = #value#
 	</select>

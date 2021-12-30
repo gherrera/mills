@@ -1,7 +1,7 @@
 DROP TABLE turno_historial;
 DROP TABLE turno_personas;
-DROP TABLE turnos;
 DROP TABLE tarea_partes;
+DROP TABLE turnos;
 DROP TABLE molino_partes;
 DROP TABLE etapa_eventos;
 DROP TABLE etapa_tareas;
@@ -63,6 +63,9 @@ fec_creacion TIMESTAMP,
 nombre VARCHAR(150) NOT NULL,
 tipo VARCHAR(150) NOT NULL,
 cantidad INT,
+botadas INT,
+limpiadas INT,
+montadas INT,
 molino_id VARCHAR(50) NOT NULL,
 FOREIGN KEY(molino_id) REFERENCES molinos(id),
 PRIMARY KEY(id)

@@ -12,12 +12,12 @@ import {
  
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import Container from '../../components/Container';
+import Container from '../components/Container';
 import { Button, Image, Input } from 'react-native-elements';
 
-import { getAuthTokenPromise, forgotPwdPromise, getCurrentUserPromise } from '../../promises';
-import { authTokenSessionStorageSaverHelper } from '../../helpers';
-import apiConfig from '../../config/api';
+import { getAuthTokenPromise, forgotPwdPromise, getCurrentUserPromise } from '../promises';
+import { authTokenSessionStorageSaverHelper } from '../helpers';
+import apiConfig from '../config/api';
 
 const {width, height} = Dimensions.get('window');
 const metrics = {
@@ -169,6 +169,7 @@ export default class Login extends Component {
                 </Container>
               }
               <View style={styles.footer}>
+                <Container>
                 { isForgotPwd ?
                     <>
                         <Button 
@@ -216,6 +217,7 @@ export default class Login extends Component {
                         }}
                         onPress={this.forgotPassword.bind(this)} />
                 }
+                </Container>
               </View>
           </View>
       );

@@ -1,6 +1,9 @@
 package com.htg.mills.entities.maintenance;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.htg.mills.entities.Entity;
 
@@ -83,6 +86,44 @@ public class Molino extends Entity {
 
 	public void setFaena(Faena faena) {
 		this.faena = faena;
+	}
+	
+	public List<Map<String, Object>> getPartsByType() {
+		Map<String, List<Parte>> mParts = new HashMap<String, List<Parte>>();
+		List<Map<String, Object>> _parts = new ArrayList<Map<String, Object>>();
+		if(parts != null) {
+			for(Parte parte : parts) {
+				List<Parte> p = mParts.get(parte.getType());
+				if(p == null) {
+					p = new ArrayList<Parte>();
+					mParts.put(parte.getType(), p);
+				}
+				p.add(parte);
+			}
+			for(String type : mParts.keySet()) {
+				Map<String, Object> p = new HashMap<String, Object>();
+				p.put("type", type);
+				p.put("parts", mParts.get(type));
+				_parts.add(p);
+			}
+		}
+		return _parts;
+	}
+	
+	public int getHours() {
+		return 0;
+	}
+	
+	public float getPercentage() {
+		int total = 0;
+		float montadas = 0;
+		if(parts != null) {
+			for(Parte parte : parts) {
+				total += parte.getQty();
+				montadas += parte.getMontadas();
+			}
+		}
+		return montadas/total;
 	}
 	
 }
