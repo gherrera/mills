@@ -6,7 +6,6 @@ import {
 } from 'react-native';
 import {  ListItem } from 'react-native-elements';
 import Spinner from 'react-native-loading-spinner-overlay';
-import LinearGradient from 'react-native-linear-gradient'
 
 import { getTurnosActivosPromise } from './promises';
 import StylesGlobal from './StylesGlobal';
@@ -16,13 +15,6 @@ const styles = StyleSheet.create({
     primaryButton: {
         position: 'absolute',
         right: 5,
-    },
-    linearGradient: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 5,
-        height: 200,
-        width: 350,
     },
 })
 
@@ -70,7 +62,7 @@ export default class Home extends Component {
         const { turnos, turno } = this.state
 
         return (
-            <View>
+            <View style={{height:'100%'}}>
                 { turnos === null && <Spinner /> }
                 { turno === null ?
                     <View>

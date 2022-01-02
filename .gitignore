@@ -37,3 +37,5 @@ logs/forms.log
 logs/forms.log
 *.log
 logs/forms.log
+mobile/package-lock.json
+mobile/yarn.lock

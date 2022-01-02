@@ -42,6 +42,7 @@
 	<resultMap id="Persona" class="com.htg.mills.entities.maintenance.Persona">
 		<result property="name" column="nombre"/>
 		<result property="rut" column="rut"/>
+		<result property="role" column="cargo"/>
 		<result property="controllerId" column="user_id_controller"/>
 	</resultMap>
 
@@ -218,7 +219,7 @@
 	</select>
 	
 	<select id="getPersonasTurno" resultMap="Persona">
-		select nombre, rut, user_id_controller
+		select nombre, rut, cargo, user_id_controller
 		from turno_personas
 		where turno_id = #value#
 	</select>

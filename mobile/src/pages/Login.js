@@ -27,7 +27,7 @@ const metrics = {
 
 const styles = StyleSheet.create({
     scroll: {
-        backgroundColor: 'rgba(0,0,0,.85)',
+        backgroundColor: 'rgba(0,0,0,.9)',
         padding: 30,
         height: metrics.screenHeight
     },
@@ -143,7 +143,7 @@ export default class Login extends Component {
                     resizeMode="contain"
                 />
                 <Text 
-                    style={{color: '#A9572F', fontSize: 30, width:200, textAlign: 'center', paddingBottom: 20, fontWeight: "600"}}>
+                    style={{color: '#A9572F', fontSize: 30, width:350, textAlign: 'center', padding: 20, fontWeight: "600"}}>
                         Operational Software
                 </Text>
               </Container>

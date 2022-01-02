@@ -4,6 +4,7 @@ public class Persona {
 
 	private String name;
 	private String rut;
+	private String role;
 	private String controllerId;
 	
 	public String getName() {
@@ -23,6 +24,12 @@ public class Persona {
 	}
 	public void setControllerId(String controllerId) {
 		this.controllerId = controllerId;
+	}
+	public String getRole() {
+		return role;
+	}
+	public void setRole(String role) {
+		this.role = role;
 	}
 	
 }

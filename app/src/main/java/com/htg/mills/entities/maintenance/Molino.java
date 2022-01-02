@@ -126,4 +126,38 @@ public class Molino extends Entity {
 		return montadas/total;
 	}
 	
+	public float getPiezas() {
+		int total = 0;
+		if(parts != null) {
+			for(Parte parte : parts) {
+				total += parte.getQty();
+			}
+		}
+		return total;
+	}
+	
+	public int getMontadas() {
+		int montadas = 0;
+		if(parts != null) {
+			for(Parte parte : parts) {
+				montadas += parte.getMontadas();
+			}
+		}
+		return montadas;
+	}
+	
+	public int getGiros() {
+		int giros = 0;
+		if(stages != null) {
+			for(Etapa stage : stages) {
+				if(stage.getStage().equals(Etapa.EtapaEnum.EXECUTION) && stage.getTasks() != null) {
+					for(Tarea tarea : stage.getTasks()) {
+						if(tarea.getTask().equals(Tarea.TareaEnum.GIRO)) giros++;
+					}
+				}
+			}
+		}
+		return giros;
+	}
+	
 }

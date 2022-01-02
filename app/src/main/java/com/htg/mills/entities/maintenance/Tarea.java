@@ -9,7 +9,7 @@ public class Tarea extends Entity {
 
 	private static final long serialVersionUID = -6001580767604865047L;
 
-	private enum TareaEnum {
+	public enum TareaEnum {
 		DET_PLANTA, BLOQUEO_PRUEBA_ENERGIA_0, RETIRO_CHUTE, ING_LAINERA,
 		BOTADO, LIMPIEZA, MONTAGE, GIRO,
 		RET_LAINERA, INST_CHUTE, DESBLOQUEO

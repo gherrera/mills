@@ -2,16 +2,21 @@ export default {
     colorBlue: '#2f597f',
     colorBlue50: 'rgba(47,89,127,.5)',
     colorBlue25: 'rgba(47,89,127,.25)',
+    colorBlue10: 'rgba(47,89,127,.1)',
     colorBrown: '#a9572f',
     colorBrown50: 'rgba(169,87,47,.5)',
     colorBrown25: 'rgba(169,87,47,.25)',
+    colorBrown10: 'rgba(169,87,47,.1)',
     colorYellow: '#f79c39',
     colorYellow50: 'rgba(247,156,57,.5)',
     colorYellow25: 'rgba(247,156,57,.25)',
+    colorYellow10: 'rgba(247,156,57,.1)',
     colorSkyBlue: '#048abf',
     colorSkyBlue50: 'rgba(4,138,191,.5)',
     colorSkyBlue25: 'rgba(4,138,191,.25)',
+    colorSkyBlue10: 'rgba(4,138,191,.1)',
     colorGray: '#a6abab',
     colorGray50: 'rgba(166,171,171,.5)',
-    colorGray25: 'rgba(166,171,171,.25)'
+    colorGray25: 'rgba(166,171,171,.25)',
+    colorGray10: 'rgba(166,171,171,.1)'
 }

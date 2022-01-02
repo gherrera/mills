@@ -52,6 +52,7 @@ CREATE TABLE turno_personas(
 turno_id VARCHAR(50) NOT NULL,
 nombre VARCHAR(150),
 rut VARCHAR(20),
+cargo VARCHAR(50),
 user_id_controller VARCHAR(50),
 FOREIGN KEY(turno_id) REFERENCES turnos(id),
 FOREIGN KEY(user_id_controller) REFERENCES users(id)
