@@ -30,7 +30,6 @@ const metrics = {
     screenHeight: width < height ? height : width,
 };
 
-
 export default class Fase extends Component {
     state = {
        turno: this.props.turno,
