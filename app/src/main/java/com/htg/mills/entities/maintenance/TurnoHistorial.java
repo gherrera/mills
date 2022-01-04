@@ -4,16 +4,9 @@ import java.sql.Timestamp;
 
 public class TurnoHistorial {
 
-	private Turno.Status status;
 	private Timestamp openDate;
 	private Timestamp closedDate;
-	
-	public Turno.Status getStatus() {
-		return status;
-	}
-	public void setStatus(Turno.Status status) {
-		this.status = status;
-	}
+
 	public Timestamp getOpenDate() {
 		return openDate;
 	}

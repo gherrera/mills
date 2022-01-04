@@ -37,6 +37,8 @@ import com.htg.mills.app.App;
 import com.htg.mills.entities.CurrentUser;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Etapa;
+import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
 import com.htg.mills.security.JwtRequest;
@@ -261,5 +263,46 @@ public class MillsController {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Turno> turnos = app.getTurnosActivosController(currentUser.getUser().getId());
 		return turnos;
+	}
+
+	@PostMapping("inicioTurno")
+    @ResponseBody Turno inicioTurno(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.inicioTurno(currentUser.getUser(), params.get("id"));
+	}
+	
+	@PostMapping("getTurno")
+    @ResponseBody Turno getTurno(@RequestBody Map<String, String> params) {
+		return app.getTurnoById(params.get("id"));
+	}
+	
+	@PostMapping("finTurno")
+    @ResponseBody Turno finTurno(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.finTurno(currentUser.getUser(), params.get("id"));
+	}
+	
+	@PostMapping("startTask")
+    @ResponseBody Turno startTask(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.startTask(currentUser.getUser(), params.get("id"));
+	}
+	
+	@PostMapping("finishTask")
+    @ResponseBody Turno finishTask(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.finishTask(currentUser.getUser(), params.get("id"));
+	}
+	
+	@PostMapping("startEtapa")
+    @ResponseBody Turno startEtapa(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.startEtapa(currentUser.getUser(), params.get("id"));
+	}
+	
+	@PostMapping("addParte")
+    @ResponseBody Turno addParte(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.addParte(currentUser.getUser(), params.get("id"), Tarea.TareaEnum.valueOf(params.get("stage")), params.get("parteId"), 1);
 	}
 }

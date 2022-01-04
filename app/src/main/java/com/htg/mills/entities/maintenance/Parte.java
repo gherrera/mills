@@ -12,6 +12,9 @@ public class Parte extends Entity {
 	private int botadas;
 	private int limpiadas;
 	private int montadas;
+	private int totalBotadas;
+	private int totalLimpiadas;
+	private int totalMontadas;
 	
 	public String getName() {
 		return name;
@@ -48,5 +51,23 @@ public class Parte extends Entity {
 	}
 	public void setMontadas(int montadas) {
 		this.montadas = montadas;
+	}
+	public int getTotalBotadas() {
+		return totalBotadas;
+	}
+	public void setTotalBotadas(int totalBotadas) {
+		this.totalBotadas = totalBotadas;
+	}
+	public int getTotalLimpiadas() {
+		return totalLimpiadas;
+	}
+	public void setTotalLimpiadas(int totalLimpiadas) {
+		this.totalLimpiadas = totalLimpiadas;
+	}
+	public int getTotalMontadas() {
+		return totalMontadas;
+	}
+	public void setTotalMontadas(int totalMontadas) {
+		this.totalMontadas = totalMontadas;
 	}
 }

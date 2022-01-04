@@ -11,12 +11,17 @@ public class Molino extends Entity {
 
 	private static final long serialVersionUID = 5909054053178398826L;
 
-	public enum Status {
+	public enum StatusAdmin {
 		ACTIVE, INACTIVE
 	}
 	
+	public enum Status {
+		STARTED, FINISHED
+	}
+
 	private String name;
 	private String type;
+	private StatusAdmin statusAdmin;
 	private Status status;
 	private Etapa.EtapaEnum stage;
 	private List<Etapa> stages;
@@ -38,14 +43,6 @@ public class Molino extends Entity {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
 	}
 
 	public Etapa.EtapaEnum getStage() {
@@ -120,7 +117,7 @@ public class Molino extends Entity {
 		if(parts != null) {
 			for(Parte parte : parts) {
 				total += parte.getQty();
-				montadas += parte.getMontadas();
+				montadas += parte.getTotalMontadas();
 			}
 		}
 		return montadas/total;
@@ -136,11 +133,41 @@ public class Molino extends Entity {
 		return total;
 	}
 	
+	public int getBotadas() {
+		int botadas = 0;
+		if(parts != null) {
+			for(Parte parte : parts) {
+				botadas += parte.getBotadas();
+			}
+		}
+		return botadas;
+	}
+	
+	public int getLimpiadas() {
+		int limpiadas = 0;
+		if(parts != null) {
+			for(Parte parte : parts) {
+				limpiadas += parte.getLimpiadas();
+			}
+		}
+		return limpiadas;
+	}
+	
 	public int getMontadas() {
 		int montadas = 0;
 		if(parts != null) {
 			for(Parte parte : parts) {
 				montadas += parte.getMontadas();
+			}
+		}
+		return montadas;
+	}
+	
+	public int getTotalMontadas() {
+		int montadas = 0;
+		if(parts != null) {
+			for(Parte parte : parts) {
+				montadas += parte.getTotalMontadas();
 			}
 		}
 		return montadas;
@@ -158,6 +185,44 @@ public class Molino extends Entity {
 			}
 		}
 		return giros;
+	}
+
+	public StatusAdmin getStatusAdmin() {
+		return statusAdmin;
+	}
+
+	public void setStatusAdmin(StatusAdmin statusAdmin) {
+		this.statusAdmin = statusAdmin;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	
+	public Etapa getCurrentStage() {
+		if(stages != null && stages.size() >0) {
+			return stages.get(stages.size()-1);
+		}
+		return null;
+	}
+	
+	public Tarea.TareaEnum getNextTask() {
+		Tarea.TareaEnum next = null;
+		Etapa etapa = getCurrentStage();
+		if(etapa != null) {
+			next = etapa.getNextTask();
+			Tarea current = etapa.getCurrentTask();
+			if(etapa.getStage().equals(Etapa.EtapaEnum.EXECUTION) && current != null && current.getFinishDate() != null) {
+				if(Tarea.TareaEnum.GIRO.equals(next) && getTotalMontadas() == getPiezas()) {
+					next = null;
+				}
+			}
+		}
+		return next;
 	}
 	
 }

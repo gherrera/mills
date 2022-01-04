@@ -81,4 +81,47 @@ public class Etapa extends Entity {
 		this.events = events;
 	}
 
+	public Tarea getCurrentTask() {
+		if(tasks != null && tasks.size() >0) {
+			return tasks.get(tasks.size()-1);
+		}else {
+			return null;
+		}
+	}
+
+	public Tarea.TareaEnum getNextTask() {
+		Tarea current = getCurrentTask();
+		if(stage.equals(EtapaEnum.BEGINNING)) {
+			if(current == null) {
+				return Tarea.TareaEnum.DET_PLANTA;
+			}else if(current.getTask().equals(Tarea.TareaEnum.DET_PLANTA)) {
+				return Tarea.TareaEnum.BLOQUEO_PRUEBA_ENERGIA_0;
+			}else if(current.getTask().equals(Tarea.TareaEnum.BLOQUEO_PRUEBA_ENERGIA_0)) {
+				return Tarea.TareaEnum.RETIRO_CHUTE;
+			}else if(current.getTask().equals(Tarea.TareaEnum.RETIRO_CHUTE)) {
+				return Tarea.TareaEnum.ING_LAINERA;
+			}
+		}else if(stage.equals(EtapaEnum.EXECUTION)) {
+			if(current == null) {
+				return Tarea.TareaEnum.BOTADO;
+			}else if(current.getTask().equals(Tarea.TareaEnum.BOTADO)) {
+				return Tarea.TareaEnum.LIMPIEZA;
+			}else if(current.getTask().equals(Tarea.TareaEnum.LIMPIEZA)) {
+				return Tarea.TareaEnum.MONTAJE;
+			}else if(current.getTask().equals(Tarea.TareaEnum.MONTAJE)) {
+				return Tarea.TareaEnum.GIRO;
+			}else if(current.getTask().equals(Tarea.TareaEnum.GIRO)) {
+				return Tarea.TareaEnum.BOTADO;
+			}
+		}else if(stage.equals(EtapaEnum.FINISHED)) {
+			if(current == null) {
+				return Tarea.TareaEnum.RET_LAINERA;
+			}else if(current.getTask().equals(Tarea.TareaEnum.RET_LAINERA)) {
+				return Tarea.TareaEnum.INST_CHUTE;
+			}else if(current.getTask().equals(Tarea.TareaEnum.INST_CHUTE)) {
+				return Tarea.TareaEnum.DESBLOQUEO;
+			}
+		}
+		return null;
+	}
 }

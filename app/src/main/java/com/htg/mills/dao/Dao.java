@@ -1,11 +1,14 @@
 package com.htg.mills.dao;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +16,11 @@ import org.joda.time.DateTimeZone;
 
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Etapa;
+import com.htg.mills.entities.maintenance.Molino;
+import com.htg.mills.entities.maintenance.Parte;
+import com.htg.mills.entities.maintenance.Tarea;
+import com.htg.mills.entities.maintenance.TareaParte;
 import com.htg.mills.entities.maintenance.Turno;
 import com.ibatis.sqlmap.client.SqlMapClient;
 
@@ -241,6 +249,277 @@ public class Dao {
 		} catch (SQLException e) {
 			log.error("Error al leer usuarios", e);
 			return null;
+		}
+	}
+	
+	public Turno getTurnoById(String id) {
+		try {
+			return (Turno)sqlMap.queryForObject("getTurnoById", id);
+		} catch (SQLException e) {
+			log.error("Error al leer turno", e);
+			return null;
+		}
+	}
+	
+	public void inicioTurno(Usuario user, Turno turno) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+
+			turno.setStatus(Turno.Status.OPEN);
+
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			Timestamp fecha = new Timestamp(date.getTime());
+			
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("turno", turno);
+			params.put("fecha", fecha);
+			sqlMap.update("updateStatusTurno", turno);
+			sqlMap.insert("insertTurnoHistorial", params);
+			if(turno.getMolino().getStatus() == null) {
+				turno.getMolino().setStatus(Molino.Status.STARTED);
+				if(turno.getMolino().getStages().size() == 0) {
+					turno.getMolino().setStage(Etapa.EtapaEnum.BEGINNING);
+					Etapa inicio = new Etapa();
+					inicio.setId(UUID.randomUUID().toString());
+					inicio.setCreationDate(fecha);
+					inicio.setStage(Etapa.EtapaEnum.BEGINNING);
+					inicio.setStatus(Etapa.Status.STARTED);
+					inicio.setUserStart(user.getLogin());
+					params.put("molino", turno.getMolino());
+					params.put("etapa", inicio);
+					sqlMap.insert("insertEtapa", params);
+				}
+				sqlMap.update("updateStatusMolino", turno.getMolino());
+			}
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}
+	}
+	
+	public void finTurno(Usuario user, Turno turno) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+
+			turno.setStatus(Turno.Status.CLOSED);
+
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("turno", turno);
+			params.put("fecha", new Timestamp(date.getTime()));
+			sqlMap.update("updateStatusTurno", turno);
+			sqlMap.insert("finTurnoHistorial", params);
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}
+	}
+
+	public Molino getMolinoById(String id) {
+		try {
+			return (Molino)sqlMap.queryForObject("getMolinoById", id);
+		} catch (SQLException e) {
+			log.error("Error al leer molino", e);
+			return null;
+		}
+	}
+	
+	public void startTask(Usuario user, Molino molino) throws SQLException {
+		Tarea.TareaEnum task = molino.getNextTask();
+		if(task != null) {
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			
+			Tarea tarea = new Tarea();
+			tarea.setId(UUID.randomUUID().toString());
+			tarea.setCreationDate(new Timestamp(date.getTime()));
+			tarea.setTask(task);
+			tarea.setUserStart(user.getLogin());
+			
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("etapa", molino.getCurrentStage());
+			params.put("tarea", tarea);
+
+			sqlMap.insert("insertTarea", params);
+			
+			if(task.equals(Tarea.TareaEnum.LIMPIEZA)) {
+				molino = getMolinoById(molino.getId());
+				startTask(user, molino);
+			}else if(task.equals(Tarea.TareaEnum.GIRO)) {
+				sqlMap.update("updateGiro", molino.getId());
+			}
+		}
+	}
+	
+	private void finishTarea(Molino molino, Tarea task, Usuario user) throws SQLException {
+		task.setUserFinish(user.getLogin());
+
+		sqlMap.update("finishTarea", task);
+		
+		Tarea.TareaEnum next = molino.getNextTask();
+		if(next == null) {
+			Etapa etapa = molino.getCurrentStage();
+			
+			etapa.setStatus(Etapa.Status.FINISHED);
+			etapa.setFinishDate(task.getFinishDate());
+			etapa.setUserFinish(user.getLogin());
+			sqlMap.update("finishEtapa", etapa);
+		}
+	}
+	
+	public void finishTask(Usuario user, Molino molino) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+			
+			Etapa etapa = molino.getCurrentStage();
+			Tarea task = etapa.getCurrentTask();
+			if(task != null && task.getFinishDate() == null) {
+				Calendar c = Calendar.getInstance(TimeZone.getDefault());
+				Date date = c.getTime();
+				Timestamp fecha = new Timestamp(date.getTime());
+				
+				task.setFinishDate(fecha);
+				finishTarea(molino, task, user);
+			}
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}
+	}
+	
+	public void startEtapa(Usuario user, Turno turno) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			Timestamp fecha = new Timestamp(date.getTime());
+			
+			Map<String, Object> params = new HashMap<String, Object>();
+			if(Etapa.EtapaEnum.BEGINNING.equals(turno.getMolino().getStage()) && turno.getMolino().getStages().size() == 1) {
+				turno.getMolino().setStage(Etapa.EtapaEnum.EXECUTION);
+				Etapa etapa = new Etapa();
+				etapa.setId(UUID.randomUUID().toString());
+				etapa.setCreationDate(fecha);
+				etapa.setStage(Etapa.EtapaEnum.EXECUTION);
+				etapa.setStatus(Etapa.Status.STARTED);
+				etapa.setUserStart(user.getLogin());
+				params.put("molino", turno.getMolino());
+				params.put("etapa", etapa);
+				sqlMap.insert("insertEtapa", params);
+				sqlMap.update("updateStatusMolino", turno.getMolino());
+			}else if(Etapa.EtapaEnum.EXECUTION.equals(turno.getMolino().getStage())) {
+				Etapa etapa = turno.getMolino().getCurrentStage();
+				if(etapa.getFinishDate() != null) {
+					turno.getMolino().setStage(Etapa.EtapaEnum.FINISHED);
+					etapa = new Etapa();
+					etapa.setId(UUID.randomUUID().toString());
+					etapa.setCreationDate(fecha);
+					etapa.setStage(Etapa.EtapaEnum.FINISHED);
+					etapa.setStatus(Etapa.Status.STARTED);
+					etapa.setUserStart(user.getLogin());
+					params.put("molino", turno.getMolino());
+					params.put("etapa", etapa);
+					sqlMap.insert("insertEtapa", params);
+					sqlMap.update("updateStatusMolino", turno.getMolino());
+				}
+			}
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}
+	}
+	
+	public void addParte(Usuario user, Turno turno, Tarea.TareaEnum stage, String parteId, int cant) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			Timestamp fecha = new Timestamp(date.getTime());
+			
+			if(Etapa.EtapaEnum.EXECUTION.equals(turno.getMolino().getStage())) {
+				Etapa etapa = turno.getMolino().getCurrentStage();
+				if(etapa.getFinishDate() == null) {
+					Parte parte = null;
+					for(Parte p : turno.getMolino().getParts()) {
+						if(p.getId().equals(parteId)) {
+							parte = p;
+							break;
+						}
+					}
+
+					Tarea tarea = null;
+					for(Tarea task : etapa.getTasks()) {
+						if(task.getTask().equals(stage)) {
+							tarea = task;
+						}
+					}
+					if(parte != null && tarea != null) {
+						boolean success = false;
+						if(stage.equals(Tarea.TareaEnum.BOTADO) && parte.getQty() >= (parte.getTotalBotadas() + cant)) {
+							success = true;
+							parte.setBotadas(parte.getBotadas()+cant);
+							parte.setTotalBotadas(parte.getTotalBotadas()+cant);
+						}else if(stage.equals(Tarea.TareaEnum.LIMPIEZA) && parte.getBotadas() >= (parte.getLimpiadas() + cant)) {
+							success = true;
+							parte.setLimpiadas(parte.getLimpiadas()+cant);
+							parte.setTotalLimpiadas(parte.getTotalLimpiadas()+cant);
+							
+							if(turno.getMolino().getBotadas() == turno.getMolino().getLimpiadas()) {
+								tarea.setFinishDate(fecha);
+								tarea.setUserFinish(user.getLogin());
+							}
+						}else if(stage.equals(Tarea.TareaEnum.MONTAJE) && parte.getBotadas() >= (parte.getMontadas() + cant)) {
+							success = true;
+							parte.setMontadas(parte.getMontadas()+cant);
+							parte.setTotalMontadas(parte.getTotalMontadas()+cant);
+							
+							if(turno.getMolino().getBotadas() == turno.getMolino().getMontadas()) {
+								tarea.setFinishDate(fecha);
+								tarea.setUserFinish(user.getLogin());
+							}
+						}
+						if(success) {
+							if(tarea.getFinishDate() != null) finishTarea(turno.getMolino(), tarea, user);
+							
+							sqlMap.update("updatePartes", parte);
+							
+							TareaParte tParte = new TareaParte();
+							tParte.setId(UUID.randomUUID().toString());
+							tParte.setCreationDate(fecha);
+							tParte.setPart(parte);
+							tParte.setQty(cant);
+							tParte.setTurn(turno);
+							tParte.setUser(user.getLogin());
+							tParte.setTareaId(tarea.getId());
+							
+							sqlMap.insert("insertTareaParte", tParte);
+						}
+					}
+				}
+			}
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
 		}
 	}
 }

@@ -33,6 +33,9 @@ import com.htg.mills.dao.Dao;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Molino;
+import com.htg.mills.entities.maintenance.Persona;
+import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
 import com.htg.mills.utils.EmailUtil;
@@ -390,4 +393,147 @@ public class App {
 	public List<Turno> getTurnosActivosController(String userId) {
 		return dao.getTurnosActivosController(userId);
 	}
+	
+	public Turno inicioTurno(Usuario user, String id) {
+		Turno turno = dao.getTurnoById(id);
+		if(!Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.inicioTurno(user, turno);
+						turno = dao.getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al iniciar turno", e);
+					}
+				}
+			}
+		}
+		return turno;
+	}
+	
+	public Turno finTurno(Usuario user, String id) {
+		Turno turno = dao.getTurnoById(id);
+		if(Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.finTurno(user, turno);
+						turno = dao.getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al iniciar turno", e);
+					}
+				}
+			}
+		}
+		return turno;
+	}
+	
+	public Turno startTask(Usuario user, String id) {
+		Turno turno = dao.getTurnoById(id);
+		if(Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.startTask(user, turno.getMolino());
+						turno = dao.getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al iniciar turno", e);
+					}
+				}
+			}
+		}
+		return turno;
+	}
+	
+	public Turno finishTask(Usuario user, String id) {
+		Turno turno = dao.getTurnoById(id);
+		if(Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.finishTask(user, turno.getMolino());
+						turno = dao.getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al iniciar turno", e);
+					}
+				}
+			}
+		}
+		return turno;
+	}
+	
+	public Turno getTurnoById(String id) {
+		return dao.getTurnoById(id);
+	}
+	
+	public Turno startEtapa(Usuario user, String id) {
+		Turno turno = dao.getTurnoById(id);
+		if(Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.startEtapa(user, turno);
+						turno = dao.getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al iniciar etapa", e);
+					}
+				}
+			}
+		}
+		return turno;
+	}
+	
+	public Turno addParte(Usuario user, String id, Tarea.TareaEnum stage, String parteId, int cant) {
+		Turno turno = dao.getTurnoById(id);
+		if(Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.addParte(user, turno, stage, parteId, cant);
+						turno = dao.getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al iniciar etapa", e);
+					}
+				}
+			}
+		}
+		return turno;
+	}
+	
 }

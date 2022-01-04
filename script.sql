@@ -31,6 +31,7 @@ id VARCHAR(50) NOT NULL,
 nombre VARCHAR(150) NOT NULL,
 tipo VARCHAR(150) NOT NULL,
 fec_creacion TIMESTAMP,
+estado_admin VARCHAR(20),
 estado VARCHAR(20),
 etapa VARCHAR(20),
 faena_id VARCHAR(50) NOT NULL,
@@ -67,6 +68,9 @@ cantidad INT,
 botadas INT,
 limpiadas INT,
 montadas INT,
+total_botadas INT,
+total_limpiadas INT,
+total_montadas INT,
 molino_id VARCHAR(50) NOT NULL,
 FOREIGN KEY(molino_id) REFERENCES molinos(id),
 PRIMARY KEY(id)
@@ -126,7 +130,6 @@ PRIMARY KEY(id)
 
 CREATE TABLE turno_historial(
 turno_id VARCHAR(50) NOT NULL,
-estado VARCHAR(20),
 fecha_inicio TIMESTAMP,
 fecha_termino TIMESTAMP,
 FOREIGN KEY(turno_id) REFERENCES turnos(id)

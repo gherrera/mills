@@ -36,11 +36,18 @@ export default class Home extends Component {
                     }
                 })
                 t.enable = !otro
+                t.return = true
             })
         }
         this.setState({
             turnos: _turnos
         })
+        if(_turnos.length === 1 && _turnos[0].enable) {
+            _turnos[0].return = false
+            this.setState({
+                turno: _turnos[0]
+            })
+        }
     }
 
     clickMenu(turno) {
@@ -87,7 +94,7 @@ export default class Home extends Component {
                         }
                     </View>
                     :
-                    <TurnoPage currentUser={currentUser} turno={turno} closeTurno={this.returnMenu.bind(this)} />
+                    <TurnoPage currentUser={currentUser} turno={turno} returnMenu={this.returnMenu.bind(this)} screenProps={this.props.screenProps} />
                 }
             </View>
         )

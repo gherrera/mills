@@ -18,6 +18,8 @@ import {
   Alert,
   Text
 } from 'react-native';
+import i18nextConfig from "./src/config/i18next";
+import {useTranslation} from 'react-i18next';
 
 import {
   Colors,
@@ -32,6 +34,7 @@ const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [ currentUser, setCurrentUser ] = useState({})
   const [ isLoggedIn, setIsLoggedIn ] = useState(false)
+  const {t, i18n} = useTranslation();
   
   const getCurrentUser = async () => {
     const currentU = await getCurrentUserPromise()
@@ -94,7 +97,7 @@ const App: () => Node = () => {
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
           { isLoggedIn ? 
-          <Private currentUser={currentUser} logoutHandler={handleLogout} />
+          <Private currentUser={currentUser} logoutHandler={handleLogout} screenProps={{t, i18n}} />
           :
           <LoginPage successHandler={ handleLogin } />
           }

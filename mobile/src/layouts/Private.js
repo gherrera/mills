@@ -82,7 +82,7 @@ export default class Private extends Component {
                             />
                         */}
                     }
-                    centerComponent={{ text: 'MILMA', style: { color: '#fff' } }}
+                    centerComponent={{ text: 'MILL\'S', style: { color: '#fff' } }}
                     rightComponent={
                         <Button
                             buttonStyle={{padding:0}}
@@ -94,7 +94,7 @@ export default class Private extends Component {
                         />
                     }
                 />
-                <HomePage currentUser={currentUser} />
+                <HomePage currentUser={currentUser} screenProps={this.props.screenProps}/>
             </View>
         )
     }
