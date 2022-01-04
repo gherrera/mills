@@ -123,17 +123,17 @@ export default class Fase extends Component {
     getBotonAddParte(stage, parteId) {
         const { isLoading } = this.state
         return (
-        <Button
-            icon={ {name:"pluscircleo", type:"antdesign", size:25} }
-            buttonStyle={{
-                width: 35, 
-                height:30, 
-                padding: 0
-            }}
-            loading={isLoading[stage]}
-            type="clear"
-            onPress={() => this.addParte(stage, parteId)}
-        />
+            <Button
+                icon={ {name:"pluscircleo", type:"antdesign", size:25} }
+                buttonStyle={{
+                    width: 35, 
+                    height:30, 
+                    padding: 0
+                }}
+                loading={isLoading[stage]}
+                type="clear"
+                onPress={() => this.addParte(stage, parteId)}
+            />
         )
     }
 
