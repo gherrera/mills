@@ -72,7 +72,8 @@ export default class Private extends Component {
             <View style={styles.scroll} >
                 <Header
                     leftComponent={
-                        {/*}
+                        { text: currentUser.login, style: { color: '#fff', top:3, fontSize:18 } }
+                        /*
                         <Image 
                             style={styles.tinyLogo}
                             source={{
@@ -80,12 +81,12 @@ export default class Private extends Component {
                             }}
                             resizeMode="contain"
                             />
-                        */}
+                        */
                     }
-                    centerComponent={{ text: 'MILL\'S', style: { color: '#fff' } }}
+                    centerComponent={{ text: 'MILL\'S', style: { color: '#fff', top:3, fontSize:17 } }}
                     rightComponent={
                         <Button
-                            buttonStyle={{padding:0}}
+                            buttonStyle={{padding:0, top: 2}}
                             onPress={logoutHandler}
                             icon={{
                                 name: "logout",

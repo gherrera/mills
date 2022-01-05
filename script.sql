@@ -45,7 +45,17 @@ nombre VARCHAR(150) NOT NULL,
 fec_creacion TIMESTAMP,
 molino_id VARCHAR(50) NOT NULL,
 estado VARCHAR(20),
+turno_id VARCHAR(50),
 FOREIGN KEY(molino_id) REFERENCES molinos(id),
+PRIMARY KEY(id)
+);
+
+CREATE TABLE turno_historial(
+id VARCHAR(50) NOT NULL,
+turno_id VARCHAR(50) NOT NULL,
+fecha_inicio TIMESTAMP,
+fecha_termino TIMESTAMP,
+FOREIGN KEY(turno_id) REFERENCES turnos(id),
 PRIMARY KEY(id)
 );
 
@@ -85,7 +95,11 @@ fecha_termino TIMESTAMP,
 user_inicio VARCHAR(50),
 user_termino VARCHAR(50),
 molino_id VARCHAR(50) NOT NULL,
+turno_id_inicio VARCHAR(50) NOT NULL,
+turno_id_termino VARCHAR(50),
 FOREIGN KEY(molino_id) REFERENCES molinos(id),
+FOREIGN KEY(turno_id_inicio) REFERENCES turno_historial(id),
+FOREIGN KEY(turno_id_termino) REFERENCES turno_historial(id),
 PRIMARY KEY(id)
 );
 
@@ -109,8 +123,12 @@ fecha_inicio TIMESTAMP,
 fecha_termino TIMESTAMP,
 user_inicio VARCHAR(50),
 user_termino VARCHAR(50),
+turno_id_inicio VARCHAR(50) NOT NULL,
+turno_id_termino VARCHAR(50),
 etapa_id VARCHAR(50) NOT NULL,
 FOREIGN KEY(etapa_id) REFERENCES molino_etapas(id),
+FOREIGN KEY(turno_id_inicio) REFERENCES turno_historial(id),
+FOREIGN KEY(turno_id_termino) REFERENCES turno_historial(id),
 PRIMARY KEY(id)
 );
 
@@ -124,13 +142,7 @@ parte_id VARCHAR(50) NOT NULL,
 turno_id VARCHAR(50),
 FOREIGN KEY(tarea_id) REFERENCES etapa_tareas(id),
 FOREIGN KEY(parte_id) REFERENCES molino_partes(id),
-FOREIGN KEY(turno_id) REFERENCES turnos(id),
+FOREIGN KEY(turno_id) REFERENCES turno_historial(id),
 PRIMARY KEY(id)
 );
 
-CREATE TABLE turno_historial(
-turno_id VARCHAR(50) NOT NULL,
-fecha_inicio TIMESTAMP,
-fecha_termino TIMESTAMP,
-FOREIGN KEY(turno_id) REFERENCES turnos(id)
-);

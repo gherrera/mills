@@ -14,6 +14,7 @@ public class Turno extends Entity {
 	
 	private String name;
 	private Status status;
+	private String turnoId;
 	private List<Persona> personas;
 	private Molino molino;
 	private List<TurnoHistorial> history;
@@ -47,6 +48,12 @@ public class Turno extends Entity {
 	}
 	public void setHistory(List<TurnoHistorial> history) {
 		this.history = history;
+	}
+	public String getTurnoId() {
+		return turnoId;
+	}
+	public void setTurnoId(String turnoId) {
+		this.turnoId = turnoId;
 	}
 
 }

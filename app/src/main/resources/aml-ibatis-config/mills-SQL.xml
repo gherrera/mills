@@ -31,12 +31,13 @@
 		<result property="creationDate" column="fec_creacion"/>
 		<result property="name" column="nombre"/>
 		<result property="status" column="estado"/>
-		<result property="personas" column="id" select="getPersonasTurno"/>
-		<result property="history" column="id" select="getHistorialTurno"/>
+		<result property="turnoId" column="turno_id"/>
 	</resultMap>
 
 	<resultMap id="Turno" class="com.htg.mills.entities.maintenance.Turno" extends="TurnoCore">
 		<result property="molino" column="molino_id" select="getMolinoById"/>
+		<result property="history" column="id" select="getHistorialTurno"/>
+		<result property="personas" column="id" select="getPersonasTurno"/>
 	</resultMap>
 
 	<resultMap id="Persona" class="com.htg.mills.entities.maintenance.Persona">
@@ -47,8 +48,10 @@
 	</resultMap>
 
 	<resultMap id="TurnoHistorial" class="com.htg.mills.entities.maintenance.TurnoHistorial">
-		<result property="openDate" column="fecha_inicio"/>
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fecha_inicio"/>
 		<result property="closedDate" column="fecha_termino"/>
+		<result property="turno" column="turno_id" select="getTurnoCoreById"/>
 	</resultMap>
 	
 	<resultMap id="Molino" class="com.htg.mills.entities.maintenance.Molino">
@@ -88,6 +91,8 @@
 		<result property="userFinish" column="user_termino"/>
 		<result property="tasks" column="id" select="getTareasByEtapa"/>
 		<result property="events" column="id" select="getEventosByEtapa"/>
+		<result property="turnoStart" column="turno_id_inicio" select="getHistorialTurnoById"/>
+		<result property="turnoFinish" column="turno_id_termino" select="getHistorialTurnoById"/>
 	</resultMap>
 
 	<resultMap id="Evento" class="com.htg.mills.entities.maintenance.Evento">
@@ -107,6 +112,8 @@
 		<result property="finishDate" column="fecha_termino"/>
 		<result property="userStart" column="user_inicio"/>
 		<result property="userFinish" column="user_termino"/>
+		<result property="turnoStart" column="turno_id_inicio" select="getHistorialTurnoById"/>
+		<result property="turnoFinish" column="turno_id_termino" select="getHistorialTurnoById"/>
 		<result property="parts" column="id" select="getPartesByTarea"/>
 	</resultMap>
 
@@ -130,7 +137,7 @@
 		<result property="user" column="usuario"/>
 		<result property="qty" column="cantidad"/>
 		<result property="part" column="parte_id" select="getParteById"/>
-		<result property="turn" column="turno_id" select="getTurnoCoreById"/>
+		<result property="turno" column="turno_id" select="getHistorialTurnoById"/>
 	</resultMap>
 
 	<insert id="insertToken">
@@ -228,36 +235,42 @@
 	</select>
 	
 	<select id="getHistorialTurno" resultMap="TurnoHistorial">
-		select fecha_inicio, fecha_termino
+		select id, fecha_inicio, fecha_termino, turno_id
 		from turno_historial
 		where turno_id = #value#
 		order by fecha_inicio
 	</select>
 	
+	<select id="getHistorialTurnoById" resultMap="TurnoHistorial">
+		select id, fecha_inicio, fecha_termino, turno_id
+		from turno_historial
+		where id = #value#
+	</select>
+
 	<select id="getTurnosActivosController" resultMap="Turno">
-		select a.id, a.fec_creacion, a.nombre, a.estado, a.molino_id
+		select a.id, a.fec_creacion, a.nombre, a.estado, a.molino_id, a.turno_id
 		from turnos a, turno_personas b, molinos c
 		where b.turno_id = a.id
 			and b.user_id_controller = #value#
 			and c.id = a.molino_id
 			and c.estado_admin = 'ACTIVE'
-			and ifnull(c.estado,'WAIT') != 'FINISHED'
+			and (ifnull(c.estado,'WAIT') != 'FINISHED' OR a.estado = 'OPEN')
 	</select>
 	
 	<select id="getTurnosByMolino" resultMap="TurnoCore">
-		select a.id, a.fec_creacion, a.nombre, a.estado
+		select a.id, a.fec_creacion, a.nombre, a.estado, a.turno_id
 		from turnos a
 		where molino_id = #value#
 	</select>
 	
 	<select id="getTurnoCoreById" resultMap="TurnoCore">
-		select a.id, a.fec_creacion, a.nombre, a.estado
+		select a.id, a.fec_creacion, a.nombre, a.estado, a.turno_id
 		from turnos a
 		where id = #value#
 	</select>
 	
 	<select id="getTurnoById" resultMap="Turno">
-		select a.id, a.fec_creacion, a.nombre, a.estado, a.molino_id
+		select a.id, a.fec_creacion, a.nombre, a.estado, a.molino_id, a.turno_id
 		from turnos a
 		where id = #value#
 	</select>
@@ -269,7 +282,7 @@
 	</select>
 	
 	<select id="getEtapasByMolino" resultMap="Etapa">
-		select id, fecha_inicio, etapa, estado, fecha_termino, user_inicio, user_termino
+		select id, fecha_inicio, etapa, estado, fecha_termino, user_inicio, user_termino, turno_id_inicio, turno_id_termino
 		from molino_etapas
 		where molino_id = #value#
 		order by fecha_inicio
@@ -283,7 +296,7 @@
 	</select>
 	
 	<select id="getTareasByEtapa" resultMap="Tarea">
-		select id, fecha_inicio, tarea, fecha_termino, user_inicio, user_termino
+		select id, fecha_inicio, tarea, fecha_termino, user_inicio, user_termino, turno_id_inicio, turno_id_termino
 		from etapa_tareas
 		where etapa_id = #value#
 		order by fecha_inicio
@@ -322,13 +335,14 @@
 	
 	<update id="updateStatusTurno">
 		update turnos
-			set estado = #status#
+			set estado = #status#,
+				turno_id = #turnoId#
 		where id=#id#
 	</update>
 	
 	<insert id="insertTurnoHistorial">
-		insert into turno_historial(turno_id, fecha_inicio)
-		values(#turno.id#, #fecha#)
+		insert into turno_historial(id, turno_id, fecha_inicio)
+		values(#id#, #turno.id#, #fecha#)
 	</insert>
 	
 	<update id="updateStatusMolino">
@@ -341,24 +355,24 @@
 	<update id="finTurnoHistorial">
 		update turno_historial
 			set fecha_termino = #fecha#
-		where turno_id = #turno.id#
-			and fecha_termino is null
+		where id = #turnoId#
 	</update>
 	
 	<insert id="insertEtapa">
-		insert into molino_etapas(id, etapa, estado, fecha_inicio, user_inicio, molino_id)
-			values(#etapa.id#, #etapa.stage#, #etapa.status#, #etapa.creationDate#, #etapa.userStart#, #molino.id#)
+		insert into molino_etapas(id, etapa, estado, fecha_inicio, user_inicio, molino_id, turno_id_inicio)
+			values(#etapa.id#, #etapa.stage#, #etapa.status#, #etapa.creationDate#, #etapa.userStart#, #molino.id#, #turnoId#)
 	</insert>
 	
 	<insert id="insertTarea">
-		insert into etapa_tareas(id, tarea, fecha_inicio, user_inicio, etapa_id)
-			values(#tarea.id#, #tarea.task#, #tarea.creationDate#, #tarea.userStart#, #etapa.id#)
+		insert into etapa_tareas(id, tarea, fecha_inicio, user_inicio, etapa_id, turno_id_inicio)
+			values(#tarea.id#, #tarea.task#, #tarea.creationDate#, #tarea.userStart#, #etapa.id#, #turnoId#)
 	</insert>
 	
 	<update id="finishTarea">
 		update etapa_tareas
 			set fecha_termino = #finishDate#,
-				user_termino = #userFinish#
+				user_termino = #userFinish#,
+				turno_id_termino = #turnoFinish.id#
 		where id = #id#
 	</update>
 	
@@ -366,7 +380,8 @@
 		update molino_etapas
 			set fecha_termino = #finishDate#,
 				user_termino = #userFinish#,
-				estado = #status#
+				estado = #status#,
+				turno_id_termino = #turnoFinish.id#
 		where id = #id#
 	</update>
 	
@@ -383,7 +398,7 @@
 	
 	<insert id="insertTareaParte">
 		insert into tarea_partes(id, fecha, usuario, cantidad, tarea_id, parte_id, turno_id)
-			values(#id#, #creationDate#, #user#, #qty#, #tareaId#, #part.id#, #turn.id#)
+			values(#id#, #creationDate#, #user#, #qty#, #tareaId#, #part.id#, #turno.id#)
 	</insert>
 	
 	<update id="updateGiro">

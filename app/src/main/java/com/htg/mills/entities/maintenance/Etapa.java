@@ -22,6 +22,8 @@ public class Etapa extends Entity {
 	private Status status;
 	private String userStart;
 	private String userFinish;
+	private TurnoHistorial turnoStart;
+	private TurnoHistorial turnoFinish;
 	private List<Tarea> tasks;
 	private List<Evento> events;
 
@@ -82,11 +84,15 @@ public class Etapa extends Entity {
 	}
 
 	public Tarea getCurrentTask() {
-		if(tasks != null && tasks.size() >0) {
-			return tasks.get(tasks.size()-1);
-		}else {
-			return null;
+		Tarea task = null;
+		if(tasks != null) {
+			for(Tarea t : tasks) {
+				if(task == null) task = t;
+				else if(t.getCreationDate().after(task.getCreationDate())) task = t;
+				else if(t.getTask().getOrder() > task.getTask().getOrder()) task = t;
+			}
 		}
+		return task;
 	}
 
 	public Tarea.TareaEnum getNextTask() {
@@ -123,5 +129,21 @@ public class Etapa extends Entity {
 			}
 		}
 		return null;
+	}
+
+	public TurnoHistorial getTurnoStart() {
+		return turnoStart;
+	}
+
+	public void setTurnoStart(TurnoHistorial turnoStart) {
+		this.turnoStart = turnoStart;
+	}
+
+	public TurnoHistorial getTurnoFinish() {
+		return turnoFinish;
+	}
+
+	public void setTurnoFinish(TurnoHistorial turnoFinish) {
+		this.turnoFinish = turnoFinish;
 	}
 }

@@ -11,17 +11,22 @@ public class Tarea extends Entity {
 
 	public enum TareaEnum {
 		
-		DET_PLANTA("Detencion de Planta"), BLOQUEO_PRUEBA_ENERGIA_0("Bloqueo Prueba de Energia 0"), 
-		RETIRO_CHUTE("Retiro Chute"), ING_LAINERA("Ingreso Lainera"),
-		BOTADO("Botado"), LIMPIEZA("Limpieza"), MONTAJE("Montaje"), GIRO("Giro"),
-		RET_LAINERA("Retiro Lainera"), INST_CHUTE("Instalacion Chute"), DESBLOQUEO("Desbloqueo");
+		DET_PLANTA(0, "Detencion de Planta"), BLOQUEO_PRUEBA_ENERGIA_0(1, "Bloqueo Prueba de Energia 0"), 
+		RETIRO_CHUTE(2, "Retiro Chute"), ING_LAINERA(3, "Ingreso Lainera"),
+		BOTADO(4, "Botado"), LIMPIEZA(5, "Limpieza"), MONTAJE(6, "Montaje"), GIRO(7, "Giro"),
+		RET_LAINERA(8, "Retiro Lainera"), INST_CHUTE(9, "Instalacion Chute"), DESBLOQUEO(10, "Desbloqueo");
 
+		private final int order;
 		private final String value;
 
-		private TareaEnum(String value) {
+		private TareaEnum(int order, String value) {
+			this.order = order;
 			this.value = value;
 		}
 		
+		public int getOrder() {
+			return order;
+		}
 		public String getText() { 
 			return value;
 		}
@@ -31,6 +36,8 @@ public class Tarea extends Entity {
 	private Timestamp finishDate;
 	private String userStart;
 	private String userFinish;
+	private TurnoHistorial turnoStart;
+	private TurnoHistorial turnoFinish;
 	private List<TareaParte> parts;
 	
 	public TareaEnum getTask() {
@@ -62,5 +69,17 @@ public class Tarea extends Entity {
 	}
 	public void setParts(List<TareaParte> parts) {
 		this.parts = parts;
+	}
+	public TurnoHistorial getTurnoStart() {
+		return turnoStart;
+	}
+	public void setTurnoStart(TurnoHistorial turnoStart) {
+		this.turnoStart = turnoStart;
+	}
+	public TurnoHistorial getTurnoFinish() {
+		return turnoFinish;
+	}
+	public void setTurnoFinish(TurnoHistorial turnoFinish) {
+		this.turnoFinish = turnoFinish;
 	}
 }

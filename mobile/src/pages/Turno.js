@@ -275,7 +275,7 @@ export default class Turno extends Component {
                                     <Text style={{fontSize:22, color: StylesGlobal.colorBlue}}>Personal</Text>
                                 </View>
                                 <View style={{ ...styles.col, width: '60%', padding:5, flexDirection: "row", flexWrap: "wrap"}}>
-                                {turno.personas.map((persona,index) => 
+                                {turno.personas && turno.personas.map((persona,index) => 
                                     <React.Fragment key={Math.random()}>
                                         <View style={{ ...styles.col, width: '50%', padding:5, backgroundColor: (index%2===0?StylesGlobal.colorSkyBlue10:null)}}>
                                             <Text style={{fontSize:22, color: StylesGlobal.colorBlue}}>{persona.name}</Text>
@@ -295,12 +295,16 @@ export default class Turno extends Component {
                 <View style={styles.footer}>
                     <View>
                         { turno.open !== true ?
-                            <Button 
-                                title={turno.status !== 'OPEN' ? "Inicio del Turno" : "Ingresar"}
-                                buttonStyle={{width:200, height:40, borderRadius: 10}}
-                                titleStyle={{fontSize: 20, lineHeight: 22}}
-                                onPress={this.handleInicioTurnoClick.bind(this)}
-                            />
+                            <>
+                                { (turno.molino.status !== 'FINISHED' || turno.status === 'OPEN') &&
+                                    <Button 
+                                        title={turno.status !== 'OPEN' ? "Inicio del Turno" : "Ingresar"}
+                                        buttonStyle={{width:200, height:40, borderRadius: 10}}
+                                        titleStyle={{fontSize: 20, lineHeight: 22}}
+                                        onPress={this.handleInicioTurnoClick.bind(this)}
+                                    />
+                                }
+                            </>
                             :
                             <Button 
                                 title={"Fin del Turno"}

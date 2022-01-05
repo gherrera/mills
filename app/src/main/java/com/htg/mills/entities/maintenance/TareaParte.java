@@ -10,7 +10,7 @@ public class TareaParte extends Entity {
 	private Parte part;
 	private String user;
 	private int qty;
-	private Turno turn;
+	private TurnoHistorial turno;
 	@JsonIgnore
 	private String tareaId;
 	
@@ -32,17 +32,17 @@ public class TareaParte extends Entity {
 	public void setQty(int qty) {
 		this.qty = qty;
 	}
-	public Turno getTurn() {
-		return turn;
-	}
-	public void setTurn(Turno turn) {
-		this.turn = turn;
-	}
 	public String getTareaId() {
 		return tareaId;
 	}
 	public void setTareaId(String tareaId) {
 		this.tareaId = tareaId;
+	}
+	public TurnoHistorial getTurno() {
+		return turno;
+	}
+	public void setTurno(TurnoHistorial turno) {
+		this.turno = turno;
 	}
 	
 	
