@@ -35,6 +35,7 @@ export default class Home extends Component {
                     }
                 })
                 t.enable = !otro
+                if(_turnos.filter(t3 => t3.id !== t.id && t3.status === 'OPEN').length > 0) t.enable = false
                 t.return = true
             })
         }
@@ -79,11 +80,11 @@ export default class Home extends Component {
                                 <Text style={{fontSize: 30, padding: 10, textAlign: 'center', color: StylesGlobal.colorBrown, fontWeight:'500'}}>Proyectos</Text>
                                 { turnos.map(t =>
                                     <ListItem key={t.id} bottomDivider onPress={() => this.clickMenu(t)}
-                                        containerStyle={{backgroundColor: StylesGlobal.colorGray25}}
+                                        containerStyle={{backgroundColor: t.enable ? StylesGlobal.colorGray25 : StylesGlobal.colorGray50}}
                                     >
                                             <ListItem.Content>
                                                 <ListItem.Title style={{ fontWeight: '600', fontSize:25 }}>
-                                                    {t.molino.name+' - ' +t.molino.faena.name+' - ' +t.name}
+                                                    {t.molino.name+' - ' +t.molino.faena.name+' - ' +t.name + (t.status === 'OPEN' ? ' (Abierto)':'')}
                                                     {!t.enable && ' (No permitido)'}
                                                 </ListItem.Title>
                                                 <ListItem.Subtitle style={{ fontWeight: '600', fontSize:20 }}>{t.molino.faena.client.name}</ListItem.Subtitle>

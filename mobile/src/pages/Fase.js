@@ -147,7 +147,7 @@ export default class Fase extends Component {
                 "Finalizar turno",
                 "Debe Finalizar el turno para salir"
             );
-        }
+        }else returnMenu()
     }
 
     render() {
@@ -482,31 +482,36 @@ export default class Fase extends Component {
                                     <View style={{ ...styles.col, width: '40%', padding:5}}>
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlue}}>Botado</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
+                                    <View style={{ ...styles.col, width: '15%', textAlign:'center', padding:5}}>
                                         { molino.currentStage.currentTask && molino.currentStage.currentTask.task === 'BOTADO' 
                                             && molino.currentStage.currentTask.finishDate === null 
                                             && part.totalBotadas < part.qty &&
                                             this.getBotonAddParte('BOTADO', part.id)
                                         }
                                     </View>
-                                    <View style={{ ...styles.col, width: '40%', padding:5}}>
-                                        <Text style={{fontSize:20, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'50%'}}>
+                                    <View style={{ ...styles.col, width: '20%', padding:5}}>
+                                        <Text style={{fontSize:20, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'100%'}}>
                                             {part.botadas} piezas
+                                        </Text>
+                                    </View>
+                                    <View style={{ ...styles.col, width: '25%', padding:5}}>
+                                        <Text style={{fontSize:20, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'95%'}}>
+                                            {part.qty - part.totalBotadas} restantes
                                         </Text>
                                     </View>
 
                                     <View style={{ ...styles.col, width: '40%', padding:5}}>
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlue}}>Limpieza</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
+                                    <View style={{ ...styles.col, width: '15%', textAlign:'center', padding:5}}>
                                         { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO' 
                                             && part.limpiadas < part.botadas &&
                                             this.getBotonAddParte('LIMPIEZA', part.id)
                                         }
                                     </View>
-                                    <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:5}}>
+                                    <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
                                         { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO' &&
-                                            <Text style={{fontSize:20, padding:3, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'50%'}}>
+                                            <Text style={{fontSize:20, padding:3, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'100%'}}>
                                                 {part.limpiadas} piezas
                                             </Text>
                                         }
@@ -515,16 +520,16 @@ export default class Fase extends Component {
                                     <View style={{ ...styles.col, width: '40%', padding:5}}>
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlue}}>Montaje</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
+                                    <View style={{ ...styles.col, width: '15%', textAlign:'center', padding:5}}>
                                         { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO' 
                                             && part.montadas < part.botadas && part.botadas === part.limpiadas && 
                                             this.getBotonAddParte('MONTAJE', part.id)
                                         }
                                     </View>
-                                    <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:5}}>
+                                    <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
                                         { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO'
                                             && part.botadas === part.limpiadas &&
-                                            <Text style={{fontSize:20, padding:3, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'50%'}}>
+                                            <Text style={{fontSize:20, padding:3, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'100%'}}>
                                                 {part.montadas} piezas
                                             </Text>
                                         }
