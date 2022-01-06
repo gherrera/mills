@@ -150,6 +150,13 @@ export default class Fase extends Component {
         }else returnMenu()
     }
 
+    finalizarTurno() {
+        this.props.finTurno()
+        this.setState({isModalVisible: false})
+        const { returnMenu } = this.props
+        returnMenu()
+    }
+
     render() {
         const { currentUser, returnMenu } = this.props
         const { turno, isModalVisible } = this.state
@@ -158,6 +165,12 @@ export default class Fase extends Component {
 
         return (
             <View style={{height:metrics.screenHeight-135}}>
+                <Text style={{fontSize: 25, textAlign: 'center', color: StylesGlobal.colorBlue, fontWeight:'600', top:0, position:'absolute', left: 0, width:'100%'}}>
+                    { molino.stage === 'BEGINNING' ? "FASE INICIO"
+                    : molino.stage === 'EXECUTION' ? "FASE EJECUCION"
+                    : "FASE TERMINO"
+                    }
+                </Text>
                 <Button
                     buttonStyle={{padding:0, width:30, height:30, backgroundColor:"transparent"}}
                     style={{color:"#000"}}
@@ -167,12 +180,6 @@ export default class Fase extends Component {
                         color: StylesGlobal.colorBlue
                     }}
                 />
-                <Text style={{fontSize: 25, textAlign: 'center', color: StylesGlobal.colorBlue, fontWeight:'600'}}>
-                    { molino.stage === 'BEGINNING' ? "FASE INICIO"
-                    : molino.stage === 'EXECUTION' ? "FASE EJECUCION"
-                    : "FASE TERMINO"
-                    }
-                </Text>
                 <View
                     style={{
                         borderBottomColor: StylesGlobal.colorSkyBlue,
@@ -187,24 +194,23 @@ export default class Fase extends Component {
                         visible={isModalVisible}
                     >
                         <View style={{
-                            backgroundColor: 'rgba(255,255,255,.93)', 
-                            width:'80%', 
+                            backgroundColor: 'rgba(255,255,255,.97)', 
+                            width:'85%', 
                             height:'40%', 
                             alignSelf:'center', 
                             marginTop: Dimensions.get('window').height*0.3, 
                             borderRadius:15, 
-                            padding:20,
+                            padding:16,
                             borderColor:StylesGlobal.colorBlue50, 
                             borderWidth:5}}>
-                            <Text style={{fontSize:28, padding:20, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                            <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
                                 Ha finalizado todas las tareas de la mantención.
                             </Text>
                             <Button
-                                title="Salir"
-                                type="clear"
-                                titleStyle={{fontSize:28, textAlign:'center'}}
+                                title="Finalizar Turno"
+                                titleStyle={{fontSize:26, textAlign:'center'}}
                                 buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
-                                onPress={() => this.setState({isModalVisible: false})}
+                                onPress={this.finalizarTurno.bind(this)}
                             />
                         </View>
                     </Modal>
@@ -218,23 +224,23 @@ export default class Fase extends Component {
                             visible={isModalVisible}
                         >
                             <View style={{
-                                backgroundColor: 'rgba(255,255,255,.93)', 
-                                width:'80%', 
+                                backgroundColor: 'rgba(255,255,255,.97)', 
+                                width:'85%', 
                                 height:'60%', 
                                 alignSelf:'center', 
                                 marginTop: Dimensions.get('window').height*0.2, 
                                 borderRadius:15, 
-                                padding:20,
+                                padding:16,
                                 borderColor:StylesGlobal.colorBlue50, 
                                 borderWidth:5}}>
-                                <Text style={{fontSize:28, padding:20, textAlign:'center', color: StylesGlobal.colorBlue}}>
-                                    Ha finalizado todos los procesos de la fase de
+                                <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                                    Ha finalizado todos los procesos de 
                                     { molino.stage === 'BEGINNING' ? " inicio" 
                                     : " ejecución"
                                     }
                                     .
                                 </Text>
-                                <Text style={{fontSize:28, padding:30, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                                <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
                                     ¿Inicia la fase de 
                                     { molino.stage === 'BEGINNING' ? " Ejecución"
                                     : " Término"
@@ -243,14 +249,14 @@ export default class Fase extends Component {
                                 </Text>
                                 <Button
                                     title="Iniciar"
-                                    titleStyle={{fontSize:28, textAlign:'center'}}
+                                    titleStyle={{fontSize:26, textAlign:'center'}}
                                     buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10 }}
                                     onPress={this.startEtapa.bind(this)}
                                 />
                                 <Button
                                     title="Salir"
                                     type="clear"
-                                    titleStyle={{fontSize:28, textAlign:'center'}}
+                                    titleStyle={{fontSize:26, textAlign:'center'}}
                                     buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
                                     onPress={() => this.setState({isModalVisible: false})}
                                 />
@@ -259,7 +265,7 @@ export default class Fase extends Component {
                     }
                 </>
                 }
-                <Text style={{fontSize:23, backgroundColor: StylesGlobal.colorBlue, color: 'white', borderRadius:10, padding:10, textAlign:'center', marginTop: 10}}>
+                <Text style={{fontSize:22, backgroundColor: StylesGlobal.colorBlue, color: 'white', borderRadius:10, padding:8, textAlign:'center', marginTop: 10}}>
                     { molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null ?
                         "Finalice el proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task)
                     : molino.nextTask && molino.nextTask === 'BOTADO' ?
@@ -282,20 +288,20 @@ export default class Fase extends Component {
                        )
                     ) &&
                     <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
-                        <View style={{ ...styles.col, width: '50%', textAlign:'center', padding:20}}>
+                        <View style={{ ...styles.col, width: '50%', textAlign:'center', padding:16}}>
                             <Button
                                 title="Inicio"
-                                type="clear"
+                                type={molino.nextTask === null || (molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)?"clear":"solid"}
                                 disabled={molino.nextTask === null || (molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)}
                                 titleStyle={{fontSize:20}}
                                 buttonStyle={{padding:5, borderColor: (molino.nextTask === null || (molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)) ? StylesGlobal.colorGray : StylesGlobal.colorSkyBlue, borderWidth:1.4, borderRadius:5}}
                                 onPress={this.startTask.bind(this)}
                             />
                         </View>
-                        <View style={{ ...styles.col, width: '50%', textAlign:'center', padding:20}}>
+                        <View style={{ ...styles.col, width: '50%', textAlign:'center', padding:16}}>
                             <Button
                                 title="Fin"
-                                type="clear"
+                                type={!(molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)?"clear":"solid"}
                                 disabled={!(molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)}
                                 buttonStyle={{padding:5, borderColor: !(molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null) ? StylesGlobal.colorGray : StylesGlobal.colorSkyBlue, borderWidth:1.4, borderRadius:5}}
                                 titleStyle={{fontSize:20}}
@@ -305,7 +311,7 @@ export default class Fase extends Component {
                     </View>
                 }
                 { molino.currentStage.currentTask &&
-                    <Text style={{fontSize:20, color: StylesGlobal.colorBlue, borderRadius:10, textAlign:'center', marginTop:10}}>
+                    <Text style={{fontSize:20, color: StylesGlobal.colorBlue, borderRadius:10, textAlign:'center'}}>
                     { molino.currentStage.currentTask.finishDate === null && molino.currentStage.currentTask.task !== 'LIMPIEZA' ?
                         "Proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task) + " en curso"
                     : molino.currentStage.currentTask.finishDate === null && molino.currentStage.currentTask.task === 'LIMPIEZA' ?
@@ -454,9 +460,23 @@ export default class Fase extends Component {
                 </>
                 : // EXECUTION
                 <>
-                    <Text style={{fontSize:20, color: StylesGlobal.colorBlue, paddingLeft: 10}}>
-                        Giro: {turno.molino.giros+1}
-                    </Text>
+                    <View style={{flexDirection: "row", flexWrap: "wrap", borderBottomColor: StylesGlobal.colorSkyBlue, borderBottomWidth: 1, marginTop: 10}} textAlign="flex-start">
+                        <View style={{ ...styles.col, width: '55%', padding:5}}>
+                            <Text style={{fontSize:18, color: StylesGlobal.colorBlue}}>
+                                Giro: {turno.molino.giros+1}
+                            </Text>
+                        </View>
+                        <View style={{ ...styles.col, width: '20%', padding:5}}>
+                            <Text style={{fontSize:18, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
+                                Piezas
+                            </Text>
+                        </View>
+                        <View style={{ ...styles.col, width: '25%', padding:5}}>
+                            <Text style={{fontSize:18, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
+                                Restantes
+                            </Text>
+                        </View>
+                    </View>
                     <View
                         style={{
                             borderBottomColor: StylesGlobal.colorSkyBlue,
@@ -468,17 +488,17 @@ export default class Fase extends Component {
                     { turno.molino.partsByType.map(type => 
                         type.parts.map(part =>
                             <React.Fragment key={"type-"+type.type+"-"+part.id}>
-                                <View style={{flexDirection: "row", flexWrap: "wrap", borderBottomColor: StylesGlobal.colorSkyBlue, borderBottomWidth: 1, marginTop: 10}} textAlign="flex-start">
+                                <View style={{flexDirection: "row", flexWrap: "wrap", backgroundColor: StylesGlobal.colorGray25}} textAlign="flex-start">
                                     <View style={{ ...styles.col, width: '40%', padding:5}}>
-                                        <Text style={{fontSize:23, color:StylesGlobal.colorBlue}}>{type.type}</Text>
+                                        <Text style={{fontSize:20, color:StylesGlobal.colorBlue}}>{type.type}</Text>
                                     </View>
                                     <View style={{ ...styles.col, width: '60%', padding:5}}>
-                                        <Text style={{fontSize:20, color:'white', width:'99%', padding:5, paddingLeft:10, backgroundColor:StylesGlobal.colorBlue}}>
+                                        <Text style={{fontSize:18, color:'white', width:'99%', padding:2, paddingLeft:10, backgroundColor:StylesGlobal.colorBlue}}>
                                             {part.name}
                                         </Text>
                                     </View>
                                 </View>
-                                <View style={{flexDirection: "row", flexWrap: "wrap"}}>
+                                <View style={{flexDirection: "row", flexWrap: "wrap", borderBottomColor: StylesGlobal.colorSkyBlue, borderBottomWidth: 1, marginBottom: 5}}>
                                     <View style={{ ...styles.col, width: '40%', padding:5}}>
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlue}}>Botado</Text>
                                     </View>
@@ -490,13 +510,13 @@ export default class Fase extends Component {
                                         }
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', padding:5}}>
-                                        <Text style={{fontSize:20, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'100%'}}>
-                                            {part.botadas} piezas
+                                        <Text style={{fontSize:18, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
+                                            {part.botadas}
                                         </Text>
                                     </View>
                                     <View style={{ ...styles.col, width: '25%', padding:5}}>
-                                        <Text style={{fontSize:20, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'95%'}}>
-                                            {part.qty - part.totalBotadas} restantes
+                                        <Text style={{fontSize:18, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'95%'}}>
+                                            {part.qty - part.totalBotadas}
                                         </Text>
                                     </View>
 
@@ -510,9 +530,9 @@ export default class Fase extends Component {
                                         }
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
-                                        { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO' &&
-                                            <Text style={{fontSize:20, padding:3, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'100%'}}>
-                                                {part.limpiadas} piezas
+                                        { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO' && part.botadas > 0 &&
+                                            <Text style={{fontSize:20, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
+                                                {part.limpiadas}
                                             </Text>
                                         }
                                     </View>
@@ -528,9 +548,9 @@ export default class Fase extends Component {
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
                                         { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO'
-                                            && part.botadas === part.limpiadas &&
-                                            <Text style={{fontSize:20, padding:3, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorBlue, width:'100%'}}>
-                                                {part.montadas} piezas
+                                            && part.botadas === part.limpiadas && part.botadas > 0 &&
+                                            <Text style={{fontSize:20, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
+                                                {part.montadas}
                                             </Text>
                                         }
                                     </View>
