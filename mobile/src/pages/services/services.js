@@ -72,5 +72,24 @@ export default {
         parteId
       }
     })
+  },
+  startInterruption: (id, desc) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/startInterruption',
+      method: 'post',
+      body: {
+        id,
+        desc
+      }
+    })
+  },
+  finishInterruption: (id) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/finishInterruption',
+      method: 'post',
+      body: {
+        id
+      }
+    })
   }
 }

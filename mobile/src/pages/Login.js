@@ -4,8 +4,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
-  ScrollView,
   Alert,
   Dimensions,
 } from 'react-native';

@@ -97,9 +97,9 @@
 
 	<resultMap id="Evento" class="com.htg.mills.entities.maintenance.Evento">
 		<result property="id" column="id"/>
-		<result property="creationDate" column="fecha_inicio"/>
 		<result property="type" column="tipo"/>
 		<result property="comments" column="comentarios"/>
+		<result property="startDate" column="fecha_inicio"/>
 		<result property="finishDate" column="fecha_termino"/>
 		<result property="userStart" column="user_inicio"/>
 		<result property="userFinish" column="user_termino"/>
@@ -407,6 +407,18 @@
 				limpiadas = 0,
 				montadas = 0
 		where molino_id = #value#
+	</update>
+	
+	<insert id="insertInterruption">
+		insert into etapa_eventos(tipo, comentarios, fecha_inicio, user_inicio, etapa_id)
+			values(#evt.type#, #evt.comments#, #evt.startDate#, #evt.userStart#, #stage.id#)
+	</insert>
+	
+	<update id="finishInterruption">
+		update etapa_eventos
+			set fecha_termino = #finishDate#,
+				user_termino = #userFinish#
+		where id = #id#
 	</update>
 
 </sqlMap>

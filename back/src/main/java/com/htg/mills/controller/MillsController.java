@@ -304,4 +304,17 @@ public class MillsController {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return app.addParte(currentUser.getUser(), params.get("id"), Tarea.TareaEnum.valueOf(params.get("stage")), params.get("parteId"), 1);
 	}
+	
+	@PostMapping("startInterruption")
+    @ResponseBody Turno startInterruption(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.startInterruption(currentUser.getUser(), params.get("id"), params.get("desc"));
+	}
+	
+	@PostMapping("finishInterruption")
+    @ResponseBody Turno finishInterruption(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.finishInterruption(currentUser.getUser(), params.get("id"));
+	}
+	
 }

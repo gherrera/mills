@@ -536,4 +536,50 @@ public class App {
 		return turno;
 	}
 	
+	public Turno startInterruption(Usuario user, String id, String desc) {
+		Turno turno = dao.getTurnoById(id);
+		if(Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.startInterruption(user, turno, desc);
+						turno = dao.getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al iniciar interrupcion", e);
+					}
+				}
+			}
+		}
+		return turno;
+	}
+	
+	public Turno finishInterruption(Usuario user, String id) {
+		Turno turno = dao.getTurnoById(id);
+		if(Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.finishInterruption(user, turno);
+						turno = dao.getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al finalizar interrupcion", e);
+					}
+				}
+			}
+		}
+		return turno;
+	}
+	
 }

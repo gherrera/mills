@@ -2,18 +2,16 @@ package com.htg.mills.entities.maintenance;
 
 import java.sql.Timestamp;
 
-import com.htg.mills.entities.Entity;
-
-public class Evento extends Entity {
-
-	private static final long serialVersionUID = -2666426991754626459L;
+public class Evento {
 
 	public enum Type {
 		INTERRUPTION
 	}
 	
+	private Integer id;
 	private Type type;
 	private String comments;
+	private Timestamp startDate;
 	private Timestamp finishDate;
 	private String userStart;
 	private String userFinish;
@@ -47,6 +45,18 @@ public class Evento extends Entity {
 	}
 	public void setUserFinish(String userFinish) {
 		this.userFinish = userFinish;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public Timestamp getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(Timestamp startDate) {
+		this.startDate = startDate;
 	}
 	
 	

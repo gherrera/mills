@@ -5,12 +5,15 @@ import {
     Text,
     Dimensions,
     Alert,
-    ScrollView
+    ScrollView,
+    BackHandler,
+    Modal,
+    TextInput
 } from 'react-native';
-import { Button, LinearProgress, Tab, TabView } from 'react-native-elements';
+import { Button, Tab, TabView } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
-import { inicioTurnoPromise, finTurnoPromise, getTurnoPromise } from './promises';
+import { inicioTurnoPromise, finTurnoPromise, getTurnoPromise, startInterruptionPromise, finishInterruptionPromise } from './promises';
 import { FasePage } from '.';
 
 import StylesGlobal from './StylesGlobal';
@@ -47,7 +50,10 @@ export default class Turno extends Component {
     state = {
         turnos: null,
         turno: this.props.turno,
-        tabIndex: 0
+        tabIndex: 0,
+        isVisibleInterruption: false,
+        comments: null,
+        isLoadingInterruption: false
     }
 
     init() {
@@ -55,11 +61,32 @@ export default class Turno extends Component {
             this.setState({
                 turno: t
             })
+            if(t.molino.currentStage.hasInterruption) {
+                this.setState({
+                    isVisibleInterruption: true
+                })
+            }
         })
     }
 
     componentDidMount() {
         this.init()
+        if(this.props.turno.return === true) {
+            this.backHandler = BackHandler.addEventListener(
+                "hardwareBackPress",
+                this.backAction
+            );
+        }
+    }
+
+    componentWillUnmount() {
+        this.backHandler.remove();
+    }
+
+    backAction = () => {
+        console.log('boton volver')
+        this.props.returnMenu()
+        return true;
     }
 
     changeTabIndex(index) {
@@ -69,7 +96,7 @@ export default class Turno extends Component {
     }
 
     handleInicioTurnoClick() {
-        const { turno } = this.state
+        const { turno, isVisibleInterruption } = this.state
         if(turno.status !== 'OPEN') {
             Alert.alert(
                 "Inicio de Turno",
@@ -108,6 +135,44 @@ export default class Turno extends Component {
         })
     }
 
+    handleInterrupcionClick() {
+        this.setState({
+            isVisibleInterruption: true
+        })
+    }
+
+    handleCloseInterruption() {
+        this.setState({
+            isVisibleInterruption: false
+        })
+    }
+
+    handleStartInterruption() {
+        const { turno, comments } = this.state
+        this.setState({isLoadingInterruption:true})
+        startInterruptionPromise(turno.id, comments).then(t => {
+            t.open = true
+            this.setState({
+                turno: t,
+                comments: null,
+                isLoadingInterruption: false
+            })
+        })
+    }
+
+    handleFinishInterruption() {
+        const { turno } = this.state
+        this.setState({isLoadingInterruption:true})
+        finishInterruptionPromise(turno.id).then(t => {
+            t.open = true
+            this.setState({
+                turno: t,
+                isVisibleInterruption: false,
+                isLoadingInterruption: false
+            })
+        })
+    }
+
     handleFinTurnoClick() {
         const { turno } = this.state
         Alert.alert(
@@ -132,27 +197,90 @@ export default class Turno extends Component {
     }
 
     render() {
-        const { currentUser, returnMenu } = this.props
-        const { tabIndex, turno } = this.state
+        const { currentUser } = this.props
+        const { tabIndex, turno, isVisibleInterruption, isLoadingInterruption } = this.state
         const {t, i18n} = this.props.screenProps; 
 
         return (
             <View style={{padding:10, height: Dimensions.get('window').height-110}}>
+                { isVisibleInterruption &&
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={true}
+                    >
+                        <View style={{
+                            backgroundColor: 'rgba(255,255,255,.97)', 
+                            width:'85%', 
+                            height:400, 
+                            alignSelf:'center', 
+                            marginTop: Dimensions.get('window').height*0.2, 
+                            borderRadius:15, 
+                            padding:12,
+                            borderColor:StylesGlobal.colorBlue50, 
+                            borderWidth:5}}>
+                            <Text style={{fontSize:26, padding:10, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                                Interrupcion
+                            </Text>
+                            <Text style={{fontSize:24, padding:10, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                                { turno.molino.currentStage.hasInterruption ?
+                                    "Interrupción en curso"
+                                    :
+                                    "Iniciar una Interrupción"
+                                }
+                            </Text>
+                            { turno.molino.currentStage.hasInterruption ?
+                                <>
+                                    <TextInput
+                                        placeholder="Motivo de la interrupción"
+                                        multiline={true}
+                                        numberOfLines={3}
+                                        editable={false}
+                                        value={
+                                            turno.molino.currentStage.events && turno.molino.currentStage.events.filter(e => e.type === 'INTERRUPTION' && e.finishDate === null)[0].comments
+                                        }
+                                        style={{borderColor:StylesGlobal.colorGray, borderWidth:1, borderRadius:5, padding: 5, textAlignVertical: 'top', marginBottom:30}}
+                                    />
+                                    <Button
+                                        title="Terminar"
+                                        titleStyle={{fontSize:20, textAlign:'center'}}
+                                        loading={isLoadingInterruption}
+                                        buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2, marginTop:30 }}
+                                        onPress={this.handleFinishInterruption.bind(this)}
+                                    />
+                                </>
+                                :
+                                <>
+                                    <TextInput
+                                        placeholder="Motivo de la interrupción"
+                                        multiline={true}
+                                        numberOfLines={3}
+                                        onChangeText={(val) => this.setState({ comments: val })}
+                                        style={{borderColor:StylesGlobal.colorGray, borderWidth:1, borderRadius:5, padding: 5, textAlignVertical: 'top', marginBottom:30}}
+                                    />
+                                    <Button
+                                        title="Iniciar interrupción"
+                                        titleStyle={{fontSize:20, textAlign:'center'}}
+                                        loading={isLoadingInterruption}
+                                        buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
+                                        onPress={this.handleStartInterruption.bind(this)}
+                                    />
+                                    <Button
+                                        title="Salir"
+                                        type="clear"
+                                        titleStyle={{fontSize:20, textAlign:'center'}}
+                                        buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
+                                        onPress={this.handleCloseInterruption.bind(this)}
+                                    />
+                                </>
+                            }
+                        </View>
+                    </Modal>
+                }
                 { turno.open === true ?
                     <FasePage currentUser={currentUser} turno={turno} finTurno={this.finTurno.bind(this)} returnMenu={this.returnMenuFase.bind(this)}  screenProps={this.props.screenProps}/>
                 :
                 <>
-                    { turno.return === true &&
-                        <Button
-                            buttonStyle={{padding:0, width:30, height:30, backgroundColor:"transparent", marginBottom:10}}
-                            style={{color:"#000"}}
-                            onPress={returnMenu}
-                            icon={{
-                                name: "arrow-back-ios",
-                                color: StylesGlobal.colorBlue
-                            }}
-                        />
-                    }
                     <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
                         <View style={{ ...styles.col, width: '85%'}}>
                             <Text style={{fontSize: 30, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
@@ -172,36 +300,36 @@ export default class Turno extends Component {
                                 <Text style={{textAlign:'center', fontSize:18, lineHeight: 18, fontWeight: '400', color: 'white'}}>horas</Text>
                             </View>
                         </View>
-                        <View style={{ ...styles.col, width: '32%', marginTop: 10}}>
-                            <Text style={{fontSize: 40, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
+                        <View style={{ ...styles.col, width: '35%', marginTop: 10}}>
+                            <Text style={{fontSize: 35, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
                                 {turno.molino.totalMontadas}
                                 <View style={{width: 100, paddingLeft:10}}>
-                                    <Text style={{fontSize: 18, color: StylesGlobal.colorBlue, lineHeight:20, top:10}}>
+                                    <Text style={{fontSize: 17, color: StylesGlobal.colorBlue, top:10}}>
                                         Pienzas montadas
                                     </Text>
                                 </View>
                             </Text>
                         </View>
-                        <View style={{ ...styles.col, width: '28%', marginTop: 10}}>
-                            <Text style={{fontSize: 40, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
+                        <View style={{ ...styles.col, width: '30%', marginTop: 10}}>
+                            <Text style={{fontSize: 35, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
                                 {turno.molino.giros}
                                 <View style={{paddingLeft:10,}}>
-                                    <Text style={{fontSize: 18, color: StylesGlobal.colorBlue, lineHeight:20, top:-10}}>
+                                    <Text style={{fontSize: 17, color: StylesGlobal.colorBlue, lineHeight:18, top:-7}}>
                                         Giros
                                     </Text>
                                 </View>
                             </Text>
                         </View>
-                        <View style={{ ...styles.col, width: '40%', marginTop:20}}>
+                        <View style={{ ...styles.col, width: '35%', marginTop:20}}>
                             <Progress.Bar 
                                 progress={turno.molino.percentage} 
-                                height={40} 
-                                width={(Dimensions.get('window').width-20)*0.4} 
+                                height={30} 
+                                width={(Dimensions.get('window').width-20)*0.35} 
                                 borderRadius={20}
                                 color={StylesGlobal.colorBlue}
                                 borderWidth={2}
                             />
-                            <Text style={{width:60, top:6, right:15, textAlign:'right', position:'absolute', color:StylesGlobal.colorGray, fontSize: 22}}>
+                            <Text style={{width:60, top:3, right:15, textAlign:'right', position:'absolute', color:StylesGlobal.colorGray, fontSize: 20}}>
                                 {Math.round(turno.molino.percentage*100)}%
                             </Text>
                         </View>
@@ -231,31 +359,31 @@ export default class Turno extends Component {
                         <TabView value={tabIndex}>
                             <TabView.Item style={{ width: Dimensions.get('window').width-20, marginTop: 20, height: Dimensions.get('window').height-60}}>
                                 <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
-                                    <View style={{ ...styles.col, width: '40%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Proyecto</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '60%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>{turno.molino.name}</Text>
                                     </View>
 
-                                    <View style={{ ...styles.col, width: '40%', padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Faena</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '60%', padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>{turno.molino.faena.name}</Text>
                                     </View>
 
-                                    <View style={{ ...styles.col, width: '40%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Equipo</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '60%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>{turno.molino.type}</Text>
                                     </View>
 
-                                    <View style={{ ...styles.col, width: '40%', padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Piezas</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '60%', padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>{turno.molino.piezas}</Text>
                                     </View>
                                 </View>
@@ -263,33 +391,33 @@ export default class Turno extends Component {
 
                             <TabView.Item style={{width: Dimensions.get('window').width-20, marginTop: 20}} onMoveShouldSetResponder={(e) => e.stopPropagation()}>
                                 <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
-                                    <View style={{ ...styles.col, width: '40%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Turno</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '60%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>{turno.name}</Text>
                                     </View>
 
-                                    <View style={{ ...styles.col, width: '40%', padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Responsable</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '60%', padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>{currentUser.name}</Text>
                                     </View>
 
-                                    <View style={{ ...styles.col, width: '40%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Personal</Text>
                                     </View>
-                                    <View style={{ ...styles.col, width: '60%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
+                                    <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}> </Text>
                                     </View>
                                     {turno.personas && turno.personas.map((persona,index) => 
-                                        <React.Fragment>
-                                            <View style={{ ...styles.col, width: '40%', padding:5, backgroundColor: (index%2===1?StylesGlobal.colorSkyBlue10:null)}}>
-                                                    <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>{persona.name}</Text>
+                                        <React.Fragment key={Math.random()}>
+                                            <View style={{ ...styles.col, width: '50%', padding:5, backgroundColor: (index%2===1?StylesGlobal.colorSkyBlue10:null)}}>
+                                                    <Text style={{fontSize:17, color: StylesGlobal.colorBlue}}>{persona.name}</Text>
                                             </View>
-                                            <View style={{ ...styles.col, width: '60%', padding:5, backgroundColor: (index%2===1?StylesGlobal.colorSkyBlue10:null)}}>
-                                                <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>{persona.role}</Text>
+                                            <View style={{ ...styles.col, width: '50%', padding:5, backgroundColor: (index%2===1?StylesGlobal.colorSkyBlue10:null)}}>
+                                                <Text style={{fontSize:17, color: StylesGlobal.colorBlue}}>{persona.role}</Text>
                                             </View>
                                         </React.Fragment>
                                     )}
@@ -314,12 +442,24 @@ export default class Turno extends Component {
                                 }
                             </>
                             :
-                            <Button 
-                                title={"Fin del Turno"}
-                                buttonStyle={{width:200, height:40, borderRadius: 10}}
-                                titleStyle={{fontSize: 20, lineHeight: 22}}
-                                onPress={this.handleFinTurnoClick.bind(this)}
-                            />
+                            <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
+                                <View style={{ ...styles.col, width: '50%'}}>
+                                    <Button 
+                                        title={"Fin del Turno"}
+                                        buttonStyle={{width:'85%', height:40, borderRadius: 10, alignSelf:'center'}}
+                                        titleStyle={{fontSize: 18, lineHeight: 20}}
+                                        onPress={this.handleFinTurnoClick.bind(this)}
+                                    />
+                                </View>
+                                <View style={{ ...styles.col, width: '50%'}}>
+                                    <Button 
+                                        title={"Interrupción"}
+                                        buttonStyle={{width:'85%', height:40, borderRadius: 10, alignSelf:'center'}}
+                                        titleStyle={{fontSize: 18, lineHeight: 20}}
+                                        onPress={this.handleInterrupcionClick.bind(this)}
+                                    />
+                                </View>
+                            </View>
                         }
                     </View>
                 </View>

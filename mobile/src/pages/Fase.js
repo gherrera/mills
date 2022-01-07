@@ -6,7 +6,8 @@ import {
     Modal,
     Dimensions,
     ScrollView,
-    Alert
+    Alert,
+    BackHandler
 } from 'react-native';
 import {  Button } from 'react-native-elements';
 
@@ -36,8 +37,21 @@ export default class Fase extends Component {
        isLoading: {BOTADO: false, LIMPIEZA: false, MONTAJE: false}
     }
 
-    async componentDidMount() {
-        
+    componentDidMount() {
+        this.backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            this.backAction
+        );
+    }
+
+    componentWillUnmount() {
+        this.backHandler.remove();
+    }
+
+    backAction = () => {
+        console.log('boton volver')
+        this.returnMenuHandler()
+        return true;
     }
 
     startTask() {
@@ -71,26 +85,32 @@ export default class Fase extends Component {
         const {t} = this.props.screenProps; 
         const molino = this.state.turno.molino
         if(molino.currentStage.currentTask) {
-            Alert.alert(
-                "Fin de Tarea",
-                "Confirma el Fin de la Tarea: " +t('messages.mills.task.'+molino.currentStage.currentTask.task)+ "?",
-                [
-                  {
-                    text: "Cancelar",
-                    onPress: () => console.log("Cancel Pressed"),
-                    style: "cancel"
-                  },
-                  { text: "Finalizar Tarea", onPress: () => {
-                        const { turno } = this.state
-                        finishTaskPromise(turno.id).then(t => {
-                            this.setState({
-                                turno: t
+            if(molino.currentStage.currentTask.task === 'BOTADO' && molino.botadas === 0) {
+                Alert.alert(
+                    "Error", "Debe agregar piezas a la tarea de Botado antes de Finalizar"
+                );
+            }else {
+                Alert.alert(
+                    "Fin de Tarea",
+                    "Confirma el Fin de la Tarea: " +t('messages.mills.task.'+molino.currentStage.currentTask.task)+ "?",
+                    [
+                    {
+                        text: "Cancelar",
+                        onPress: () => console.log("Cancel Pressed"),
+                        style: "cancel"
+                    },
+                    { text: "Finalizar Tarea", onPress: () => {
+                            const { turno } = this.state
+                            finishTaskPromise(turno.id).then(t => {
+                                this.setState({
+                                    turno: t
+                                })
                             })
-                        })
+                        }
                     }
-                  }
-                ]
-            );
+                    ]
+                );
+            }
         }
     }
 
@@ -164,7 +184,7 @@ export default class Fase extends Component {
         const molino = turno.molino
 
         return (
-            <View style={{height:metrics.screenHeight-135}}>
+            <View style={{height:metrics.screenHeight-135}} o>
                 <Text style={{fontSize: 25, textAlign: 'center', color: StylesGlobal.colorBlue, fontWeight:'600', top:0, position:'absolute', left: 0, width:'100%'}}>
                     { molino.stage === 'BEGINNING' ? "FASE INICIO"
                     : molino.stage === 'EXECUTION' ? "FASE EJECUCION"
@@ -265,7 +285,7 @@ export default class Fase extends Component {
                     }
                 </>
                 }
-                <Text style={{fontSize:22, backgroundColor: StylesGlobal.colorBlue, color: 'white', borderRadius:10, padding:8, textAlign:'center', marginTop: 10}}>
+                <Text style={{fontSize:19, backgroundColor: StylesGlobal.colorBlue, color: 'white', borderRadius:10, padding:7, textAlign:'center', marginTop: 10}}>
                     { molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null ?
                         "Finalice el proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task)
                     : molino.nextTask && molino.nextTask === 'BOTADO' ?
@@ -310,7 +330,7 @@ export default class Fase extends Component {
                         </View>
                     </View>
                 }
-                { molino.currentStage.currentTask &&
+                { molino.currentStage.currentTask && molino.currentStage.currentTask.finishDate === null &&
                     <Text style={{fontSize:20, color: StylesGlobal.colorBlue, borderRadius:10, textAlign:'center'}}>
                     { molino.currentStage.currentTask.finishDate === null && molino.currentStage.currentTask.task !== 'LIMPIEZA' ?
                         "Proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task) + " en curso"
@@ -467,12 +487,12 @@ export default class Fase extends Component {
                             </Text>
                         </View>
                         <View style={{ ...styles.col, width: '20%', padding:5}}>
-                            <Text style={{fontSize:18, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
+                            <Text style={{fontSize:16, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
                                 Piezas
                             </Text>
                         </View>
                         <View style={{ ...styles.col, width: '25%', padding:5}}>
-                            <Text style={{fontSize:18, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
+                            <Text style={{fontSize:16, padding:1, color:'white', textAlign:'center', backgroundColor: StylesGlobal.colorSkyBlue, width:'100%'}}>
                                 Restantes
                             </Text>
                         </View>

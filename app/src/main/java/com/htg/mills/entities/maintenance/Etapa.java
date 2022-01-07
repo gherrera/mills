@@ -146,4 +146,15 @@ public class Etapa extends Entity {
 	public void setTurnoFinish(TurnoHistorial turnoFinish) {
 		this.turnoFinish = turnoFinish;
 	}
+	
+	public boolean getHasInterruption() {
+		if(events != null) {
+			for(Evento evt : events) {
+				if(evt.getType().equals(Evento.Type.INTERRUPTION) && evt.getFinishDate() == null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

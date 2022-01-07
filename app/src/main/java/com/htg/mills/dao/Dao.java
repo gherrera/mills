@@ -17,6 +17,7 @@ import org.joda.time.DateTimeZone;
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
 import com.htg.mills.entities.maintenance.Etapa;
+import com.htg.mills.entities.maintenance.Evento;
 import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Parte;
 import com.htg.mills.entities.maintenance.Tarea;
@@ -535,4 +536,44 @@ public class Dao {
 			try {sqlMap.endTransaction();}catch(Exception e){}
 		}
 	}
+	
+	public void startInterruption(Usuario user, Turno turno, String desc) throws SQLException {
+		Molino molino = turno.getMolino();
+
+		Etapa current = molino.getCurrentStage();
+		if(!current.getHasInterruption()) {
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			
+			Map<String, Object> params = new HashMap<String, Object>();
+	
+			Evento evt = new Evento();
+			evt.setStartDate(new Timestamp(date.getTime()));
+			evt.setType(Evento.Type.INTERRUPTION);
+			evt.setComments(desc);
+			evt.setUserStart(user.getLogin());
+			params.put("evt", evt);
+			params.put("stage", current);
+	
+			sqlMap.insert("insertInterruption", params);
+		}
+	}
+	
+	public void finishInterruption(Usuario user, Turno turno) throws SQLException {
+		Molino molino = turno.getMolino();
+		Etapa current = molino.getCurrentStage();
+		if(current.getHasInterruption()) {
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			
+			for(Evento evt : current.getEvents()) {
+				if(evt.getType().equals(Evento.Type.INTERRUPTION) && evt.getFinishDate() == null) {
+					evt.setFinishDate(new Timestamp(date.getTime()));
+					evt.setUserFinish(user.getLogin());
+					sqlMap.insert("finishInterruption", evt);
+				}
+			}
+		}
+	}
+	
 }

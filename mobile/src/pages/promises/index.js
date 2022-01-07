@@ -6,6 +6,8 @@ import finishTask from './finishTask'
 import getTurno from './getTurno'
 import startEtapa from './startEtapa'
 import addParte from './addParte'
+import startInterruption from './startInterruption'
+import finishInterruption from './finishInterruption'
 
 export const getTurnosActivosPromise = getTurnosActivos
 export const inicioTurnoPromise = inicioTurno
@@ -15,3 +17,5 @@ export const finishTaskPromise = finishTask
 export const getTurnoPromise = getTurno
 export const startEtapaPromise = startEtapa
 export const addPartePromise = addParte
+export const startInterruptionPromise = startInterruption
+export const finishInterruptionPromise = finishInterruption
