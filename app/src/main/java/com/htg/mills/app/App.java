@@ -395,6 +395,8 @@ public class App {
 	}
 	
 	public Turno inicioTurno(Usuario user, String id) {
+		long lStartTime = System.currentTimeMillis();
+
 		Turno turno = dao.getTurnoById(id);
 		if(!Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
@@ -414,10 +416,14 @@ public class App {
 				}
 			}
 		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("inicioTurno: "+(lEndTime-lStartTime)+"ms");
 		return turno;
 	}
 	
 	public Turno finTurno(Usuario user, String id) {
+		long lStartTime = System.currentTimeMillis();
+
 		Turno turno = dao.getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE)) {
@@ -437,10 +443,14 @@ public class App {
 				}
 			}
 		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("finTurno: "+(lEndTime-lStartTime)+"ms");
 		return turno;
 	}
 	
 	public Turno startTask(Usuario user, String id) {
+		long lStartTime = System.currentTimeMillis();
+
 		Turno turno = dao.getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
@@ -460,10 +470,14 @@ public class App {
 				}
 			}
 		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("startTask: "+(lEndTime-lStartTime)+"ms");
 		return turno;
 	}
 	
 	public Turno finishTask(Usuario user, String id) {
+		long lStartTime = System.currentTimeMillis();
+
 		Turno turno = dao.getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
@@ -483,6 +497,8 @@ public class App {
 				}
 			}
 		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("finishTask: "+(lEndTime-lStartTime)+"ms");
 		return turno;
 	}
 	
@@ -491,6 +507,8 @@ public class App {
 	}
 	
 	public Turno startEtapa(Usuario user, String id) {
+		long lStartTime = System.currentTimeMillis();
+
 		Turno turno = dao.getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
@@ -510,10 +528,14 @@ public class App {
 				}
 			}
 		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("startEtapa: "+(lEndTime-lStartTime)+"ms");
 		return turno;
 	}
 	
 	public Turno addParte(Usuario user, String id, Tarea.TareaEnum task, String parteId, int cant) {
+		long lStartTime = System.currentTimeMillis();
+
 		Turno turno = dao.getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
@@ -533,10 +555,14 @@ public class App {
 				}
 			}
 		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("addParte: "+(lEndTime-lStartTime)+"ms");
 		return turno;
 	}
 	
 	public Turno startInterruption(Usuario user, String id, String desc) {
+		long lStartTime = System.currentTimeMillis();
+
 		Turno turno = dao.getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
@@ -556,10 +582,14 @@ public class App {
 				}
 			}
 		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("startInterruption: "+(lEndTime-lStartTime)+"ms");
 		return turno;
 	}
 	
 	public Turno finishInterruption(Usuario user, String id) {
+		long lStartTime = System.currentTimeMillis();
+		
 		Turno turno = dao.getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
@@ -579,6 +609,8 @@ public class App {
 				}
 			}
 		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("finishInterruption: "+(lEndTime-lStartTime)+"ms");
 		return turno;
 	}
 	
