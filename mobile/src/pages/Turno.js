@@ -56,6 +56,11 @@ export default class Turno extends Component {
         isLoadingInterruption: false
     }
 
+    constructor(props) {
+        super(props)
+        this.backAction = this.backActionHandler.bind(this);
+    }
+
     init() {
         getTurnoPromise(this.props.turno.id).then(t => {
             this.setState({
@@ -72,7 +77,8 @@ export default class Turno extends Component {
     componentDidMount() {
         this.init()
         if(this.props.turno.return === true) {
-            this.backHandler = BackHandler.addEventListener(
+            console.log('activa retorno')
+            BackHandler.addEventListener(
                 "hardwareBackPress",
                 this.backAction
             );
@@ -80,12 +86,18 @@ export default class Turno extends Component {
     }
 
     componentWillUnmount() {
-        this.backHandler.remove();
+        //console.log('componentWillUnmount')
+        BackHandler.removeEventListener('hardwareBackPress', this.backAction);
     }
 
-    backAction = () => {
+    backActionHandler = () => {
         console.log('boton volver')
-        this.props.returnMenu()
+        const { turno } = this.state
+        if(turno.open === true) {
+            this.init()
+        }else {
+            this.props.returnMenu()
+        }
         return true;
     }
 
@@ -303,14 +315,17 @@ export default class Turno extends Component {
                         <View style={{ ...styles.col, width: '35%', marginTop: 10}}>
                             <Text style={{fontSize: 35, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
                                 {turno.molino.totalMontadas}
-                                <View style={{width: 100, paddingLeft:10}}>
-                                    <Text style={{fontSize: 17, color: StylesGlobal.colorBlue, top:10}}>
-                                        Pienzas montadas
-                                    </Text>
-                                </View>
                             </Text>
+                            <View style={{paddingLeft:45, width:'100%', position:'absolute'}}>
+                                <Text style={{width:'100%', fontSize: 17, color: StylesGlobal.colorBlue, flexWrap:'nowrap'}}>
+                                    Piezas
+                                </Text>
+                                <Text style={{width:'100%', fontSize: 17, color: StylesGlobal.colorBlue, flexWrap:'nowrap'}}>
+                                    montadas
+                                </Text>
+                            </View>
                         </View>
-                        <View style={{ ...styles.col, width: '30%', marginTop: 10}}>
+                        <View style={{ ...styles.col, width: '25%', marginTop: 10}}>
                             <Text style={{fontSize: 35, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
                                 {turno.molino.giros}
                                 <View style={{paddingLeft:10,}}>
@@ -320,11 +335,11 @@ export default class Turno extends Component {
                                 </View>
                             </Text>
                         </View>
-                        <View style={{ ...styles.col, width: '35%', marginTop:20}}>
+                        <View style={{ ...styles.col, width: '40%', marginTop:18}}>
                             <Progress.Bar 
                                 progress={turno.molino.percentage} 
                                 height={30} 
-                                width={(Dimensions.get('window').width-20)*0.35} 
+                                width={(Dimensions.get('window').width-20)*0.4} 
                                 borderRadius={20}
                                 color={StylesGlobal.colorBlue}
                                 borderWidth={2}

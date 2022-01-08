@@ -7,7 +7,7 @@ import {
     Dimensions,
     ScrollView,
     Alert,
-    BackHandler
+    //BackHandler
 } from 'react-native';
 import {  Button } from 'react-native-elements';
 
@@ -38,14 +38,16 @@ export default class Fase extends Component {
     }
 
     componentDidMount() {
+        /*
         this.backHandler = BackHandler.addEventListener(
             "hardwareBackPress",
             this.backAction
         );
+        */
     }
 
     componentWillUnmount() {
-        this.backHandler.remove();
+        //this.backHandler.remove();
     }
 
     backAction = () => {
@@ -274,11 +276,10 @@ export default class Fase extends Component {
                                     onPress={this.startEtapa.bind(this)}
                                 />
                                 <Button
-                                    title="Salir"
-                                    type="clear"
+                                    title="Finalizar Turno"
                                     titleStyle={{fontSize:26, textAlign:'center'}}
                                     buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
-                                    onPress={() => this.setState({isModalVisible: false})}
+                                    onPress={this.finalizarTurno.bind(this)}
                                 />
                             </View>
                         </Modal>
@@ -286,10 +287,15 @@ export default class Fase extends Component {
                 </>
                 }
                 <Text style={{fontSize:19, backgroundColor: StylesGlobal.colorBlue, color: 'white', borderRadius:10, padding:7, textAlign:'center', marginTop: 10}}>
-                    { molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null ?
+                    { molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null && molino.currentStage.currentTask.task === 'MONTAJE' ?
+                        "El proceso de Montaje finalizará automáticamente cuando registre todas las piezas"
+                    : molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null ?
                         "Finalice el proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task)
                     : molino.nextTask && molino.nextTask === 'BOTADO' ?
                         "Inicie el proceso de " + t('messages.mills.task.'+molino.nextTask) +
+                        " y registre las piezas en la medida que avance la actividad"
+                    : molino.nextTask && molino.nextTask === 'LIMPIEZA' ?
+                        "Inicie el proceso de " + t('messages.mills.task.'+molino.nextTask) + " y " + t('messages.mills.task.MONTAJE') +
                         " y registre las piezas en la medida que avance la actividad"
                     : molino.nextTask ?
                         "Inicie el proceso de " + t('messages.mills.task.'+molino.nextTask)
@@ -330,7 +336,7 @@ export default class Fase extends Component {
                         </View>
                     </View>
                 }
-                { molino.currentStage.currentTask && molino.currentStage.currentTask.finishDate === null &&
+                { false && molino.currentStage.currentTask && molino.currentStage.currentTask.finishDate === null &&
                     <Text style={{fontSize:20, color: StylesGlobal.colorBlue, borderRadius:10, textAlign:'center'}}>
                     { molino.currentStage.currentTask.finishDate === null && molino.currentStage.currentTask.task !== 'LIMPIEZA' ?
                         "Proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task) + " en curso"
