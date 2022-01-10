@@ -28,6 +28,7 @@ public class Molino extends Entity {
 	private List<Turno> turns;
 	private List<Parte> parts;
 	private Faena faena;
+	private Integer hours;
 	
 	public String getName() {
 		return name;
@@ -105,10 +106,6 @@ public class Molino extends Entity {
 			}
 		}
 		return _parts;
-	}
-	
-	public int getHours() {
-		return 0;
 	}
 	
 	public float getPercentage() {
@@ -210,9 +207,8 @@ public class Molino extends Entity {
 		return null;
 	}
 	
-	public Tarea.TareaEnum getNextTask() {
+	private Tarea.TareaEnum getNextTaskByStage(Etapa etapa) {
 		Tarea.TareaEnum next = null;
-		Etapa etapa = getCurrentStage();
 		if(etapa != null) {
 			next = etapa.getNextTask();
 			Tarea current = etapa.getCurrentTask();
@@ -223,6 +219,22 @@ public class Molino extends Entity {
 			}
 		}
 		return next;
+	}
+	
+	public Tarea.TareaEnum getNextTask() {
+		return getNextTaskByStage(getCurrentStage());
+	}
+	
+	public Tarea.TareaEnum getNextTask(Etapa etapa) {
+		return getNextTaskByStage(etapa);
+	}
+
+	public Integer getHours() {
+		return hours;
+	}
+
+	public void setHours(Integer hours) {
+		this.hours = hours;
 	}
 	
 }

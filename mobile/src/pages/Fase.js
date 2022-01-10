@@ -7,7 +7,6 @@ import {
     Dimensions,
     ScrollView,
     Alert,
-    //BackHandler
 } from 'react-native';
 import {  Button } from 'react-native-elements';
 
@@ -34,26 +33,17 @@ export default class Fase extends Component {
     state = {
        turno: this.props.turno,
        isModalVisible: true,
-       isLoading: {BOTADO: false, LIMPIEZA: false, MONTAJE: false}
+       isLoading: {BOTADO: false, LIMPIEZA: false, MONTAJE: false},
+       isModalStartExecution: false
     }
 
     componentDidMount() {
-        /*
-        this.backHandler = BackHandler.addEventListener(
-            "hardwareBackPress",
-            this.backAction
-        );
-        */
-    }
-
-    componentWillUnmount() {
-        //this.backHandler.remove();
-    }
-
-    backAction = () => {
-        console.log('boton volver')
-        this.returnMenuHandler()
-        return true;
+        const { turno } = this.props
+        if(!turno.molino.showPendientes && (turno.molino.nextTask === 'RETIRO_CHUTE' || turno.molino.nextTask === 'ING_LAINERA') && turno.molino.currentStage.currentTask.finishDate) {
+            this.setState({
+                isModalStartExecution: true
+            })
+        }
     }
 
     startTask() {
@@ -71,10 +61,11 @@ export default class Fase extends Component {
                   },
                   { text: "Iniciar Tarea", onPress: () => {
                         const { turno } = this.state
-                        startTaskPromise(turno.id).then(t => {
+                        startTaskPromise(turno.id, turno.molino.currentStage.stage).then(t => {
                             this.setState({
                                 turno: t
                             })
+                            this.props.callbackTasks(t, turno.molino.currentStage.stage)
                         })
                     }
                   }
@@ -103,10 +94,16 @@ export default class Fase extends Component {
                     },
                     { text: "Finalizar Tarea", onPress: () => {
                             const { turno } = this.state
-                            finishTaskPromise(turno.id).then(t => {
+                            finishTaskPromise(turno.id, turno.molino.currentStage.stage).then(t => {
                                 this.setState({
                                     turno: t
                                 })
+                                if(t.molino.nextTask === 'RETIRO_CHUTE') {
+                                    this.setState({
+                                        isModalStartExecution: true
+                                    })
+                                }
+                                this.props.callbackTasks(t, turno.molino.currentStage.stage)
                             })
                         }
                     }
@@ -120,7 +117,8 @@ export default class Fase extends Component {
         const { turno } = this.state
         startEtapaPromise(turno.id).then(t => {
             this.setState({
-                turno: t
+                turno: t,
+                isModalStartExecution: false
             })
         })
     }
@@ -181,12 +179,12 @@ export default class Fase extends Component {
 
     render() {
         const { currentUser, returnMenu } = this.props
-        const { turno, isModalVisible } = this.state
+        const { turno, isModalVisible, isModalStartExecution } = this.state
         const {t, i18n} = this.props.screenProps; 
         const molino = turno.molino
 
         return (
-            <View style={{height:metrics.screenHeight-135}} o>
+            <View style={{height:metrics.screenHeight-122, position:'absolute'}}>
                 <Text style={{fontSize: 25, textAlign: 'center', color: StylesGlobal.colorBlue, fontWeight:'600', top:0, position:'absolute', left: 0, width:'100%'}}>
                     { molino.stage === 'BEGINNING' ? "FASE INICIO"
                     : molino.stage === 'EXECUTION' ? "FASE EJECUCION"
@@ -209,6 +207,47 @@ export default class Fase extends Component {
                         marginTop: 5,
                     }}
                 />
+                { isModalStartExecution &&
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={true}
+                    >
+                        <View style={{
+                            backgroundColor: 'rgba(255,255,255,.97)', 
+                            width:'85%', 
+                            height:400, 
+                            alignSelf:'center', 
+                            marginTop: (Dimensions.get('window').height-400)/2, 
+                            borderRadius:15, 
+                            padding:16,
+                            borderColor:StylesGlobal.colorBlue50, 
+                            borderWidth:5}}>
+                            <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                                Ha finalizado el proceso de 
+                                { turno.molino.nextTask === 'RETIRO_CHUTE' ? " Bloqueo" 
+                                : " Retiro Chute"
+                                }
+                                .
+                            </Text>
+                            <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                                ¿Inicia la fase de Ejecución?
+                            </Text>
+                            <Button
+                                title="Iniciar"
+                                titleStyle={{fontSize:26, textAlign:'center'}}
+                                buttonStyle={{width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10 }}
+                                onPress={this.startEtapa.bind(this)}
+                            />
+                            <Button
+                                title="Aún no"
+                                titleStyle={{fontSize:26, textAlign:'center'}}
+                                buttonStyle={{width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
+                                onPress={() => this.setState({isModalStartExecution:false})}
+                            />
+                        </View>
+                    </Modal>
+                }
                 { molino.stage === 'FINISHED' && molino.status === 'FINISHED' &&
                     <Modal
                         animationType="fade"
@@ -231,7 +270,7 @@ export default class Fase extends Component {
                             <Button
                                 title="Finalizar Turno"
                                 titleStyle={{fontSize:26, textAlign:'center'}}
-                                buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
+                                buttonStyle={{width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
                                 onPress={this.finalizarTurno.bind(this)}
                             />
                         </View>
@@ -272,13 +311,13 @@ export default class Fase extends Component {
                                 <Button
                                     title="Iniciar"
                                     titleStyle={{fontSize:26, textAlign:'center'}}
-                                    buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10 }}
+                                    buttonStyle={{width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10 }}
                                     onPress={this.startEtapa.bind(this)}
                                 />
                                 <Button
                                     title="Finalizar Turno"
                                     titleStyle={{fontSize:26, textAlign:'center'}}
-                                    buttonStyle={{width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
+                                    buttonStyle={{width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorSkyBlue, borderWidth:2 }}
                                     onPress={this.finalizarTurno.bind(this)}
                                 />
                             </View>

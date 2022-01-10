@@ -333,9 +333,15 @@ public class Dao {
 		}
 	}
 	
-	public void startTask(Usuario user, Turno turno) throws SQLException {
+	public void startTask(Usuario user, Turno turno, Etapa.EtapaEnum stage) throws SQLException {
 		Molino molino = turno.getMolino();
-		Tarea.TareaEnum task = molino.getNextTask();
+		Etapa etapa = null;
+		if(turno.getMolino().getStages() != null) {
+			for(Etapa et : turno.getMolino().getStages()) {
+				if(et.getStage().equals(stage)) etapa = et;
+			}
+		}
+		Tarea.TareaEnum task = molino.getNextTask(etapa);
 		if(task != null) {
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
@@ -347,7 +353,7 @@ public class Dao {
 			tarea.setUserStart(user.getLogin());
 			
 			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("etapa", molino.getCurrentStage());
+			params.put("etapa", etapa);
 			params.put("tarea", tarea);
 			params.put("turnoId", turno.getTurnoId());
 
@@ -355,14 +361,14 @@ public class Dao {
 			
 			if(task.equals(Tarea.TareaEnum.LIMPIEZA)) {
 				turno = getTurnoById(turno.getId());
-				startTask(user, turno);
+				startTask(user, turno, stage);
 			}else if(task.equals(Tarea.TareaEnum.GIRO)) {
 				sqlMap.update("updateGiro", molino.getId());
 			}
 		}
 	}
 	
-	private void finishTarea(Turno turno, Tarea task, Usuario user) throws SQLException {
+	private void finishTarea(Turno turno, Etapa etapa, Tarea task, Usuario user) throws SQLException {
 		task.setUserFinish(user.getLogin());
 		TurnoHistorial t = new TurnoHistorial();
 		t.setId(turno.getTurnoId());
@@ -371,10 +377,8 @@ public class Dao {
 		sqlMap.update("finishTarea", task);
 		
 		Molino molino = turno.getMolino();
-		Tarea.TareaEnum next = molino.getNextTask();
+		Tarea.TareaEnum next = molino.getNextTask(etapa);
 		if(next == null) {
-			Etapa etapa = molino.getCurrentStage();
-			
 			etapa.setTurnoFinish(t);
 			etapa.setStatus(Etapa.Status.FINISHED);
 			etapa.setFinishDate(task.getFinishDate());
@@ -388,19 +392,26 @@ public class Dao {
 		}
 	}
 	
-	public void finishTask(Usuario user, Turno turno) throws SQLException {
+	public void finishTask(Usuario user, Turno turno, Etapa.EtapaEnum stage) throws SQLException {
 		try {
 			sqlMap.startTransaction();
 			
-			Etapa etapa = turno.getMolino().getCurrentStage();
-			Tarea task = etapa.getCurrentTask();
-			if(task != null && task.getFinishDate() == null) {
-				Calendar c = Calendar.getInstance(TimeZone.getDefault());
-				Date date = c.getTime();
-				Timestamp fecha = new Timestamp(date.getTime());
-				
-				task.setFinishDate(fecha);
-				finishTarea(turno, task, user);
+			Etapa etapa = null;
+			if(turno.getMolino().getStages() != null) {
+				for(Etapa et : turno.getMolino().getStages()) {
+					if(et.getStage().equals(stage)) etapa = et;
+				}
+			}
+			if(etapa != null) {
+				Tarea task = etapa.getCurrentTask();
+				if(task != null && task.getFinishDate() == null) {
+					Calendar c = Calendar.getInstance(TimeZone.getDefault());
+					Date date = c.getTime();
+					Timestamp fecha = new Timestamp(date.getTime());
+					
+					task.setFinishDate(fecha);
+					finishTarea(turno, etapa, task, user);
+				}
 			}
 			
 			sqlMap.commitTransaction();
@@ -507,7 +518,7 @@ public class Dao {
 							}
 						}
 						if(success) {
-							if(tarea.getFinishDate() != null) finishTarea(turno, tarea, user);
+							if(tarea.getFinishDate() != null) finishTarea(turno, etapa, tarea, user);
 							
 							sqlMap.update("updatePartes", parte);
 							

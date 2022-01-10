@@ -24,7 +24,7 @@ export default class Home extends Component {
         turno: null
     }
 
-    async componentDidMount() {
+    async init() {
         let _turnos = await getTurnosActivosPromise()
         if(_turnos) {
             _turnos.map(t => {
@@ -50,6 +50,10 @@ export default class Home extends Component {
         }
     }
 
+    async componentDidMount() {
+        this.init()
+    }
+
     clickMenu(turno) {
         if(turno.enable) {
             this.setState({
@@ -62,6 +66,7 @@ export default class Home extends Component {
         this.setState({
             turno: null
         })
+        this.init()
     }
 
     render() {
@@ -83,11 +88,11 @@ export default class Home extends Component {
                                         containerStyle={{backgroundColor: t.enable ? StylesGlobal.colorGray25 : StylesGlobal.colorGray50}}
                                     >
                                             <ListItem.Content>
-                                                <ListItem.Title style={{ fontWeight: '600', fontSize:25 }}>
+                                                <ListItem.Title style={{ fontWeight: '700', fontSize:20 }}>
                                                     {t.molino.name+' - ' +t.molino.faena.name+' - ' +t.name + (t.status === 'OPEN' ? ' (Abierto)':'')}
                                                     {!t.enable && ' (No permitido)'}
                                                 </ListItem.Title>
-                                                <ListItem.Subtitle style={{ fontWeight: '600', fontSize:20 }}>{t.molino.faena.client.name}</ListItem.Subtitle>
+                                                <ListItem.Subtitle style={{ fontWeight: '700', fontSize:18 }}>{t.molino.faena.client.name}</ListItem.Subtitle>
                                             </ListItem.Content>
                                             <ListItem.Chevron />
                                     </ListItem>

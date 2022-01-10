@@ -21,7 +21,7 @@ export default (args, validateErrors=true) => {
   config.url = args.url
   config.method = args.method
 
-  console.log(args.url);
+  //console.log(args.url);
 
   if ('responseType' in args) {
     config.responseType = args.responseType

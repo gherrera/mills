@@ -37,6 +37,7 @@ import com.htg.mills.app.App;
 import com.htg.mills.entities.CurrentUser;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
@@ -284,13 +285,13 @@ public class MillsController {
 	@PostMapping("startTask")
     @ResponseBody Turno startTask(@RequestBody Map<String, String> params) {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.startTask(currentUser.getUser(), params.get("id"));
+		return app.startTask(currentUser.getUser(), params.get("id"), Etapa.EtapaEnum.valueOf(params.get("stage")));
 	}
 	
 	@PostMapping("finishTask")
     @ResponseBody Turno finishTask(@RequestBody Map<String, String> params) {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.finishTask(currentUser.getUser(), params.get("id"));
+		return app.finishTask(currentUser.getUser(), params.get("id"), Etapa.EtapaEnum.valueOf(params.get("stage")));
 	}
 	
 	@PostMapping("startEtapa")

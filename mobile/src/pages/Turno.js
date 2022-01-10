@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
         alignSelf: "flex-start",
     },
     footer: {
-        bottom: -51,
         width: Dimensions.get('window').width,
+        top: Dimensions.get('window').height-120,
         position: 'absolute',
         height: 60,
         textAlign: 'center',
@@ -53,7 +53,8 @@ export default class Turno extends Component {
         tabIndex: 0,
         isVisibleInterruption: false,
         comments: null,
-        isLoadingInterruption: false
+        isLoadingInterruption: false,
+        hasPendientes: false
     }
 
     constructor(props) {
@@ -62,41 +63,44 @@ export default class Turno extends Component {
     }
 
     init() {
-        getTurnoPromise(this.props.turno.id).then(t => {
-            this.setState({
+        const { turno } = this.state
+        getTurnoPromise(turno.id).then(t => {
+                this.setState({
                 turno: t
             })
-            if(t.molino.currentStage.hasInterruption) {
+            if(t.molino.currentStage && t.molino.currentStage.hasInterruption) {
                 this.setState({
                     isVisibleInterruption: true
                 })
             }
         })
+        if(turno.molino.currentStage && turno.molino.currentStage.stage !== 'BEGINNING' && turno.molino.stages[0].status === 'STARTED') {
+            this.setState({
+                hasPendientes: true
+            })
+        }
     }
 
     componentDidMount() {
         this.init()
-        if(this.props.turno.return === true) {
-            console.log('activa retorno')
-            BackHandler.addEventListener(
-                "hardwareBackPress",
-                this.backAction
-            );
-        }
+        BackHandler.addEventListener(
+            "hardwareBackPress",
+            this.backActionHandler
+        );
     }
 
     componentWillUnmount() {
-        //console.log('componentWillUnmount')
-        BackHandler.removeEventListener('hardwareBackPress', this.backAction);
+        BackHandler.removeEventListener('hardwareBackPress', this.backActionHandler);
     }
 
     backActionHandler = () => {
-        console.log('boton volver')
         const { turno } = this.state
         if(turno.open === true) {
             this.init()
-        }else {
+        }else if(turno.return) {
             this.props.returnMenu()
+        }else {
+            return false;
         }
         return true;
     }
@@ -159,6 +163,32 @@ export default class Turno extends Component {
         })
     }
 
+    handlePendientesClick(turno) {
+        turno.molino.stage = 'BEGINNING'
+        turno.molino.showPendientes = true
+        turno.molino.currentStage = turno.molino.stages[0]
+        turno.molino.nextTask = turno.molino.currentStage.nextTask
+        turno.open = true
+        this.setState({
+            turno: turno
+        })
+    }
+
+    callbackTasks(turno, stage) {
+        const { hasPendientes } = this.state
+        if(hasPendientes && stage === 'BEGINNING') {
+            if(turno.molino.stage !== 'BEGINNING' && turno.molino.stages[0].status === 'STARTED') {
+                this.handlePendientesClick(turno)
+            }else {
+                turno.open = true
+                this.setState({
+                    hasPendientes: false,
+                    turno: turno
+                })
+            }
+        }
+    }
+
     handleStartInterruption() {
         const { turno, comments } = this.state
         this.setState({isLoadingInterruption:true})
@@ -210,11 +240,11 @@ export default class Turno extends Component {
 
     render() {
         const { currentUser } = this.props
-        const { tabIndex, turno, isVisibleInterruption, isLoadingInterruption } = this.state
+        const { tabIndex, turno, isVisibleInterruption, isLoadingInterruption, hasPendientes } = this.state
         const {t, i18n} = this.props.screenProps; 
 
         return (
-            <View style={{padding:10, height: Dimensions.get('window').height-110}}>
+            <View style={{padding:10, height: Dimensions.get('window').height-122}}>
                 { isVisibleInterruption &&
                     <Modal
                         animationType="fade"
@@ -290,7 +320,7 @@ export default class Turno extends Component {
                     </Modal>
                 }
                 { turno.open === true ?
-                    <FasePage currentUser={currentUser} turno={turno} finTurno={this.finTurno.bind(this)} returnMenu={this.returnMenuFase.bind(this)}  screenProps={this.props.screenProps}/>
+                    <FasePage key={Math.random()} currentUser={currentUser} turno={turno} finTurno={this.finTurno.bind(this)} returnMenu={this.returnMenuFase.bind(this)}  screenProps={this.props.screenProps} callbackTasks={this.callbackTasks.bind(this)}/>
                 :
                 <>
                     <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
@@ -313,27 +343,27 @@ export default class Turno extends Component {
                             </View>
                         </View>
                         <View style={{ ...styles.col, width: '35%', marginTop: 10}}>
-                            <Text style={{fontSize: 35, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
+                            <Text style={{fontSize: 35, color: StylesGlobal.colorBlue, fontWeight:'400', textAlign:'right', width:40}}>
                                 {turno.molino.totalMontadas}
                             </Text>
-                            <View style={{paddingLeft:45, width:'100%', position:'absolute'}}>
+                            <View style={{left:45, width:'100%', position:'absolute', top:5}}>
                                 <Text style={{width:'100%', fontSize: 17, color: StylesGlobal.colorBlue, flexWrap:'nowrap'}}>
                                     Piezas
                                 </Text>
-                                <Text style={{width:'100%', fontSize: 17, color: StylesGlobal.colorBlue, flexWrap:'nowrap'}}>
+                                <Text style={{width:'100%', fontSize: 17, lineHeight:16, color: StylesGlobal.colorBlue, flexWrap:'nowrap'}}>
                                     montadas
                                 </Text>
                             </View>
                         </View>
                         <View style={{ ...styles.col, width: '25%', marginTop: 10}}>
-                            <Text style={{fontSize: 35, color: StylesGlobal.colorBlue, fontWeight:'400'}}>
+                            <Text style={{fontSize: 35, color: StylesGlobal.colorBlue, fontWeight:'400', textAlign:'right', width:40}}>
                                 {turno.molino.giros}
-                                <View style={{paddingLeft:10,}}>
-                                    <Text style={{fontSize: 17, color: StylesGlobal.colorBlue, lineHeight:18, top:-7}}>
-                                        Giros
-                                    </Text>
-                                </View>
                             </Text>
+                            <View style={{left:45, position:'absolute', top:20}}>
+                                <Text style={{fontSize: 17, color: StylesGlobal.colorBlue, lineHeight:18, top:-7}}>
+                                    Giros
+                                </Text>
+                            </View>
                         </View>
                         <View style={{ ...styles.col, width: '40%', marginTop:18}}>
                             <Progress.Bar 
@@ -365,14 +395,14 @@ export default class Turno extends Component {
                         }}
                         //variant="primary"
                     >
-                        <Tab.Item title="Detalle" containerStyle={{backgroundColor:'transparent', color: StylesGlobal.colorBlue}}>
+                        <Tab.Item title="Detalle" containerStyle={{backgroundColor:'transparent', padding:0, margin:0}} titleStyle={{color: StylesGlobal.colorBlue}} >
                         </Tab.Item>
-                        <Tab.Item title="Equipo" containerStyle={{backgroundColor:'transparent', color: StylesGlobal.colorBlue}}>
+                        <Tab.Item title="Equipo" containerStyle={{backgroundColor:'transparent', padding:0, margin:0}} titleStyle={{color: StylesGlobal.colorBlue}}>
                         </Tab.Item>
                     </Tab>
                     <ScrollView>
                         <TabView value={tabIndex}>
-                            <TabView.Item style={{ width: Dimensions.get('window').width-20, marginTop: 20, height: Dimensions.get('window').height-60}}>
+                            <TabView.Item style={{ width: Dimensions.get('window').width-20, marginTop: 10}}>
                                 <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
                                     <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Proyecto</Text>
@@ -404,7 +434,7 @@ export default class Turno extends Component {
                                 </View>
                             </TabView.Item>
 
-                            <TabView.Item style={{width: Dimensions.get('window').width-20, marginTop: 20}} onMoveShouldSetResponder={(e) => e.stopPropagation()}>
+                            <TabView.Item style={{width: Dimensions.get('window').width-20, marginTop: 10}}>
                                 <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
                                     <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorSkyBlue10, padding:5}}>
                                         <Text style={{fontSize:20, color: StylesGlobal.colorBlue}}>Turno</Text>
@@ -458,22 +488,32 @@ export default class Turno extends Component {
                             </>
                             :
                             <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
-                                <View style={{ ...styles.col, width: '50%'}}>
+                                <View style={{ ...styles.col, width: hasPendientes?'34%':'50%'}}>
                                     <Button 
                                         title={"Fin del Turno"}
-                                        buttonStyle={{width:'85%', height:40, borderRadius: 10, alignSelf:'center'}}
+                                        buttonStyle={{width:hasPendientes?'98%':'85%', height:40, borderRadius: 10, alignSelf:'center'}}
                                         titleStyle={{fontSize: 18, lineHeight: 20}}
                                         onPress={this.handleFinTurnoClick.bind(this)}
                                     />
                                 </View>
-                                <View style={{ ...styles.col, width: '50%'}}>
+                                <View style={{ ...styles.col, width: hasPendientes?'33%':'50%'}}>
                                     <Button 
                                         title={"Interrupción"}
-                                        buttonStyle={{width:'85%', height:40, borderRadius: 10, alignSelf:'center'}}
+                                        buttonStyle={{width:hasPendientes?'98%':'85%', height:40, borderRadius: 10, alignSelf:'center'}}
                                         titleStyle={{fontSize: 18, lineHeight: 20}}
                                         onPress={this.handleInterrupcionClick.bind(this)}
                                     />
                                 </View>
+                                { hasPendientes &&
+                                    <View style={{ ...styles.col, width: '33%'}}>
+                                        <Button 
+                                            title="Pendientes"
+                                            buttonStyle={{width:hasPendientes?'98%':'85%', height:40, borderRadius: 10, alignSelf:'center'}}
+                                            titleStyle={{fontSize: 18, lineHeight: 20}}
+                                            onPress={() => this.handlePendientesClick(this.state.turno)}
+                                        />
+                                    </View>
+                                }
                             </View>
                         }
                     </View>

@@ -33,6 +33,7 @@ import com.htg.mills.dao.Dao;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Persona;
 import com.htg.mills.entities.maintenance.Tarea;
@@ -397,7 +398,7 @@ public class App {
 	public Turno inicioTurno(Usuario user, String id) {
 		long lStartTime = System.currentTimeMillis();
 
-		Turno turno = dao.getTurnoById(id);
+		Turno turno = getTurnoById(id);
 		if(!Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
 				boolean existe = false;
@@ -409,7 +410,7 @@ public class App {
 				if(existe) {
 					try {
 						dao.inicioTurno(user, turno);
-						turno = dao.getTurnoById(id);
+						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar turno", e);
 					}
@@ -424,7 +425,7 @@ public class App {
 	public Turno finTurno(Usuario user, String id) {
 		long lStartTime = System.currentTimeMillis();
 
-		Turno turno = dao.getTurnoById(id);
+		Turno turno = getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE)) {
 				boolean existe = false;
@@ -436,7 +437,7 @@ public class App {
 				if(existe) {
 					try {
 						dao.finTurno(user, turno);
-						turno = dao.getTurnoById(id);
+						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar turno", e);
 					}
@@ -448,10 +449,10 @@ public class App {
 		return turno;
 	}
 	
-	public Turno startTask(Usuario user, String id) {
+	public Turno startTask(Usuario user, String id, Etapa.EtapaEnum stage) {
 		long lStartTime = System.currentTimeMillis();
 
-		Turno turno = dao.getTurnoById(id);
+		Turno turno = getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
 				boolean existe = false;
@@ -462,8 +463,8 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.startTask(user, turno);
-						turno = dao.getTurnoById(id);
+						dao.startTask(user, turno, stage);
+						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar turno", e);
 					}
@@ -475,10 +476,10 @@ public class App {
 		return turno;
 	}
 	
-	public Turno finishTask(Usuario user, String id) {
+	public Turno finishTask(Usuario user, String id, Etapa.EtapaEnum stage) {
 		long lStartTime = System.currentTimeMillis();
 
-		Turno turno = dao.getTurnoById(id);
+		Turno turno = getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
 				boolean existe = false;
@@ -489,8 +490,8 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.finishTask(user, turno);
-						turno = dao.getTurnoById(id);
+						dao.finishTask(user, turno, stage);
+						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar turno", e);
 					}
@@ -503,13 +504,19 @@ public class App {
 	}
 	
 	public Turno getTurnoById(String id) {
-		return dao.getTurnoById(id);
-	}
+		long lStartTime = System.currentTimeMillis();
+
+		Turno turno = dao.getTurnoById(id);
+		long lEndTime = System.currentTimeMillis();
+		log.debug("getTurnoById: "+(lEndTime-lStartTime)+"ms");
+
+		return turno;
+}
 	
 	public Turno startEtapa(Usuario user, String id) {
 		long lStartTime = System.currentTimeMillis();
 
-		Turno turno = dao.getTurnoById(id);
+		Turno turno = getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
 				boolean existe = false;
@@ -521,7 +528,7 @@ public class App {
 				if(existe) {
 					try {
 						dao.startEtapa(user, turno);
-						turno = dao.getTurnoById(id);
+						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar etapa", e);
 					}
@@ -536,7 +543,7 @@ public class App {
 	public Turno addParte(Usuario user, String id, Tarea.TareaEnum task, String parteId, int cant) {
 		long lStartTime = System.currentTimeMillis();
 
-		Turno turno = dao.getTurnoById(id);
+		Turno turno = getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
 				boolean existe = false;
@@ -548,7 +555,7 @@ public class App {
 				if(existe) {
 					try {
 						dao.addParte(user, turno, task, parteId, cant);
-						turno = dao.getTurnoById(id);
+						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar etapa", e);
 					}
@@ -563,7 +570,7 @@ public class App {
 	public Turno startInterruption(Usuario user, String id, String desc) {
 		long lStartTime = System.currentTimeMillis();
 
-		Turno turno = dao.getTurnoById(id);
+		Turno turno = getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
 				boolean existe = false;
@@ -575,7 +582,7 @@ public class App {
 				if(existe) {
 					try {
 						dao.startInterruption(user, turno, desc);
-						turno = dao.getTurnoById(id);
+						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar interrupcion", e);
 					}
@@ -590,7 +597,7 @@ public class App {
 	public Turno finishInterruption(Usuario user, String id) {
 		long lStartTime = System.currentTimeMillis();
 		
-		Turno turno = dao.getTurnoById(id);
+		Turno turno = getTurnoById(id);
 		if(Turno.Status.OPEN.equals(turno.getStatus())) {
 			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
 				boolean existe = false;
@@ -602,7 +609,7 @@ public class App {
 				if(existe) {
 					try {
 						dao.finishInterruption(user, turno);
-						turno = dao.getTurnoById(id);
+						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al finalizar interrupcion", e);
 					}

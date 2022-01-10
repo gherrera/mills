@@ -91,7 +91,7 @@ const App: () => Node = () => {
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView style={backgroundStyle} contentContainerStyle={{height: metrics.screenHeight /*+ StatusBar.currentHeight*/}}>
+      <ScrollView style={backgroundStyle} contentContainerStyle={{height: metrics.screenHeight}}>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,

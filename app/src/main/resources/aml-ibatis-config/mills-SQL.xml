@@ -62,6 +62,7 @@
 		<result property="status" column="estado"/>
 		<result property="statusAdmin" column="estado_admin"/>
 		<result property="stage" column="etapa"/>
+		<result property="hours" column="horas"/>
 		<result property="turns" column="id" select="getTurnosByMolino"/>
 		<result property="stages" column="id" select="getEtapasByMolino"/>
 		<result property="parts" column="id" select="getPartesByMolino"/>
@@ -114,7 +115,7 @@
 		<result property="userFinish" column="user_termino"/>
 		<result property="turnoStart" column="turno_id_inicio" select="getHistorialTurnoById"/>
 		<result property="turnoFinish" column="turno_id_termino" select="getHistorialTurnoById"/>
-		<result property="parts" column="id" select="getPartesByTarea"/>
+<!-- 		<result property="parts" column="id" select="getPartesByTarea"/> -->
 	</resultMap>
 
 	<resultMap id="Parte" class="com.htg.mills.entities.maintenance.Parte">
@@ -276,7 +277,7 @@
 	</select>
 	
 	<select id="getMolinoById" resultMap="Molino">
-		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, faena_id
+		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, faena_id
 		from molinos
 		where id = #value#
 	</select>

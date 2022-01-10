@@ -35,21 +35,23 @@ export default {
       }
     })
   },
-  startTask: (id) => {
+  startTask: (id, stage) => {
     return apiRequestorHelper({
       url: apiConfig.url + '/startTask',
       method: 'post',
       body: {
-        id
+        id,
+        stage
       }
     })
   },
-  finishTask: (id) => {
+  finishTask: (id, stage) => {
     return apiRequestorHelper({
       url: apiConfig.url + '/finishTask',
       method: 'post',
       body: {
-        id
+        id,
+        stage
       }
     })
   },
