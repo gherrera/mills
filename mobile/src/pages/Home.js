@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {
     StyleSheet,
     View,
-    Text
+    Text,
 } from 'react-native';
 import {  ListItem } from 'react-native-elements';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 export default class Home extends Component {
     state = {
         turnos: null,
-        turno: null
+        turno: null,
     }
 
     async init() {
@@ -50,7 +50,7 @@ export default class Home extends Component {
         }
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         this.init()
     }
 
@@ -74,15 +74,15 @@ export default class Home extends Component {
         const { turnos, turno } = this.state
 
         return (
-            <View style={{height:'100%'}}>
+            <View style={{height: this.props.height}}>
                 { turnos === null ? <Spinner />
                 :
                 <>
-                    { turno === null ?
+                    {turno === null ?
                         <View>
                             { turnos.length > 0 ?
                             <>
-                                <Text style={{fontSize: 30, padding: 10, textAlign: 'center', color: StylesGlobal.colorBrown, fontWeight:'500'}}>Proyectos</Text>
+                                <Text style={{fontSize: 30, padding: 10, textAlign: 'center', color: StylesGlobal.colorGray, fontWeight:'500'}}>Proyectos</Text>
                                 { turnos.map(t =>
                                     <ListItem key={t.id} bottomDivider onPress={() => this.clickMenu(t)}
                                         containerStyle={{backgroundColor: t.enable ? StylesGlobal.colorGray25 : StylesGlobal.colorGray50}}
@@ -103,7 +103,7 @@ export default class Home extends Component {
                             }
                         </View>
                         :
-                        <TurnoPage currentUser={currentUser} turno={turno} returnMenu={this.returnMenu.bind(this)} screenProps={this.props.screenProps} />
+                        <TurnoPage currentUser={currentUser} turno={turno} returnMenu={this.returnMenu.bind(this)} screenProps={this.props.screenProps} height={this.props.height} />
                     }
                 </>
                 }

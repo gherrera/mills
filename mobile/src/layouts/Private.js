@@ -3,12 +3,15 @@ import {
     StyleSheet,
     View,
     Dimensions,
-    Text
+    Text,
+    StatusBar
 } from 'react-native';
-import { Header, Button, ListItem, Icon, Image } from 'react-native-elements';
+import { Header, Button } from 'react-native-elements';
 import { HomePage } from '../pages';
 
 import StylesGlobal from '../pages/StylesGlobal';
+import apiConfig from '../config/api';
+
 
 const {width, height} = Dimensions.get('window');
 const metrics = {
@@ -18,7 +21,9 @@ const metrics = {
 
 const styles = StyleSheet.create({
     scroll: {
-        height: metrics.screenHeight,
+        height: metrics.screenHeight - (apiConfig.env === "dev" ? StatusBar.currentHeight : 0),
+        //borderWidth:1,
+        //borderColor:'red'
     },
     primaryButton: {
         position: 'absolute',
@@ -44,12 +49,19 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'black',
         height: 40,
-      }
+    },
+    col: {
+        alignSelf: "flex-start",
+    },
+    header: {
+        height: 32,
+        backgroundColor:'rgba(0,0,0,0.85)'
+    }
 })
 
 export default class Private extends Component {
     state = {
-        menu: null
+        menu: null,
     }
 
     clickMenu(menu) {
@@ -65,37 +77,30 @@ export default class Private extends Component {
     }
 
     render() {
-        const { children, currentUser, logoutHandler } = this.props
-        const { menu } = this.state
+        const { currentUser, logoutHandler,  } = this.props
 
         return (
             <View style={styles.scroll} >
-                <Header
-                    leftComponent={
-                        { text: currentUser.login, style: { color: '#fff', top:3, fontSize:18 } }
-                        /*
-                        <Image 
-                            style={styles.tinyLogo}
-                            source={{
-                            uri: apiConfig.url + '/getImageClient?clientId=' + currentUser.client.id+"&amp;r=2",
-                            }}
-                            resizeMode="contain"
-                            />
-                        */
-                    }
-                    centerComponent={{ text: 'MILL\'S', style: { color: '#fff', top:3, fontSize:17 } }}
-                    rightComponent={
+                <View style={{flexDirection: "row", flexWrap: "wrap", backgroundColor: styles.header.backgroundColor, height: styles.header.height}} textAlign="flex-start">
+                    <View style={{ ...styles.col, width: '30%', paddingLeft:5}}>
+                        <Text style={{ color: '#fff', top:2, fontSize: 16, padding: 2 }}>{currentUser.login}</Text>
+                    </View>
+                    <View style={{ ...styles.col, width: '40%'}}>
+                        <Text style={{ color: '#fff', top:2, fontSize: 16, top: 4, textAlign: 'center' }}>MILL'S</Text>
+                    </View>
+                    <View style={{ ...styles.col, width: '30%', paddingRight: 5}}>
                         <Button
-                            buttonStyle={{padding:0, top: 2}}
+                            buttonStyle={{padding:2, top: 2, backgroundColor:'transparent', width:32, alignSelf:'flex-end'}}
                             onPress={logoutHandler}
                             icon={{
                                 name: "logout",
-                                color: "white"
+                                color: "white",
+                                size: 20
                             }}
                         />
-                    }
-                />
-                <HomePage currentUser={currentUser} screenProps={this.props.screenProps}/>
+                    </View>
+                </View>
+                <HomePage currentUser={currentUser} screenProps={this.props.screenProps} height={styles.scroll.height - styles.header.height}/>
             </View>
         )
     }

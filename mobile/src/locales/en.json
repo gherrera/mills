@@ -1,6 +1,6 @@
 {
   "messages.mills.task.DET_PLANTA":"Plant Stop",
-  "messages.mills.task.BLOQUEO_PRUEBA_ENERGIA_0":"Energy Test Lock 0",
+  "messages.mills.task.BLOQUEO_PRUEBA_ENERGIA_0":"Zero Energy Test Lock",
   "messages.mills.task.RETIRO_CHUTE":"Chute Retreat",
   "messages.mills.task.ING_LAINERA":"Lainera Income",
   "messages.mills.task.BOTADO":"Dumped",

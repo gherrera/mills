@@ -1,1 +1,1 @@
-REACT_APP_ENV="prod" ./gradlew assembleRelease
+export REACT_APP_ENV="prod" && ./gradlew assembleRelease

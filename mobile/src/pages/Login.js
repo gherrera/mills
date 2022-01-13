@@ -6,6 +6,7 @@ import {
   View,
   Alert,
   Dimensions,
+  StatusBar
 } from 'react-native';
  
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -34,6 +35,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         backgroundColor: '#FFF',
         color: 'black',
+        borderRadius: 3
     },
     footer: {
        marginTop: 30

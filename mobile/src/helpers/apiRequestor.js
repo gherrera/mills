@@ -22,6 +22,7 @@ export default (args, validateErrors=true) => {
   config.method = args.method
 
   //console.log(args.url);
+  //Alert.alert("URL", args.url)
 
   if ('responseType' in args) {
     config.responseType = args.responseType

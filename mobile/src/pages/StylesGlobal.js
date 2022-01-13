@@ -8,6 +8,7 @@ export default {
     colorBrown25: 'rgba(169,87,47,.25)',
     colorBrown10: 'rgba(169,87,47,.1)',
     colorYellow: '#f79c39',
+    colorYellow75: 'rgba(247,156,57,.75)',
     colorYellow50: 'rgba(247,156,57,.5)',
     colorYellow25: 'rgba(247,156,57,.25)',
     colorYellow10: 'rgba(247,156,57,.1)',
@@ -16,7 +17,14 @@ export default {
     colorSkyBlue25: 'rgba(4,138,191,.25)',
     colorSkyBlue10: 'rgba(4,138,191,.1)',
     colorGray: '#a6abab',
+    colorGray75: 'rgba(166,171,171,.75)',
     colorGray50: 'rgba(166,171,171,.5)',
     colorGray25: 'rgba(166,171,171,.25)',
-    colorGray10: 'rgba(166,171,171,.1)'
+    colorGray10: 'rgba(166,171,171,.1)',
+    colorBlack: "#000",
+    colorBlack90: 'rgba(0,0,0,.9)',
+    colorBlack75: 'rgba(0,0,0,.75)',
+    colorBlack50: 'rgba(0,0,0,.5)',
+    colorBlack25: 'rgba(0,0,0,.25)',
+    colorBlack10: 'rgba(0,0,0,.1)',
 }

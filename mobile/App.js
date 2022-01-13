@@ -15,7 +15,6 @@ import {
   useColorScheme,
   View,
   Dimensions,
-  Alert,
   Text
 } from 'react-native';
 import i18nextConfig from "./src/config/i18next";
@@ -29,13 +28,14 @@ import { authTokenValidatorHelper, sessionStorageCleanerHelper, authTokenRenewer
 import { animateLogoutPromise, changePasswordPromise, getCurrentUserPromise, logoutPromise, removeLoginAnimationsPromise } from './src/promises'
 import { LoginPage } from "./src/pages"
 import Private from "./src/layouts/Private";
+import apiConfig from './src/config/api';
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [ currentUser, setCurrentUser ] = useState({})
   const [ isLoggedIn, setIsLoggedIn ] = useState(false)
   const {t, i18n} = useTranslation();
-  
+
   const getCurrentUser = async () => {
     const currentU = await getCurrentUserPromise()
 
@@ -91,7 +91,7 @@ const App: () => Node = () => {
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView style={backgroundStyle} contentContainerStyle={{height: metrics.screenHeight}}>
+      <ScrollView style={backgroundStyle} contentContainerStyle={{height: metrics.screenHeight - (apiConfig.env === "dev" ? StatusBar.currentHeight : 0)}}>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
