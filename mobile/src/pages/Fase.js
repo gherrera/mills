@@ -6,8 +6,7 @@ import {
     Modal,
     Dimensions,
     ScrollView,
-    Alert,
-    StatusBar
+    Alert
 } from 'react-native';
 import {  Button } from 'react-native-elements';
 
@@ -24,23 +23,20 @@ const styles = StyleSheet.create({
     },
 })
 
-const {width, height} = Dimensions.get('window');
-const metrics = {
-    screenWidth: width < height ? width : height,
-    screenHeight: width < height ? height : width,
-};
-
 export default class Fase extends Component {
     state = {
        turno: this.props.turno,
        isModalVisible: true,
        isLoading: {BOTADO: false, LIMPIEZA: false, MONTAJE: false},
-       isModalStartExecution: false
+       isModalStartExecution: false,
+       activeStage: this.props.turno.molino.activeStage,
+       currentStage: this.props.turno.molino.stages[this.props.turno.molino.activeStage]
     }
 
     componentDidMount() {
         const { turno } = this.props
-        if(!turno.molino.showPendientes && (turno.molino.nextTask === 'RETIRO_CHUTE' || turno.molino.nextTask === 'ING_LAINERA') && turno.molino.currentStage.currentTask.finishDate) {
+        const { currentStage } = this.state
+        if(currentStage.stage === 'BEGINNING' && (turno.molino.nextTask === 'RETIRO_CHUTE' || turno.molino.nextTask === 'ING_LAINERA') && currentStage.currentTask.finishDate) {
             this.setState({
                 isModalStartExecution: true
             })
@@ -62,11 +58,8 @@ export default class Fase extends Component {
                   },
                   { text: "Iniciar Tarea", onPress: () => {
                         const { turno } = this.state
-                        startTaskPromise(turno.id, turno.molino.currentStage.stage).then(t => {
-                            this.setState({
-                                turno: t
-                            })
-                            this.props.callbackTasks(t, turno.molino.currentStage.stage)
+                        startTaskPromise(turno.id, this.state.currentStage.stage).then(t => {
+                            this.setTurno(t)
                         })
                     }
                   }
@@ -78,15 +71,15 @@ export default class Fase extends Component {
     finishTask() {
         const {t} = this.props.screenProps; 
         const molino = this.state.turno.molino
-        if(molino.currentStage.currentTask) {
-            if(molino.currentStage.currentTask.task === 'BOTADO' && molino.botadas === 0) {
+        if(this.state.currentStage.currentTask) {
+            if(this.state.currentStage.currentTask.task === 'BOTADO' && molino.botadas === 0) {
                 Alert.alert(
                     "Error", "Debe agregar piezas a la tarea de Botado antes de Finalizar"
                 );
             }else {
                 Alert.alert(
                     "Fin de Tarea",
-                    "Confirma el Fin de la Tarea: " +t('messages.mills.task.'+molino.currentStage.currentTask.task)+ "?",
+                    "Confirma el Fin de la Tarea: " +t('messages.mills.task.'+this.state.currentStage.currentTask.task)+ "?",
                     [
                     {
                         text: "Cancelar",
@@ -94,17 +87,18 @@ export default class Fase extends Component {
                         style: "cancel"
                     },
                     { text: "Finalizar Tarea", onPress: () => {
-                            const { turno } = this.state
-                            finishTaskPromise(turno.id, turno.molino.currentStage.stage).then(t => {
-                                this.setState({
-                                    turno: t
-                                })
-                                if(t.molino.nextTask === 'RETIRO_CHUTE') {
-                                    this.setState({
-                                        isModalStartExecution: true
-                                    })
+                            const { turno, currentStage } = this.state
+                            finishTaskPromise(turno.id, currentStage.stage).then(t => {
+                                if(currentStage.stage === 'BEGINNING') {
+                                    if(currentStage.nextTask === 'RETIRO_CHUTE') {
+                                        this.setState({
+                                            isModalStartExecution: true
+                                        })
+                                    }else if(currentStage.nextTask === null && t.molino.stages[0].status === 'FINISHED' && t.molino.stages.length > 1) {
+                                        this.forwardMenuHandler(t)
+                                    }
                                 }
-                                this.props.callbackTasks(t, turno.molino.currentStage.stage)
+                                this.setTurno(t)
                             })
                         }
                     }
@@ -114,19 +108,26 @@ export default class Fase extends Component {
         }
     }
 
-    startExecution() {
-        this.startEtapa(true)
+    async startNewEtapa() {
+        let t = await this.startEtapa()
+        this.setState({
+            isModalStartExecution: false
+        })
+        this.forwardMenuHandler(t)
     }
 
-    startEtapa(enablePendientes=false) {
-        const { turno } = this.state
-        startEtapaPromise(turno.id).then(t => {
-            this.setState({
-                turno: t,
-                isModalStartExecution: false
-            })
-            if(enablePendientes) this.props.activaPendientes(t, true)
+    setTurno(t, _activeStage=null) {
+        const { activeStage } = this.state
+        t.open = true
+        this.setState({
+            turno: t,
+            currentStage: t.molino.stages[_activeStage !== null ? _activeStage : activeStage]
         })
+    }
+
+    async startEtapa() {
+        const { turno } = this.state
+        return await startEtapaPromise(turno.id)
     }
 
     addParte(stage, parteId) {
@@ -138,8 +139,8 @@ export default class Fase extends Component {
         })
         addPartePromise(turno.id, stage, parteId).then(t => {
             isLoading[stage] = false
+            this.setTurno(t)
             this.setState({
-                turno: t,
                 isLoading
             })
         })
@@ -162,18 +163,36 @@ export default class Fase extends Component {
         )
     }
 
+    forwardMenuHandler(t) {
+        this.setState({
+            activeStage: t.molino.stages.length-1
+        })
+        this.setTurno(t, t.molino.stages.length-1)
+    }
+
     returnMenuHandler() {
         const { returnMenu } = this.props
-        const { turno } = this.state
+        const { turno, currentStage } = this.state
         const molino = turno.molino
 
         if(turno.open !== true) returnMenu()
-        else if(molino.stage === 'FINISHED' && molino.status === 'FINISHED') {
+        else if(currentStage.stage === 'FINISHED' && molino.status === 'FINISHED') {
             Alert.alert(
                 "Finalizar turno",
                 "Debe Finalizar el turno para salir"
             );
-        }else returnMenu()
+        }else if(currentStage.stage === 'EXECUTION'){
+            if(molino.stages[0].status === 'STARTED') {
+                this.setState({
+                    activeStage: 0
+                })
+                this.setTurno(turno, 0)
+            }else {
+                returnMenu()
+            }
+        }else {
+            returnMenu()
+        }
     }
 
     finalizarTurno() {
@@ -185,27 +204,47 @@ export default class Fase extends Component {
 
     render() {
         const { currentUser, returnMenu } = this.props
-        const { turno, isModalVisible, isModalStartExecution } = this.state
+        const { turno, isModalVisible, isModalStartExecution, currentStage } = this.state
         const {t, i18n} = this.props.screenProps; 
         const molino = turno.molino
 
         return (
             <View style={{height:'100%'}}>
-                <Text style={{fontSize: 25, textAlign: 'center', color: StylesGlobal.colorBlack75, fontWeight:'600', top:0, position:'absolute', left: 0, width:'100%'}}>
-                    { molino.stage === 'BEGINNING' ? "FASE INICIO"
-                    : molino.stage === 'EXECUTION' ? "FASE EJECUCION"
-                    : "FASE TERMINO"
-                    }
-                </Text>
-                <Button
-                    buttonStyle={{padding:0, width:30, height:30, backgroundColor:"transparent"}}
-                    style={{color:"#000"}}
-                    onPress={this.returnMenuHandler.bind(this)}
-                    icon={{
-                        name: "arrow-back-ios",
-                        color: StylesGlobal.colorBlack75
-                    }}
-                />
+                <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
+                    <View style={{ ...styles.col, width: '10%', textAlign:'center'}}>
+                        <Button
+                            buttonStyle={{padding:0, width:30, height:30, backgroundColor:"transparent"}}
+                            style={{color:"#000"}}
+                            onPress={this.returnMenuHandler.bind(this)}
+                            icon={{
+                                name: "arrow-back-ios",
+                                color: StylesGlobal.colorBlack75
+                            }}
+                        />
+                    </View>
+                    <View style={{ ...styles.col, width: '80%', textAlign:'center'}}>
+                        <Text style={{fontSize: 25, textAlign: 'center', color: StylesGlobal.colorBlack75, fontWeight:'600', top:0, width:'100%'}}>
+                            { currentStage.stage === 'BEGINNING' ? "FASE INICIO"
+                            : currentStage.stage === 'EXECUTION' ? "FASE EJECUCION"
+                            : "FASE TERMINO"
+                            }
+                        </Text>
+                    </View>
+                    <View style={{ ...styles.col, width: '10%', alignItems:'flex-end'}}>
+                        { currentStage.stage === 'BEGINNING' && currentStage.status === 'STARTED' && molino.stages.length > 1 &&
+                            <Button
+                                buttonStyle={{padding:0, width:30, height:30, backgroundColor:"transparent"}}
+                                style={{color:"#000"}}
+                                onPress={() => this.forwardMenuHandler(turno)}
+                                icon={{
+                                    name: "arrow-forward-ios",
+                                    color: StylesGlobal.colorBlack75
+                                }}
+                            />
+                        }
+                    </View>
+                </View>
+               
                 <View
                     style={{
                         borderBottomColor: StylesGlobal.colorBlack75,
@@ -220,7 +259,7 @@ export default class Fase extends Component {
                         visible={true}
                     >
                         <View style={{
-                            backgroundColor: 'rgba(255,255,255,.97)', 
+                            backgroundColor: 'rgba(255,255,255,.98)', 
                             width:'85%', 
                             height:400, 
                             alignSelf:'center', 
@@ -229,21 +268,21 @@ export default class Fase extends Component {
                             padding:12,
                             borderColor:StylesGlobal.colorGray, 
                             borderWidth:3}}>
-                            <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                            <Text style={{fontSize:25, padding:12, textAlign:'center', color: StylesGlobal.colorBlue}}>
                                 Ha finalizado el proceso de 
                                 { turno.molino.nextTask === 'RETIRO_CHUTE' ? " Bloqueo" 
                                 : " Retiro Chute"
                                 }
                                 .
                             </Text>
-                            <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                            <Text style={{fontSize:25, padding:12, textAlign:'center', color: StylesGlobal.colorBlue}}>
                                 ¿Inicia la fase de Ejecución?
                             </Text>
                             <Button
                                 title="Iniciar"
                                 titleStyle={{fontSize:26, textAlign:'center'}}
                                 buttonStyle={{backgroundColor:'rgba(0,0,0,0.9)', width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10 }}
-                                onPress={this.startExecution.bind(this)}
+                                onPress={this.startNewEtapa.bind(this)}
                             />
                             <Button
                                 title="Aún no"
@@ -255,14 +294,14 @@ export default class Fase extends Component {
                         </View>
                     </Modal>
                 }
-                { molino.stage === 'FINISHED' && molino.status === 'FINISHED' &&
+                { currentStage.stage === 'FINISHED' && molino.status === 'FINISHED' &&
                     <Modal
                         animationType="fade"
                         transparent={true}
                         visible={isModalVisible}
                     >
                         <View style={{
-                            backgroundColor: 'rgba(255,255,255,.97)', 
+                            backgroundColor: 'rgba(255,255,255,.98)', 
                             width:'85%', 
                             height:'40%', 
                             alignSelf:'center', 
@@ -283,16 +322,16 @@ export default class Fase extends Component {
                         </View>
                     </Modal>
                 }
-                { (molino.stage === 'BEGINNING' || molino.stage === 'EXECUTION') &&
+                { (currentStage.stage === 'BEGINNING' || currentStage.stage === 'EXECUTION') &&
                 <> 
-                    { molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate && molino.nextTask === null &&
+                    { currentStage.currentTask &&  currentStage.currentTask.finishDate && molino.nextTask === null &&
                         <Modal
                             animationType="fade"
                             transparent={true}
                             visible={isModalVisible}
                         >
                             <View style={{
-                                backgroundColor: 'rgba(255,255,255,.97)', 
+                                backgroundColor: 'rgba(255,255,255,.98)', 
                                 width:'85%', 
                                 height:'60%', 
                                 alignSelf:'center', 
@@ -301,16 +340,16 @@ export default class Fase extends Component {
                                 padding:12,
                                 borderColor:StylesGlobal.colorGray, 
                                 borderWidth:3}}>
-                                <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                                <Text style={{fontSize:25, padding:12, textAlign:'center', color: StylesGlobal.colorBlue}}>
                                     Ha finalizado todos los procesos de 
-                                    { molino.stage === 'BEGINNING' ? " inicio" 
+                                    { currentStage.stage === 'BEGINNING' ? " inicio" 
                                     : " ejecución"
                                     }
                                     .
                                 </Text>
-                                <Text style={{fontSize:25, padding:18, textAlign:'center', color: StylesGlobal.colorBlue}}>
+                                <Text style={{fontSize:25, padding:12, textAlign:'center', color: StylesGlobal.colorBlue}}>
                                     ¿Inicia la fase de 
-                                    { molino.stage === 'BEGINNING' ? " Ejecución"
+                                    { currentStage.stage === 'BEGINNING' ? " Ejecución"
                                     : " Término"
                                     }
                                     ?
@@ -319,7 +358,7 @@ export default class Fase extends Component {
                                     title="Iniciar"
                                     titleStyle={{fontSize:26, textAlign:'center'}}
                                     buttonStyle={{backgroundColor:'rgba(0,0,0,0.9)', width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10 }}
-                                    onPress={this.startEtapa.bind(this)}
+                                    onPress={this.startNewEtapa.bind(this)}
                                 />
                                 <Button
                                     title="Finalizar Turno"
@@ -333,10 +372,10 @@ export default class Fase extends Component {
                 </>
                 }
                 <Text style={{fontSize:19, backgroundColor: StylesGlobal.colorGray75, color: 'black', borderRadius:10, padding:7, textAlign:'center', marginTop: 10}}>
-                    { molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null && molino.currentStage.currentTask.task === 'MONTAJE' ?
+                    { currentStage.currentTask &&  currentStage.currentTask.finishDate === null && currentStage.currentTask.task === 'MONTAJE' ?
                         "El proceso de Montaje finalizará automáticamente cuando registre todas las piezas"
-                    : molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null ?
-                        "Finalice el proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task)
+                    : currentStage.currentTask &&  currentStage.currentTask.finishDate === null ?
+                        "Finalice el proceso de " + t('messages.mills.task.'+currentStage.currentTask.task)
                     : molino.nextTask && molino.nextTask === 'BOTADO' ?
                         "Inicie el proceso de " + t('messages.mills.task.'+molino.nextTask) +
                         " y registre las piezas en la medida que avance la actividad"
@@ -349,13 +388,13 @@ export default class Fase extends Component {
                         "Fase Finalizada"
                     }
                 </Text>
-                { (molino.stage === 'BEGINNING' 
-                    || molino.stage === 'FINISHED' 
-                    || (molino.stage === 'EXECUTION' && 
-                        (molino.currentStage.currentTask === null || 
-                            molino.currentStage.currentTask.task === 'BOTADO' || 
-                            molino.currentStage.currentTask.task === 'GIRO' || 
-                            (molino.nextTask === 'GIRO' && molino.currentStage.currentTask.finishDate !== null && molino.totalMontadas < molino.piezas)
+                { (currentStage.stage === 'BEGINNING' 
+                    || currentStage.stage === 'FINISHED' 
+                    || (currentStage.stage === 'EXECUTION' && 
+                        (currentStage.currentTask === null || 
+                            currentStage.currentTask.task === 'BOTADO' || 
+                            currentStage.currentTask.task === 'GIRO' || 
+                            (molino.nextTask === 'GIRO' && currentStage.currentTask.finishDate !== null && molino.totalMontadas < molino.piezas)
                         )
                        )
                     ) &&
@@ -363,38 +402,38 @@ export default class Fase extends Component {
                         <View style={{ ...styles.col, width: '50%', textAlign:'center', padding:16}}>
                             <Button
                                 title="Inicio"
-                                type={molino.nextTask === null || (molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)?"clear":"solid"}
-                                disabled={molino.nextTask === null || (molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)}
+                                type={molino.nextTask === null || (currentStage.currentTask &&  currentStage.currentTask.finishDate === null)?"clear":"solid"}
+                                disabled={molino.nextTask === null || (currentStage.currentTask &&  currentStage.currentTask.finishDate === null)}
                                 titleStyle={{fontSize:20}}
-                                buttonStyle={{padding:5, borderColor: StylesGlobal.colorGray, borderWidth:1.4, borderRadius:5, backgroundColor: (molino.nextTask === null || (molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)) ? "transparent": "rgba(0,0,0,0.85)"}}
+                                buttonStyle={{padding:5, borderColor: StylesGlobal.colorGray, borderWidth:1.4, borderRadius:5, backgroundColor: (molino.nextTask === null || (currentStage.currentTask &&  currentStage.currentTask.finishDate === null)) ? "transparent": "rgba(0,0,0,0.85)"}}
                                 onPress={this.startTask.bind(this)}
                             />
                         </View>
                         <View style={{ ...styles.col, width: '50%', textAlign:'center', padding:16}}>
                             <Button
                                 title="Fin"
-                                type={!(molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)?"clear":"solid"}
-                                disabled={!(molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)}
-                                buttonStyle={{padding:5, borderColor: StylesGlobal.colorGray, borderWidth:1.4, borderRadius:5, backgroundColor: (molino.nextTask === null || (molino.currentStage.currentTask &&  molino.currentStage.currentTask.finishDate === null)) ? "rgba(0,0,0,0.85)": "transparent"}}
+                                type={!(currentStage.currentTask &&  currentStage.currentTask.finishDate === null)?"clear":"solid"}
+                                disabled={!(currentStage.currentTask &&  currentStage.currentTask.finishDate === null)}
+                                buttonStyle={{padding:5, borderColor: StylesGlobal.colorGray, borderWidth:1.4, borderRadius:5, backgroundColor: (molino.nextTask === null || (currentStage.currentTask &&  currentStage.currentTask.finishDate === null)) ? "rgba(0,0,0,0.85)": "transparent"}}
                                 titleStyle={{fontSize:20}}
                                 onPress={this.finishTask.bind(this)}
                             />
                         </View>
                     </View>
                 }
-                { false && molino.currentStage.currentTask && molino.currentStage.currentTask.finishDate === null &&
+                { false && currentStage.currentTask && currentStage.currentTask.finishDate === null &&
                     <Text style={{fontSize:20, color: StylesGlobal.colorBlue, borderRadius:10, textAlign:'center'}}>
-                    { molino.currentStage.currentTask.finishDate === null && molino.currentStage.currentTask.task !== 'LIMPIEZA' ?
-                        "Proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task) + " en curso"
-                    : molino.currentStage.currentTask.finishDate === null && molino.currentStage.currentTask.task === 'LIMPIEZA' ?
-                        "Proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task) + " y " + t('messages.mills.task.MONTAJE') +" en curso"
-                    : molino.currentStage.currentTask &&
-                        "Fin del proceso de " + t('messages.mills.task.'+molino.currentStage.currentTask.task)
+                    { currentStage.currentTask.finishDate === null && currentStage.currentTask.task !== 'LIMPIEZA' ?
+                        "Proceso de " + t('messages.mills.task.'+currentStage.currentTask.task) + " en curso"
+                    : currentStage.currentTask.finishDate === null && currentStage.currentTask.task === 'LIMPIEZA' ?
+                        "Proceso de " + t('messages.mills.task.'+currentStage.currentTask.task) + " y " + t('messages.mills.task.MONTAJE') +" en curso"
+                    : currentStage.currentTask &&
+                        "Fin del proceso de " + t('messages.mills.task.'+currentStage.currentTask.task)
                     }
                     </Text>
                 }
 
-                { (molino.stage === 'BEGINNING' || molino.stage === 'FINISHED') ?
+                { (currentStage.stage === 'BEGINNING' || currentStage.stage === 'FINISHED') ?
                 <>
                     <View
                         style={{
@@ -405,17 +444,17 @@ export default class Fase extends Component {
                     />
 
                     <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
-                        { molino.stage === 'BEGINNING' &&
+                        { currentStage.stage === 'BEGINNING' &&
                         <>
                             <View style={{ ...styles.col, width: '60%', textAlign:'center', padding:10}}>
                                 <Text style={{fontSize:22, color:StylesGlobal.colorBlue}}>{t('messages.mills.task.DET_PLANTA')}</Text>
                             </View>
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
-                                { molino.currentStage.currentTask &&
+                                { currentStage.currentTask &&
                                     <Text style={{fontSize:20, color: StylesGlobal.colorBlack, width:120, padding:5, backgroundColor:StylesGlobal.colorGray50, textAlign:'center'}}>
-                                        { molino.currentStage.currentTask.task !== 'DET_PLANTA' ?
+                                        { currentStage.currentTask.task !== 'DET_PLANTA' ?
                                         "Finalizado"
-                                        : molino.currentStage.currentTask.task === 'DET_PLANTA' && molino.currentStage.currentTask.finishDate === null ?
+                                        : currentStage.currentTask.task === 'DET_PLANTA' && currentStage.currentTask.finishDate === null ?
                                         "En curso"
                                         : 
                                         "Finalizado"
@@ -428,13 +467,13 @@ export default class Fase extends Component {
                                 <Text style={{fontSize:22, color:StylesGlobal.colorBlue}}>{t('messages.mills.task.BLOQUEO_PRUEBA_ENERGIA_0')}</Text>
                             </View>
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
-                                { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'DET_PLANTA' &&
+                                { currentStage.currentTask && currentStage.currentTask.task !== 'DET_PLANTA' &&
                                     <Text style={{fontSize:20, color: StylesGlobal.colorBlack, width:120, padding:5, backgroundColor:StylesGlobal.colorGray50, textAlign:'center'}}>
-                                        { molino.currentStage.currentTask.task !== 'BLOQUEO_PRUEBA_ENERGIA_0' ?
+                                        { currentStage.currentTask.task !== 'BLOQUEO_PRUEBA_ENERGIA_0' ?
                                         "Finalizado"
-                                        : molino.currentStage.currentTask.task === 'BLOQUEO_PRUEBA_ENERGIA_0' && molino.currentStage.currentTask.finishDate === null ?
+                                        : currentStage.currentTask.task === 'BLOQUEO_PRUEBA_ENERGIA_0' && currentStage.currentTask.finishDate === null ?
                                         "En curso"
-                                        : molino.currentStage.currentTask.task === 'BLOQUEO_PRUEBA_ENERGIA_0' &&
+                                        : currentStage.currentTask.task === 'BLOQUEO_PRUEBA_ENERGIA_0' &&
                                         "Finalizado"
                                         }
                                     </Text>
@@ -445,13 +484,13 @@ export default class Fase extends Component {
                                 <Text style={{fontSize:22, color:StylesGlobal.colorBlue}}>{t('messages.mills.task.RETIRO_CHUTE')}</Text>
                             </View>
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
-                                { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'DET_PLANTA' && molino.currentStage.currentTask.task !== 'BLOQUEO_PRUEBA_ENERGIA_0' &&
+                                { currentStage.currentTask && currentStage.currentTask.task !== 'DET_PLANTA' && currentStage.currentTask.task !== 'BLOQUEO_PRUEBA_ENERGIA_0' &&
                                     <Text style={{fontSize:20, color: StylesGlobal.colorBlack, width:120, padding:5, backgroundColor:StylesGlobal.colorGray50, textAlign:'center'}}>
-                                        { molino.currentStage.currentTask.task !== 'RETIRO_CHUTE' ?
+                                        { currentStage.currentTask.task !== 'RETIRO_CHUTE' ?
                                         "Finalizado"
-                                        : molino.currentStage.currentTask.task === 'RETIRO_CHUTE' && molino.currentStage.currentTask.finishDate === null ?
+                                        : currentStage.currentTask.task === 'RETIRO_CHUTE' && currentStage.currentTask.finishDate === null ?
                                         "En curso"
-                                        : molino.currentStage.currentTask.task === 'RETIRO_CHUTE' &&
+                                        : currentStage.currentTask.task === 'RETIRO_CHUTE' &&
                                         "Finalizado"
                                         }
                                     </Text>
@@ -462,9 +501,9 @@ export default class Fase extends Component {
                                 <Text style={{fontSize:22, color:StylesGlobal.colorBlue}}>{t('messages.mills.task.ING_LAINERA')}</Text>
                             </View>
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
-                                { molino.currentStage.currentTask && molino.currentStage.currentTask.task === 'ING_LAINERA' &&
+                                { currentStage.currentTask && currentStage.currentTask.task === 'ING_LAINERA' &&
                                     <Text style={{fontSize:20, color: StylesGlobal.colorBlack, width:120, padding:5, backgroundColor:StylesGlobal.colorGray50, textAlign:'center'}}>
-                                        { molino.currentStage.currentTask.finishDate === null ?
+                                        { currentStage.currentTask.finishDate === null ?
                                         "En curso"
                                         : 
                                         "Finalizado"
@@ -474,17 +513,17 @@ export default class Fase extends Component {
                             </View>
                         </>
                         }
-                        { molino.stage === 'FINISHED' &&
+                        { currentStage.stage === 'FINISHED' &&
                         <>
                             <View style={{ ...styles.col, width: '60%', textAlign:'center', padding:10}}>
                                 <Text style={{fontSize:22, color:StylesGlobal.colorBlue}}>{t('messages.mills.task.RET_LAINERA')}</Text>
                             </View>
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
-                                { molino.currentStage.currentTask &&
+                                { currentStage.currentTask &&
                                     <Text style={{fontSize:20, color:'white', width:120, padding:5, backgroundColor:StylesGlobal.colorBlue, textAlign:'center'}}>
-                                        { molino.currentStage.currentTask.task !== 'RET_LAINERA' ?
+                                        { currentStage.currentTask.task !== 'RET_LAINERA' ?
                                         "Finalizado"
-                                        : molino.currentStage.currentTask.task === 'RET_LAINERA' && molino.currentStage.currentTask.finishDate === null ?
+                                        : currentStage.currentTask.task === 'RET_LAINERA' && currentStage.currentTask.finishDate === null ?
                                         "En curso"
                                         : 
                                         "Finalizado"
@@ -497,13 +536,13 @@ export default class Fase extends Component {
                                 <Text style={{fontSize:22, color:StylesGlobal.colorBlue}}>{t('messages.mills.task.INST_CHUTE')}</Text>
                             </View>
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
-                                { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'RET_LAINERA' &&
+                                { currentStage.currentTask && currentStage.currentTask.task !== 'RET_LAINERA' &&
                                     <Text style={{fontSize:20, color:'white', width:120, padding:5, backgroundColor:StylesGlobal.colorBlue, textAlign:'center'}}>
-                                        { molino.currentStage.currentTask.task !== 'INST_CHUTE' ?
+                                        { currentStage.currentTask.task !== 'INST_CHUTE' ?
                                         "Finalizado"
-                                        : molino.currentStage.currentTask.task === 'INST_CHUTE' && molino.currentStage.currentTask.finishDate === null ?
+                                        : currentStage.currentTask.task === 'INST_CHUTE' && currentStage.currentTask.finishDate === null ?
                                         "En curso"
-                                        : molino.currentStage.currentTask.task === 'INST_CHUTE' &&
+                                        : currentStage.currentTask.task === 'INST_CHUTE' &&
                                         "Finalizado"
                                         }
                                     </Text>
@@ -514,13 +553,13 @@ export default class Fase extends Component {
                                 <Text style={{fontSize:22, color:StylesGlobal.colorBlue}}>{t('messages.mills.task.DESBLOQUEO')}</Text>
                             </View>
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
-                                { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'RET_LAINERA' && molino.currentStage.currentTask.task !== 'INST_CHUTE' &&
+                                { currentStage.currentTask && currentStage.currentTask.task !== 'RET_LAINERA' && currentStage.currentTask.task !== 'INST_CHUTE' &&
                                     <Text style={{fontSize:20, color:'white', width:120, padding:5, backgroundColor:StylesGlobal.colorBlue, textAlign:'center'}}>
-                                        { molino.currentStage.currentTask.task !== 'DESBLOQUEO' ?
+                                        { currentStage.currentTask.task !== 'DESBLOQUEO' ?
                                         "Finalizado"
-                                        : molino.currentStage.currentTask.task === 'DESBLOQUEO' && molino.currentStage.currentTask.finishDate === null ?
+                                        : currentStage.currentTask.task === 'DESBLOQUEO' && currentStage.currentTask.finishDate === null ?
                                         "En curso"
-                                        : molino.currentStage.currentTask.task === 'DESBLOQUEO' &&
+                                        : currentStage.currentTask.task === 'DESBLOQUEO' &&
                                         "Finalizado"
                                         }
                                     </Text>
@@ -559,7 +598,7 @@ export default class Fase extends Component {
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlack}}>{type.type}</Text>
                                     </View>
                                     <View style={{ ...styles.col, width: '60%', padding:5}}>
-                                        <Text style={{fontSize:18, color: 'white', width:'99%', padding:2, paddingLeft:10, backgroundColor:StylesGlobal.colorBlack75}}>
+                                        <Text style={{fontSize:18, color: 'white', width:'99%', padding:2, paddingLeft:10, backgroundColor:StylesGlobal.colorBlack90}}>
                                             {part.name}
                                         </Text>
                                     </View>
@@ -569,8 +608,8 @@ export default class Fase extends Component {
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlack}}>Botado</Text>
                                     </View>
                                     <View style={{ ...styles.col, width: '15%', textAlign:'center', padding:5}}>
-                                        { molino.currentStage.currentTask && molino.currentStage.currentTask.task === 'BOTADO' 
-                                            && molino.currentStage.currentTask.finishDate === null 
+                                        { currentStage.currentTask && currentStage.currentTask.task === 'BOTADO' 
+                                            && currentStage.currentTask.finishDate === null 
                                             && part.totalBotadas < part.qty &&
                                             this.getBotonAddParte('BOTADO', part.id)
                                         }
@@ -590,13 +629,13 @@ export default class Fase extends Component {
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlack}}>Limpieza</Text>
                                     </View>
                                     <View style={{ ...styles.col, width: '15%', textAlign:'center', padding:5}}>
-                                        { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO' 
+                                        { currentStage.currentTask && currentStage.currentTask.task !== 'BOTADO' 
                                             && part.limpiadas < part.botadas &&
                                             this.getBotonAddParte('LIMPIEZA', part.id)
                                         }
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
-                                        { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO' && part.botadas > 0 &&
+                                        { currentStage.currentTask && currentStage.currentTask.task !== 'BOTADO' && part.botadas > 0 &&
                                             <Text style={{fontSize:20, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'100%'}}>
                                                 {part.limpiadas}
                                             </Text>
@@ -607,13 +646,13 @@ export default class Fase extends Component {
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlack}}>Montaje</Text>
                                     </View>
                                     <View style={{ ...styles.col, width: '15%', textAlign:'center', padding:5}}>
-                                        { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO' 
+                                        { currentStage.currentTask && currentStage.currentTask.task !== 'BOTADO' 
                                             && part.montadas < part.botadas && part.botadas === part.limpiadas && 
                                             this.getBotonAddParte('MONTAJE', part.id)
                                         }
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
-                                        { molino.currentStage.currentTask && molino.currentStage.currentTask.task !== 'BOTADO'
+                                        { currentStage.currentTask && currentStage.currentTask.task !== 'BOTADO'
                                             && part.botadas === part.limpiadas && part.botadas > 0 &&
                                             <Text style={{fontSize:20, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'100%'}}>
                                                 {part.montadas}
