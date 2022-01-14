@@ -124,7 +124,6 @@ export default class Fase extends Component {
     }
 
     setTurno(t, _activeStage=null) {
-        console.log(t)
         const { activeStage } = this.state
         t.open = true
         let cs = t.molino.stages[_activeStage !== null ? _activeStage : activeStage]
