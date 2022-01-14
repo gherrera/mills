@@ -126,6 +126,8 @@ public class Etapa extends Entity {
 				return Tarea.TareaEnum.INST_CHUTE;
 			}else if(current.getTask().equals(Tarea.TareaEnum.INST_CHUTE)) {
 				return Tarea.TareaEnum.DESBLOQUEO;
+			}else if(current.getTask().equals(Tarea.TareaEnum.DESBLOQUEO) && Status.STARTED.equals(status)) {
+				return Tarea.TareaEnum.REAPRIETE;
 			}
 		}
 		return null;

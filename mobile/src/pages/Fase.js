@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {  Button } from 'react-native-elements';
 
-import { startTaskPromise, finishTaskPromise, startEtapaPromise, addPartePromise } from './promises';
+import { startTaskPromise, finishTaskPromise, startEtapaPromise, addPartePromise, finishEtapaPromise } from './promises';
 import StylesGlobal from './StylesGlobal';
 
 const styles = StyleSheet.create({
@@ -31,7 +31,9 @@ export default class Fase extends Component {
        isModalStartExecution: false,
        activeStage: this.props.turno.molino.activeStage,
        currentStage: this.props.turno.molino.stages[this.props.turno.molino.activeStage],
-       isLoadingButton: false
+       isLoadingButton: false,
+       showModalReapriete: false,
+       showRepriete: false
     }
 
     componentDidMount() {
@@ -40,6 +42,10 @@ export default class Fase extends Component {
         if(currentStage.stage === 'BEGINNING' && (turno.molino.nextTask === 'RETIRO_CHUTE' || turno.molino.nextTask === 'ING_LAINERA') && currentStage.currentTask.finishDate) {
             this.setState({
                 isModalStartExecution: true
+            })
+        }else if(currentStage.stage === 'FINISHED' && currentStage.status === 'STARTED' && turno.molino.nextTask === 'REAPRIETE' && currentStage.currentTask.finishDate) {
+            this.setState({
+                showModalReapriete: true
             })
         }
     }
@@ -118,13 +124,20 @@ export default class Fase extends Component {
     }
 
     setTurno(t, _activeStage=null) {
+        console.log(t)
         const { activeStage } = this.state
         t.open = true
+        let cs = t.molino.stages[_activeStage !== null ? _activeStage : activeStage]
         this.setState({
             turno: t,
-            currentStage: t.molino.stages[_activeStage !== null ? _activeStage : activeStage],
+            currentStage: cs,
             isLoadingButton: false
         })
+        if(cs.stage === 'FINISHED' && cs.status === 'STARTED' && cs.nextTask === 'REAPRIETE' && cs.currentTask.finishDate) {
+            this.setState({
+                showModalReapriete: true
+            })
+        }
     }
 
     async startEtapa() {
@@ -217,9 +230,30 @@ export default class Fase extends Component {
         this.forwardMenuHandler(t)
     }
 
+    startReapriete() {
+        this.setState({
+            isLoadingButton: true,
+            showModalReapriete: false,
+            showRepriete: true
+        })
+    }
+
+    noReapriete() {
+        this.setState({
+            isLoadingButton: true
+        })
+        const { turno } = this.state
+        finishEtapaPromise(turno.id).then(t => {
+            this.setTurno(t)
+            this.setState({
+                showModalReapriete: false
+            })
+        })
+    }
+
     render() {
         const { currentUser, returnMenu } = this.props
-        const { turno, isModalVisible, isModalStartExecution, currentStage, isLoadingButton } = this.state
+        const { turno, isModalVisible, isModalStartExecution, currentStage, isLoadingButton, showModalReapriete, showRepriete } = this.state
         const {t, i18n} = this.props.screenProps; 
         const molino = turno.molino
 
@@ -268,6 +302,42 @@ export default class Fase extends Component {
                         marginTop: 5,
                     }}
                 />
+                { showModalReapriete &&
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={true}
+                    >
+                        <View style={{
+                            backgroundColor: 'rgba(255,255,255,.98)', 
+                            width:'85%', 
+                            height:400, 
+                            alignSelf:'center', 
+                            marginTop: (Dimensions.get('window').height-400)/2, 
+                            borderRadius:15, 
+                            padding:12,
+                            borderColor:StylesGlobal.colorGray, 
+                            borderWidth:3}}>
+                            <Text style={{fontSize:25, padding:12, textAlign:'center', color: StylesGlobal.colorBlack90}}>
+                                Desea hacer reapriete de Piezas?
+                            </Text>
+                            <Button
+                                title="Sí"
+                                titleStyle={{fontSize:26, textAlign:'center'}}
+                                buttonStyle={{backgroundColor:'rgba(0,0,0,0.9)', width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10 }}
+                                onPress={this.startReapriete.bind(this)}
+                                loading={isLoadingButton}
+                            />
+                            <Button
+                                title="No"
+                                titleStyle={{fontSize:26, textAlign:'center'}}
+                                buttonStyle={{backgroundColor:'rgba(0,0,0,0.9)', width:'80%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10 }}
+                                onPress={this.noReapriete.bind(this)}
+                                loading={isLoadingButton}
+                            />
+                        </View>
+                    </Modal>
+                }
                 { isModalStartExecution &&
                     <Modal
                         animationType="fade"
@@ -541,12 +611,9 @@ export default class Fase extends Component {
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
                                 { currentStage.currentTask &&
                                     <Text style={{fontSize:20, color: StylesGlobal.colorBlack, width:120, padding:5, backgroundColor:StylesGlobal.colorGray50, textAlign:'center'}}>
-                                        { currentStage.currentTask.task !== 'RET_LAINERA' ?
-                                        "Finalizado"
-                                        : currentStage.currentTask.task === 'RET_LAINERA' && currentStage.currentTask.finishDate === null ?
-                                        "En curso"
-                                        : 
-                                        "Finalizado"
+                                        { currentStage.currentTask.task === 'RET_LAINERA' && currentStage.currentTask.finishDate === null ?
+                                          "En curso"
+                                        : "Finalizado"
                                         }
                                     </Text>
                                 }
@@ -558,12 +625,9 @@ export default class Fase extends Component {
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
                                 { currentStage.currentTask && currentStage.currentTask.task !== 'RET_LAINERA' &&
                                     <Text style={{fontSize:20, color: StylesGlobal.colorBlack, width:120, padding:5, backgroundColor:StylesGlobal.colorGray50, textAlign:'center'}}>
-                                        { currentStage.currentTask.task !== 'INST_CHUTE' ?
-                                        "Finalizado"
-                                        : currentStage.currentTask.task === 'INST_CHUTE' && currentStage.currentTask.finishDate === null ?
-                                        "En curso"
-                                        : currentStage.currentTask.task === 'INST_CHUTE' &&
-                                        "Finalizado"
+                                        { currentStage.currentTask.task === 'INST_CHUTE' && currentStage.currentTask.finishDate === null ?
+                                          "En curso"
+                                        : "Finalizado"
                                         }
                                     </Text>
                                 }
@@ -575,16 +639,31 @@ export default class Fase extends Component {
                             <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
                                 { currentStage.currentTask && currentStage.currentTask.task !== 'RET_LAINERA' && currentStage.currentTask.task !== 'INST_CHUTE' &&
                                     <Text style={{fontSize:20, color: StylesGlobal.colorBlack, width:120, padding:5, backgroundColor:StylesGlobal.colorGray50, textAlign:'center'}}>
-                                        { currentStage.currentTask.task !== 'DESBLOQUEO' ?
-                                        "Finalizado"
-                                        : currentStage.currentTask.task === 'DESBLOQUEO' && currentStage.currentTask.finishDate === null ?
-                                        "En curso"
-                                        : currentStage.currentTask.task === 'DESBLOQUEO' &&
-                                        "Finalizado"
+                                        { currentStage.currentTask.task === 'DESBLOQUEO' && currentStage.currentTask.finishDate === null ?
+                                          "En curso"
+                                        : "Finalizado"
                                         }
                                     </Text>
                                 }
                             </View>
+
+                            { (showRepriete || (currentStage.currentTask && currentStage.currentTask.task === 'REAPRIETE')) &&
+                            <>
+                                <View style={{ ...styles.col, width: '60%', textAlign:'center', padding:10}}>
+                                    <Text style={{fontSize:22, color:StylesGlobal.colorBlack90}}>{t('messages.mills.task.REAPRIETE')}</Text>
+                                </View>
+                                <View style={{ ...styles.col, width: '40%', textAlign:'center', padding:10}}>
+                                    { currentStage.currentTask && currentStage.currentTask.task !== 'RET_LAINERA' && currentStage.currentTask.task !== 'INST_CHUTE' && currentStage.currentTask.task !== 'DESBLOQUEO' &&
+                                        <Text style={{fontSize:20, color: StylesGlobal.colorBlack, width:120, padding:5, backgroundColor:StylesGlobal.colorGray50, textAlign:'center'}}>
+                                            { currentStage.currentTask.task === 'REAPRIETE' && currentStage.currentTask.finishDate === null ?
+                                              "En curso"
+                                            : "Finalizado"
+                                            }
+                                        </Text>
+                                    }
+                                </View>
+                            </>
+                            }
                         </>
                         }
                     </View>

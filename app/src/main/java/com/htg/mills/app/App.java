@@ -540,6 +540,33 @@ public class App {
 		return turno;
 	}
 	
+	public Turno finishEtapa(Usuario user, String id) {
+		long lStartTime = System.currentTimeMillis();
+
+		Turno turno = getTurnoById(id);
+		if(Turno.Status.OPEN.equals(turno.getStatus())) {
+			if(turno.getMolino().getStatusAdmin().equals(Molino.StatusAdmin.ACTIVE) && !Molino.Status.FINISHED.equals(turno.getMolino().getStatus())) {
+				boolean existe = false;
+				for(Persona persona : turno.getPersonas()) {
+					if(user.getId().equals(persona.getControllerId())) {
+						existe = true;
+					}
+				}
+				if(existe) {
+					try {
+						dao.finishEtapa(user, turno);
+						turno = getTurnoById(id);
+					} catch (SQLException e) {
+						log.error("Error al iniciar etapa", e);
+					}
+				}
+			}
+		}
+		long lEndTime = System.currentTimeMillis();
+		log.debug("finishEtapa: "+(lEndTime-lStartTime)+"ms");
+		return turno;
+	}
+	
 	public Turno addParte(Usuario user, String id, Tarea.TareaEnum task, String parteId, int cant) {
 		long lStartTime = System.currentTimeMillis();
 

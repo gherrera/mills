@@ -64,6 +64,15 @@ export default {
       }
     })
   },
+  finishEtapa: (id) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/finishEtapa',
+      method: 'post',
+      body: {
+        id
+      }
+    })
+  },
   addParte: (id, stage, parteId) => {
     return apiRequestorHelper({
       url: apiConfig.url + '/addParte',

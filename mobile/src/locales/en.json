@@ -9,5 +9,6 @@
   "messages.mills.task.GIRO":"Turn",
   "messages.mills.task.RET_LAINERA":"Lainera retreat",
   "messages.mills.task.INST_CHUTE":"Chute Installation",
-  "messages.mills.task.DESBLOQUEO":"Unlocking"
+  "messages.mills.task.DESBLOQUEO":"Unlocking",
+  "messages.mills.task.REAPRIETE":"Retightening of Parts"
 }

@@ -14,7 +14,7 @@ public class Tarea extends Entity {
 		DET_PLANTA(0, "Detencion de Planta"), BLOQUEO_PRUEBA_ENERGIA_0(1, "Bloqueo Prueba de Energia 0"), 
 		RETIRO_CHUTE(2, "Retiro Chute"), ING_LAINERA(3, "Ingreso Lainera"),
 		BOTADO(4, "Botado"), LIMPIEZA(5, "Limpieza"), MONTAJE(6, "Montaje"), GIRO(7, "Giro"),
-		RET_LAINERA(8, "Retiro Lainera"), INST_CHUTE(9, "Instalacion Chute"), DESBLOQUEO(10, "Desbloqueo");
+		RET_LAINERA(8, "Retiro Lainera"), INST_CHUTE(9, "Instalacion Chute"), DESBLOQUEO(10, "Desbloqueo"), REAPRIETE(11, "Reapriete");
 
 		private final int order;
 		private final String value;

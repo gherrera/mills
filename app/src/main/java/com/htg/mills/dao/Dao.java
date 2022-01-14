@@ -439,6 +439,25 @@ public class Dao {
 		return etapa;
 	}
 	
+	public void finishEtapa(Usuario user, Turno turno) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			Timestamp fecha = new Timestamp(date.getTime());
+			
+			Etapa etapa = turno.getMolino().getCurrentStage();
+			finishEtapa(user, etapa, turno, fecha);
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}
+	}
+	
 	public void startEtapa(Usuario user, Turno turno) throws SQLException {
 		try {
 			sqlMap.startTransaction();

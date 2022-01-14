@@ -300,6 +300,12 @@ public class MillsController {
 		return app.startEtapa(currentUser.getUser(), params.get("id"));
 	}
 	
+	@PostMapping("finishEtapa")
+    @ResponseBody Turno finishEtapa(@RequestBody Map<String, String> params) {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.finishEtapa(currentUser.getUser(), params.get("id"));
+	}
+	
 	@PostMapping("addParte")
     @ResponseBody Turno addParte(@RequestBody Map<String, String> params) {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();

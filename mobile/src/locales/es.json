@@ -9,5 +9,6 @@
    "messages.mills.task.GIRO":"Giro",
    "messages.mills.task.RET_LAINERA":"Retiro Lainera",
    "messages.mills.task.INST_CHUTE":"Instalacion Chute",
-   "messages.mills.task.DESBLOQUEO":"Desbloqueo"
+   "messages.mills.task.DESBLOQUEO":"Desbloqueo",
+   "messages.mills.task.REAPRIETE":"Reapriete de Piezas"
 }
