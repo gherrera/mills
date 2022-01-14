@@ -368,6 +368,17 @@ public class Dao {
 		}
 	}
 	
+	private void finishEtapa(Usuario user, Etapa etapa, Turno turno, Timestamp finishDate) throws SQLException {
+		TurnoHistorial t = new TurnoHistorial();
+		t.setId(turno.getTurnoId());
+		
+		etapa.setTurnoFinish(t);
+		etapa.setStatus(Etapa.Status.FINISHED);
+		etapa.setFinishDate(finishDate);
+		etapa.setUserFinish(user.getLogin());
+		sqlMap.update("finishEtapa", etapa);
+	}
+	
 	private void finishTarea(Turno turno, Etapa etapa, Tarea task, Usuario user) throws SQLException {
 		task.setUserFinish(user.getLogin());
 		TurnoHistorial t = new TurnoHistorial();
@@ -379,16 +390,7 @@ public class Dao {
 		Molino molino = turno.getMolino();
 		Tarea.TareaEnum next = molino.getNextTask(etapa);
 		if(next == null) {
-			etapa.setTurnoFinish(t);
-			etapa.setStatus(Etapa.Status.FINISHED);
-			etapa.setFinishDate(task.getFinishDate());
-			etapa.setUserFinish(user.getLogin());
-			sqlMap.update("finishEtapa", etapa);
-			
-			if(etapa.getStage().equals(Etapa.EtapaEnum.FINISHED)) {
-				molino.setStatus(Molino.Status.FINISHED);
-				sqlMap.update("updateStatusMolino", molino);
-			}
+			finishEtapa(user, etapa, turno, task.getFinishDate());
 		}
 	}
 	
@@ -422,7 +424,7 @@ public class Dao {
 		}
 	}
 	
-	private void insertEtapa(Usuario user, Timestamp fecha, Turno turno, Etapa.EtapaEnum stage) throws SQLException {
+	private Etapa insertEtapa(Usuario user, Timestamp fecha, Turno turno, Etapa.EtapaEnum stage) throws SQLException {
 		Map<String, Object> params = new HashMap<String, Object>();
 		Etapa etapa = new Etapa();
 		etapa.setId(UUID.randomUUID().toString());
@@ -434,6 +436,7 @@ public class Dao {
 		params.put("etapa", etapa);
 		params.put("turnoId", turno.getTurnoId());
 		sqlMap.insert("insertEtapa", params);
+		return etapa;
 	}
 	
 	public void startEtapa(Usuario user, Turno turno) throws SQLException {
@@ -455,6 +458,16 @@ public class Dao {
 					insertEtapa(user, fecha, turno, Etapa.EtapaEnum.FINISHED);
 
 					turno.getMolino().setStage(Etapa.EtapaEnum.FINISHED);
+					sqlMap.update("updateStatusMolino", turno.getMolino());
+				}
+			}else if(Etapa.EtapaEnum.FINISHED.equals(turno.getMolino().getStage())) {
+				Etapa etapa = turno.getMolino().getCurrentStage();
+				if(etapa.getFinishDate() != null) {
+					etapa = insertEtapa(user, fecha, turno, Etapa.EtapaEnum.DELIVERY);
+					finishEtapa(user, etapa, turno, fecha);
+					
+					turno.getMolino().setStage(Etapa.EtapaEnum.DELIVERY);
+					turno.getMolino().setStatus(Molino.Status.FINISHED);
 					sqlMap.update("updateStatusMolino", turno.getMolino());
 				}
 			}

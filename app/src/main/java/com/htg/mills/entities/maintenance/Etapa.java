@@ -10,7 +10,7 @@ public class Etapa extends Entity {
 	private static final long serialVersionUID = -2688067409495593833L;
 
 	public enum EtapaEnum {
-		BEGINNING, EXECUTION, FINISHED
+		BEGINNING, EXECUTION, FINISHED, DELIVERY
 	}
 	
 	public enum Status {
