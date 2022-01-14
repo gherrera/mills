@@ -256,6 +256,7 @@
 			and c.id = a.molino_id
 			and c.estado_admin = 'ACTIVE'
 			and (ifnull(c.estado,'WAIT') != 'FINISHED' OR a.estado = 'OPEN')
+		order by c.nombre, a.nombre
 	</select>
 	
 	<select id="getTurnosByMolino" resultMap="TurnoCore">
