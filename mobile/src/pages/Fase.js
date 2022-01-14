@@ -460,7 +460,7 @@ export default class Fase extends Component {
                     }
                 </>
                 }
-                <Text style={{fontSize:19, backgroundColor: StylesGlobal.colorGray75, color: 'black', borderRadius:10, padding:7, textAlign:'center', marginTop: 10}}>
+                <Text style={{fontSize:19, backgroundColor: StylesGlobal.colorGray25, color: 'black', borderRadius:10, padding:7, textAlign:'center', marginTop: 10}}>
                     { currentStage.currentTask &&  currentStage.currentTask.finishDate === null && currentStage.currentTask.task === 'MONTAJE' ?
                         "El proceso de Montaje finalizará automáticamente cuando registre todas las piezas"
                     : currentStage.currentTask &&  currentStage.currentTask.finishDate === null ?
