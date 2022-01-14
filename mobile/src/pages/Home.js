@@ -3,6 +3,7 @@ import {
     StyleSheet,
     View,
     Text,
+    ScrollView
 } from 'react-native';
 import {  ListItem } from 'react-native-elements';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -79,7 +80,7 @@ export default class Home extends Component {
                 :
                 <>
                     {turno === null ?
-                        <View>
+                        <ScrollView>
                             { turnos.length > 0 ?
                             <>
                                 <Text style={{fontSize: 30, padding: 10, textAlign: 'center', color: StylesGlobal.colorGray, fontWeight:'500'}}>Proyectos</Text>
@@ -101,7 +102,7 @@ export default class Home extends Component {
                             :
                             <Text style={{padding:50, fontSize:30, fontWeight:'600', textAlign:'center', color: StylesGlobal.colorBlue}}>No hay molinos disponibles para mantención</Text>
                             }
-                        </View>
+                        </ScrollView>
                         :
                         <TurnoPage currentUser={currentUser} turno={turno} returnMenu={this.returnMenu.bind(this)} screenProps={this.props.screenProps} height={this.props.height} />
                     }
