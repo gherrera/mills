@@ -35,6 +35,8 @@ estado_admin VARCHAR(20),
 estado VARCHAR(20),
 etapa VARCHAR(20),
 horas INT,
+fec_act TIMESTAMP,
+user_act VARCHAR(50),
 faena_id VARCHAR(50) NOT NULL,
 FOREIGN KEY(faena_id) REFERENCES faenas(id),
 PRIMARY KEY(id)

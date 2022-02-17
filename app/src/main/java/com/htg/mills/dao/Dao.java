@@ -254,6 +254,16 @@ public class Dao {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<Molino> getMolinos() {
+		try {
+			return (List<Molino>)sqlMap.queryForList("getMolinos");
+		} catch (SQLException e) {
+			log.error("Error al leer molinos", e);
+			return null;
+		}
+	}
+	
 	public Turno getTurnoById(String id) {
 		try {
 			return (Turno)sqlMap.queryForObject("getTurnoById", id);
@@ -358,6 +368,10 @@ public class Dao {
 			params.put("turnoId", turno.getTurnoId());
 
 			sqlMap.insert("insertTarea", params);
+
+			molino.setUpdateDate(new Timestamp(date.getTime()));
+			molino.setUpdateUser(user.getLogin());
+			sqlMap.update("updateMolino", molino);
 			
 			if(task.equals(Tarea.TareaEnum.LIMPIEZA)) {
 				turno = getTurnoById(turno.getId());
@@ -377,6 +391,11 @@ public class Dao {
 		etapa.setFinishDate(finishDate);
 		etapa.setUserFinish(user.getLogin());
 		sqlMap.update("finishEtapa", etapa);
+		
+		Molino molino = turno.getMolino();
+		molino.setUpdateDate(finishDate);
+		molino.setUpdateUser(user.getLogin());
+		sqlMap.update("updateMolino", molino);
 	}
 	
 	private void finishTarea(Turno turno, Etapa etapa, Tarea task, Usuario user) throws SQLException {
@@ -413,6 +432,11 @@ public class Dao {
 					
 					task.setFinishDate(fecha);
 					finishTarea(turno, etapa, task, user);
+					
+					Molino molino = turno.getMolino();
+					molino.setUpdateDate(new Timestamp(date.getTime()));
+					molino.setUpdateUser(user.getLogin());
+					sqlMap.update("updateMolino", molino);
 				}
 			}
 			
@@ -436,6 +460,12 @@ public class Dao {
 		params.put("etapa", etapa);
 		params.put("turnoId", turno.getTurnoId());
 		sqlMap.insert("insertEtapa", params);
+		
+		Molino molino = turno.getMolino();
+		molino.setUpdateDate(fecha);
+		molino.setUpdateUser(user.getLogin());
+		sqlMap.update("updateMolino", molino);
+		
 		return etapa;
 	}
 	
@@ -567,6 +597,11 @@ public class Dao {
 							tParte.setTareaId(tarea.getId());
 							
 							sqlMap.insert("insertTareaParte", tParte);
+							
+							Molino molino = turno.getMolino();
+							molino.setUpdateDate(fecha);
+							molino.setUpdateUser(user.getLogin());
+							sqlMap.update("updateMolino", molino);
 						}
 					}
 				}

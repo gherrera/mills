@@ -2,6 +2,7 @@ body {
     padding: 0px !important;
 }
 .login-page {
+    padding-top: 120px;
     height: 100vh;
     background-color: rgba(0,0,0,.4);
     a {
@@ -31,35 +32,13 @@ body {
     .seccionSesion {
         padding: 100px 0px 30px 70px;
     }
-    #tituloS {
-        font: 600 60px / 60px Raleway, sans-serif;
-        color: rgb(255, 255, 255);
-        width: 242px;
-        height: 120px;
-    }
-    #separadorS {
-        block-size: 1px;
-        border-block-start-color: rgb(255, 255, 255);
-        border-block-start-style: solid;
-        border-block-start-width: 1px;
-        display: flex;
-        width: 242px;
-    }
-    #parrafoS {
-        block-size: 72px;
-        color: white;
-        height: 72px;
-        text-align: left;
-        width: 242px;
-        font: 300 15px / 24px Raleway, sans-serif;
-        padding: 40px 0px 0px 0px;
-    }
-    .seccionIngreso {
-        padding: 70px 0px 30px 0px;
-    }
+    
     .cajaIngreso {
+        align-self: center;
+        margin: auto;
+        width: 650px;
+        border-radius: 5px;
         background-color:rgba(0,0,0,.7);
-        border-radius: 3px;
         block-size: 340px;
 
         .row-image {
@@ -74,204 +53,34 @@ body {
     #logoIngreso {
         width: 100%;
     }
-    .cajaContraseña {
-        width: 89%;
-    }
     #ingresoUsuario {
         inline-size: 510px;
         border: 0px none rgb(109, 109, 109);
         font: 16px / 27.2px Raleway, sans-serif;
-        margin: 10px 0px 0px 33px;
+        padding: 10px 20px;
         margin-bottom: 0px;
         display: inline-block;
-        width: 93%;
+        width: 100%;
     }
     .ant-form-item {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
     #botonIngresar {
-        block-size: 30px;
-        background-color: rgb(250, 119, 60);
-        color: white;
-        font: 12px / 22.2px Raleway, sans-serif;
-        margin: 0px 0px 0px 250px;
+        text-align: center;
+    
+        button {
+            block-size: 30px;
+            background-color: rgb(250, 119, 60);
+            color: white;
+            font: 12px / 22.2px Raleway, sans-serif;
+        }
     }
     .olvidoCon {
         block-size: 13px;
         color: white;
-        text-align: right;
+        text-align: center;
         font: 12px Raleway, sans-serif;
         padding-top: 10px;
     }
-    @media only screen and (max-width: 500px) {
-        .seccionIngreso {
-            padding: 50px 0px 0px 0px;
-        }
-        .cajaIngreso {
-            padding: 40px 0px 0px 0px;
-        }
-        .seccionSesion {
-            padding: 70px 0px 30px 70px;
-        }
-      }
-      @media screen and (max-width: 992px) {
-        .seccionIngreso {
-            width: 100%;
-        }
-      }
 
-/* IV.- CUARTO BLOQUE - CONTACTANOS */
-    .cuartoBloque {
-        background-color: white;
-    }
-    .seccionContacto {
-        padding-left: 5%;
-        padding-right: 5%;
-    }
-    #tituloC {
-        color: white;
-        text-align: left;
-        font: 600 60px Roboto, sans-serif;
-    }
-    #tienes, #parrafoC {
-        color: white;
-        font: 300 15px / 24px Raleway, sans-serif;
-    }
-    .columnaContacto {
-        margin-top: 3%;
-        margin-bottom: 3%;
-    }
-    .cajaContacto {
-        border-radius: 15px;
-        padding: 4%;
-        vertical-align: middle;
-        background: url("https://htgsoluciones.com/wp-content/uploads/2021/02/soluciones-1.jpg") no-repeat fixed center / cover padding-box border-box;
-    }
-    .cajaContacto::after {
-        content:"";
-        border-radius: 15px;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-color: #061551;
-        opacity: .85;
-    }
-    .cajaContacto::after {
-        z-index: 1;
-    }
-    .cajaContacto > * {
-        z-index: 100;
-    }
-    #iconoContacto {
-        width: 20%;
-        filter: brightness(0) invert(1);
-        display: block;
-        margin: auto;
-    }
-    #tituloContacto {
-        color: white;
-        font: 600 24px Raleway, sans-serif;
-        letter-spacing: 0.6px;
-        display: block;
-        margin: auto;
-    }
-    #parrafoContacto {
-        color: white;
-        font: 400 16px Raleway, sans-serif;
-    }
-    @media only screen and (max-width: 1016px) {
-        #tituloC {
-          font-size: 45px;
-        }
-        #tituloContacto, #parrafoContacto {
-            text-align: center;
-        }
-        #tituloContacto {
-            padding-top: 2%;
-        }
-        #parrafoContacto {
-            padding-bottom: 3%;
-        }
-        #iconoContacto {
-            width: 15%;
-        }
-        .columnaContacto {
-            margin-top: 10%;
-            margin-bottom: 10%;
-        }
-        .cajaContacto {
-            padding: 8%;
-        }
-      }
-
-/* V.- FOOTER*/
-    .footer1 {
-        background-color: #061551;  
-    }
-    #logoHtgFooter1, #logoForFooter1 {
-        width: 80%;
-        display:block;
-        margin:auto;
-    }
-    #parrafoFooter1 {
-        color: white;
-        text-align: left;
-        font: 300 14px / 18px Raleway, sans-serif;
-        padding-left: 10%;
-        padding-top: 3%;
-    }
-    #usoLink1 {
-        font: 300 14px / 18px Raleway, sans-serif;
-        color: white;
-    }
-    #copyrightMensaje1 {
-        font: 300 14px / 18px Raleway, sans-serif;
-        color: white;
-        padding: 25px 0px 0px 0px;
-    }
-    .demoBox1 {
-        padding:3%;
-    }
-    #solicite1 {
-        color: white;
-        font: 600 18px / 18px Raleway, sans-serif;
-    }
-    #comuniquese1 {
-        color: white;
-        font: 300 14px / 18px Raleway, sans-serif;
-    }
-    #textoicono1 {
-        color: white;
-        font: 300 14px / 18px Raleway, sans-serif;
-        height: auto;
-        word-wrap: break-word;
-        width: 100px;
-    }
-    #iconoCorreo1, #iconoTelefono1 {
-        color: white;
-        padding: 0px 20px 0px 0px;
-    }
-    #quitar1 {
-        list-style: none;
-    }
-    @media only screen and (max-width: 575px) {
-        .politicas1  {
-            text-align: center;
-            width: 90%;
-        }
-        .demoBox1 {
-            padding:10%;
-        }
-        #logoHtgFooter1 {
-            margin: 10%;
-        }
-      }
-      @media screen and (max-width: 992px) {
-        .footer1 {
-            width: 100%;
-            height: 100%;
-        }
-      }
-
-
-    }
+}

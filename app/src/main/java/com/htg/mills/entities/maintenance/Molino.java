@@ -1,5 +1,6 @@
 package com.htg.mills.entities.maintenance;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,9 @@ public class Molino extends Entity {
 	private List<Parte> parts;
 	private Faena faena;
 	private Integer hours;
-	
+	private Timestamp updateDate;
+	private String updateUser;
+
 	public String getName() {
 		return name;
 	}
@@ -235,6 +238,22 @@ public class Molino extends Entity {
 
 	public void setHours(Integer hours) {
 		this.hours = hours;
+	}
+
+	public Timestamp getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(Timestamp updateDate) {
+		this.updateDate = updateDate;
+	}
+
+	public String getUpdateUser() {
+		return updateUser;
+	}
+
+	public void setUpdateUser(String updateUser) {
+		this.updateUser = updateUser;
 	}
 	
 }

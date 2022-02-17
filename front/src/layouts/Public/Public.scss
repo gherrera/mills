@@ -3,9 +3,9 @@
 // ################
 
 @mixin render-theme($theme-color, $action-color, $custom-color-light, $custom-color-dark, $custom-color-register-cake-bg, $custom-register-card-gradient-top-color, $custom-register-card-gradient-bottom-color) {
-  background-image: linear-gradient(135deg, #fff 0%, $theme-color 100%) !important;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  //background-image: linear-gradient(135deg, #fff 0%, $theme-color 100%) !important;
+  //background-repeat: no-repeat;
+  //background-attachment: fixed;
 
   .ant-btn-primary, .page-icon {
     background-color: $action-color !important;
@@ -22,7 +22,7 @@
     }
   }
 
-  .tools-area, .admin-search-filters, .conflicts-of-interest .conflicts-filters, .monitoring .conflicts-filters {
+  .tools-area {
     background-color: $custom-color-dark !important;
   }
 
@@ -48,10 +48,8 @@
     }
   }
 
-  #inicio #header .navigation li#home,
-  #design #header .navigation li#design,
-  #manage #header .navigation li#manage,
-  #recipients #header .navigation li#recipients,
+  #maintenance-setup #header .navigation li#setup,
+  #maintenance-new #header .navigation li#setup,
   {
     background-color: $action-color !important;
     color: #fff;
@@ -114,7 +112,7 @@
 // ################
 
 .theme-metal {
-  @include render-theme(#c9c7c7, #6877b1, #f8f6f6, #6877b1, #fbfbfb, #f6f6f6, #f3f3f3);
+  @include render-theme(#c9c7c7, rgba(0,0,0,.85), #f8f6f6, rgba(0,0,0,.1), #fbfbfb, #f6f6f6, #f3f3f3);
 }
 
 .theme-sepia {

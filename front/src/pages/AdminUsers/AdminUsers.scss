@@ -1,29 +1,27 @@
-#administracion {
-  .admin-users {
-    .tools-area {
-      border-radius: 5px;
-      margin-bottom: 20px;
-      padding: 20px;
-      text-align: right;
+.admin-users {
+  .tools-area {
+    border-radius: 2px;
+    //margin-bottom: 20px;
+    padding: 5px;
+    text-align: right;
 
-      #create-user {
-      }
+    #create-user {
     }
+  }
 
-    .disabled {
-      color: #bbb;
-    }
+  .disabled {
+    color: #bbb;
+  }
 
-    div.ant-table-body {
-      height: 420px;
-    }
+  div.ant-table-body {
+    height: 420px;
+  }
 
-    .ant-pagination {
-      position: relative;
-      top: 90px;
-      text-align: center;
-      float: none;
-      z-index: 10;
-    }
+  .ant-pagination {
+    position: relative;
+    top: 90px;
+    text-align: center;
+    float: none;
+    z-index: 10;
   }
 }

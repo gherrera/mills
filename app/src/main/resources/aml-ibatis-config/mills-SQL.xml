@@ -63,6 +63,8 @@
 		<result property="statusAdmin" column="estado_admin"/>
 		<result property="stage" column="etapa"/>
 		<result property="hours" column="horas"/>
+		<result property="updateDate" column="fec_act"/>
+		<result property="updateUser" column="user_act"/>
 		<result property="turns" column="id" select="getTurnosByMolino"/>
 		<result property="stages" column="id" select="getEtapasByMolino"/>
 		<result property="parts" column="id" select="getPartesByMolino"/>
@@ -278,9 +280,14 @@
 	</select>
 	
 	<select id="getMolinoById" resultMap="Molino">
-		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, faena_id
+		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, faena_id, fec_act, user_act
 		from molinos
 		where id = #value#
+	</select>
+	
+	<select id="getMolinos" resultMap="Molino">
+		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, faena_id, fec_act, user_act
+		from molinos
 	</select>
 	
 	<select id="getEtapasByMolino" resultMap="Etapa">
@@ -351,6 +358,13 @@
 		update molinos
 			set estado = #status#,
 				etapa = #stage#
+		where id = #id#
+	</update>
+	
+	<update id="updateMolino">
+		update molinos
+			set fec_act = #updateDate#,
+				user_act = #updateUser#
 		where id = #id#
 	</update>
 	

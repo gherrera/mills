@@ -53,7 +53,6 @@ class AdminUsers extends React.Component {
     Modal.confirm({
       title: 'Está seguro de eliminar el usuario?',
       okText: 'Sí',
-      okType: 'danger',
       cancelText: 'No',
       onOk: () => {
         UsersService.delete(userId)

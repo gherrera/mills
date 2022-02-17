@@ -395,6 +395,10 @@ public class App {
 		return dao.getTurnosActivosController(userId);
 	}
 	
+	public List<Molino> getMolinos(String userId) {
+		return dao.getMolinos();
+	}
+	
 	public Turno inicioTurno(Usuario user, String id) {
 		long lStartTime = System.currentTimeMillis();
 

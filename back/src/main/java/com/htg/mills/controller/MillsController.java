@@ -38,6 +38,7 @@ import com.htg.mills.entities.CurrentUser;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Usuario;
 import com.htg.mills.entities.maintenance.Etapa;
+import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
@@ -263,6 +264,13 @@ public class MillsController {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Turno> turnos = app.getTurnosActivosController(currentUser.getUser().getId());
 		return turnos;
+	}
+	
+	@PostMapping("getMolinos")
+    @ResponseBody
+	public List<Molino> getMolinos() {
+		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return app.getMolinos(currentUser.getUser().getId());
 	}
 
 	@PostMapping("inicioTurno")

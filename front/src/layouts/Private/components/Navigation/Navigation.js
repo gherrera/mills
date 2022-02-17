@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Icon, Menu, Dropdown, Button } from 'antd'
 
-export default ({ currentUser }) => {
+export default ({ currentUser, currentPage }) => {
   const { t } = useTranslation()
 
   return (
@@ -13,10 +13,12 @@ export default ({ currentUser }) => {
       theme="light"
       mode="horizontal"
       >
-      <Menu.Item id="home">
-          Inicio
-          <Link to={ '/' } />
-      </Menu.Item>
+      { currentPage.startsWith('maintenance') &&
+        <Menu.Item id="setup">
+            Setup
+            <Link to={ '/maintenance/setup' } />
+        </Menu.Item>
+      }
       { currentUser.modules && currentUser.modules.includes('REPORT') &&
         <Menu.Item id="report">
           Informes

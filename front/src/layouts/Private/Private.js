@@ -19,7 +19,8 @@ class LayoutPrivate extends Component {
       //await ReactGA.pageview(window.location.pathname + window.location.search)
     //}
 
-    this.setCurrentPageId()
+    const currentPageId = this.setCurrentPageId()
+    this.setState({ currentPageId })
   }
 
   async componentDidUpdate(prevProps) {
@@ -28,18 +29,12 @@ class LayoutPrivate extends Component {
       const currentPageId = this.setCurrentPageId()
 
       await this.setState({ currentPageId })
-
-      //if (currentUser.cliente.abreviado !== 'demostraciones' && currentUser.cliente.abreviado !== 'demo') {
-      //  await ReactGA.pageview(window.location.pathname + window.location.search)
-      //}
-
-      this.clearActiveTab()
     }
   }
 
   setCurrentPageId() {
     const pathname = this.props.location.pathname.substr(1)
-    const currentPage = pathname.split('/')[0] === 'perfil' ? 'consulta' : pathname.split('/')[0]
+    const currentPage = pathname.replace('/','-')
     const currentPageId = pathname === '' ? 'inicio' : currentPage
 
     document.getElementsByClassName('layout-private')[0].id = currentPageId
@@ -47,22 +42,16 @@ class LayoutPrivate extends Component {
     return currentPageId
   }
 
-  clearActiveTab() {
-    const tabs = document.querySelectorAll('.ant-menu-item')
-
-    for (var i = 0; i < tabs.length; i++) {
-      tabs[i].classList.remove('ant-menu-item-selected')
-    }
-  }
-
   render() {
     const { children, currentUser, logoutHandler } = this.props
+    const { currentPageId } = this.state
 
     return (
       <Layout className="layout-private">
         <Header
           currentUser={ currentUser }
           logoutHandler= { logoutHandler }
+          currentPage = {currentPageId}
           />
         <Content>
           { children }

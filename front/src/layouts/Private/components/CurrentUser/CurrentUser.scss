@@ -1,14 +1,13 @@
 .current-user {
-  border-left: 1px rgba(0, 0, 0, .1) solid;
-  color: #fff;
   line-height: 50px;
 
   .ant-btn {
     background-color: transparent;
     border: 0;
-    font-size: 0.9em;
-    height: 44px;
-    padding: 0 20px;
+    //font-size: 0.9em;
+    //height: 44px;
+    padding: 12px 30px;
+    float: right;
   }
 
   .ant-dropdown {

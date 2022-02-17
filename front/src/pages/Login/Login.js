@@ -2,7 +2,7 @@ import './Login.scss'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
-import { Button, Col, Form, Icon, Input, notification, Row, Spin } from 'antd'
+import { Button, Col, Form, Icon, Input, notification, Row } from 'antd'
 import { getAuthTokenPromise } from '../../promises'
 import { resetPasswordPromise } from './promises'
 import { authTokenSessionStorageSaverHelper } from '../../helpers'
@@ -112,75 +112,58 @@ class Login extends Component {
 
 {/* III.- TERCER BLOQUE - INICIO DE SESIÓN */  }
         <Row className="tercerBloque" id="iniciaS">
-          <Col span={2} xs={24} sm={16} md={2} lg={2}>
-          </Col>
-          <Col className="seccionSesion" span={8} xs={24} sm={16} md={8} lg={8}>
-            <Row>  
-              <h4 id="tituloS">
-                        Inicia Sesión
-              </h4>
-            </Row>
-            <Row>  
-              <span id="separadorS"></span>
-            </Row>
-            <Row>  
-              <h5 id="parrafoS">
-                        Bienvenido a Mills Operational Software, a continuación ingrese su usuario y contraseña
-              </h5>
-            </Row>
-          </Col>
-          <Col className="seccionIngreso" span={11} xs={24} sm={16} md={11} lg={11}>
-          <Form onSubmit={ isRestore ? this.handleRestorePassword.bind(this) : this.handleSubmit.bind(this) } className="login-form">
-            <Row className="cajaIngreso">
-              <Row className="row-image">
-                <img src="/logo.png" alt="" />
+          <Col>
+            <Form onSubmit={ isRestore ? this.handleRestorePassword.bind(this) : this.handleSubmit.bind(this) } className="login-form">
+              <Row className="cajaIngreso">
+                <Row className="row-image">
+                  <img src="/logo.png" alt="" />
+                </Row>
+                <Row>
+                    <Row id="ingresoUsuario">
+                      {
+                        this.renderFormItem({
+                          name: 'username',
+                          rules: [{ required: true, message: 'Campo requerido' }],
+                          item: (
+                            <Input
+                              disabled={ false }
+                              onChange={ (e) => this.handleUsernameOnChange.bind(this)(e.target.value) }
+                              placeholder={ t('messages.aml.username') }
+                              prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                              />
+                          )
+                        })
+                      }
+                    </Row>
+                    { !isRestore &&
+                      <Row id="ingresoUsuario">
+                        {
+                          this.renderFormItem({
+                              name: 'password',
+                              rules: [{ required: true, message: 'Campo requerido' }],
+                              item: (
+                                <Input
+                                  onChange={ (e) => this.handlePasswordOnChange.bind(this)(e.target.value) }
+                                  type="password"
+                                  autoComplete="off"
+                                  placeholder={ t('messages.aml.password') }
+                                  prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                />
+                              )
+                            })
+                          }
+                      </Row>
+                                } 
+                      <Row id="botonIngresar">
+                          <Button htmlType="submit">Ingresar</Button>
+                      </Row>
+                      <Row className="olvidoCon">
+                        { !isRestore && <a href='#' onClick={ this.handleSwitchToRestore.bind(this) }>{ t('messages.aml.forgotYourPassword') }</a> }
+                          { isRestore && <a href='#' onClick={ this.handleSwitchToLogin.bind(this) }>{ t('messages.aml.backToLogin') }</a> }
+                      </Row>
+                  </Row>               
               </Row>
-              <Row className="cajaContraseña">
-                  <Row id="ingresoUsuario">
-                                  {
-                                    this.renderFormItem({
-                                      name: 'username',
-                                      rules: [{ required: true, message: 'Campo requerido' }],
-                                      item: (
-                                        <Input
-                                          disabled={ false }
-                                          onChange={ (e) => this.handleUsernameOnChange.bind(this)(e.target.value) }
-                                          placeholder={ t('messages.aml.username') }
-                                          />
-                                      )
-                                    })
-                                  }
-                  </Row>
-                              { !isRestore &&
-                  <Row id="ingresoUsuario">
-                                   {
-                                     this.renderFormItem({
-                                        name: 'password',
-                                        rules: [{ required: true, message: 'Campo requerido' }],
-                                        item: (
-                                          <Input
-                                            onChange={ (e) => this.handlePasswordOnChange.bind(this)(e.target.value) }
-                                            type="password"
-                                            autoComplete="off"
-                                            placeholder={ t('messages.aml.password') }
-                                           />
-                                        )
-                                      })
-                                    }
-                  </Row>
-                              } 
-                  <Row>
-                      <Button id="botonIngresar" htmlType="submit">Ingresar</Button>
-                  </Row>
-                  <Row className="olvidoCon">
-                     { !isRestore && <a href='#' id="olvidoC" onClick={ this.handleSwitchToRestore.bind(this) }>{ t('messages.aml.forgotYourPassword') }</a> }
-                      { isRestore && <a href='#' id="olvidoC" onClick={ this.handleSwitchToLogin.bind(this) }>{ t('messages.aml.backToLogin') }</a> }
-                  </Row>
-                </Row>               
-            </Row>
-          </Form>
-          </Col>
-          <Col span={2} xs={24} sm={16} md={2} lg={2}>
+            </Form>
           </Col>
         </Row>
       </div>

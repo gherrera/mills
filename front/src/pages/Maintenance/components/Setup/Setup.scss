@@ -1,0 +1,25 @@
+.setup {
+    color: rgba(0,0,0,.8);
+    
+    .tools-area {
+        border-radius: 2px;
+        //margin-bottom: 20px;
+        padding: 5px;
+        text-align: right;
+
+        
+    }
+
+    .new-faena {
+        width: 99%;
+        border: 3px rgba(0,0,0,.08) solid;
+
+        .tools-area {
+            background-color: rgba(0,0,0,.05) !important;
+        }
+
+        .body-new-faena {
+            padding: 5px;
+        }
+    }
+}
