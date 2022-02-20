@@ -399,6 +399,16 @@ public class App {
 		return dao.getMolinos();
 	}
 	
+	public Molino saveMolino(Usuario user, Molino molino) {
+		try {
+			dao.saveMolino(molino);
+			return dao.getMolinoById(molino.getId());
+		} catch (SQLException e) {
+			log.error("Error al guardar Molino", e);
+			return null;
+		}
+	}
+	
 	public Turno inicioTurno(Usuario user, String id) {
 		long lStartTime = System.currentTimeMillis();
 

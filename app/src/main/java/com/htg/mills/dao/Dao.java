@@ -16,10 +16,14 @@ import org.joda.time.DateTimeZone;
 
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Evento;
+import com.htg.mills.entities.maintenance.Faena;
 import com.htg.mills.entities.maintenance.Molino;
+import com.htg.mills.entities.maintenance.Molino.StatusAdmin;
 import com.htg.mills.entities.maintenance.Parte;
+import com.htg.mills.entities.maintenance.Persona;
 import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.TareaParte;
 import com.htg.mills.entities.maintenance.Turno;
@@ -261,6 +265,67 @@ public class Dao {
 		} catch (SQLException e) {
 			log.error("Error al leer molinos", e);
 			return null;
+		}
+	}
+	
+	public void saveMolino(Molino molino) throws SQLException {
+		if(molino.getFaena() != null && molino.getFaena().getClient() != null) {
+			try {
+				Cliente cliente = molino.getFaena().getClient();
+				Calendar c = Calendar.getInstance(TimeZone.getDefault());
+				Date date = c.getTime();
+				Timestamp fecha = new Timestamp(date.getTime());
+				
+				sqlMap.startTransaction();
+				if(cliente.getId() == null) {
+					cliente.setId(UUID.randomUUID().toString());
+					cliente.setCreationDate(fecha);
+					sqlMap.insert("insertClient", cliente);
+				}
+				
+				Faena faena = molino.getFaena();
+				if(faena.getId() == null) {
+					faena.setId(UUID.randomUUID().toString());
+					faena.setCreationDate(fecha);
+					sqlMap.insert("insertFaena", faena);
+				}
+				
+				molino.setId(UUID.randomUUID().toString());
+				molino.setCreationDate(fecha);
+				molino.setStatusAdmin(StatusAdmin.ACTIVE);
+				sqlMap.insert("insertMolino", molino);
+				
+				if(molino.getParts() != null) {
+					for(Parte part : molino.getParts()) {
+						part.setId(UUID.randomUUID().toString());
+						part.setCreationDate(fecha);
+						part.setMolinoId(molino.getId());
+						sqlMap.insert("insertParte", part);
+					}
+				}
+				
+				if(molino.getTurns() != null) {
+					for(Turno turno : molino.getTurns()) {
+						turno.setId(UUID.randomUUID().toString());
+						turno.setCreationDate(fecha);
+						turno.setMolino(molino);
+						sqlMap.insert("insertTurno", turno);
+						
+						if(turno.getPersonas() != null) {
+							for(Persona persona : turno.getPersonas()) {
+								persona.setTurnoId(turno.getId());
+								sqlMap.insert("insertPersonaTurno", persona);
+							}
+						}
+					}
+				}
+				
+				sqlMap.commitTransaction();
+			} catch (SQLException e) {
+				throw e;
+			} finally {
+				try {sqlMap.endTransaction();}catch(Exception e){}
+			}
 		}
 	}
 	

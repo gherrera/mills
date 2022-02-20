@@ -1,11 +1,15 @@
 package com.htg.mills.entities.maintenance;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Persona {
 
 	private String name;
 	private String rut;
 	private String role;
 	private String controllerId;
+	@JsonIgnore
+	private String turnoId;
 	
 	public String getName() {
 		return name;
@@ -30,6 +34,12 @@ public class Persona {
 	}
 	public void setRole(String role) {
 		this.role = role;
+	}
+	public String getTurnoId() {
+		return turnoId;
+	}
+	public void setTurnoId(String turnoId) {
+		this.turnoId = turnoId;
 	}
 	
 }

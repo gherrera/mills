@@ -12,17 +12,21 @@ public class Turno extends Entity {
 		OPEN, CLOSED
 	}
 	
-	private String name;
+	public enum TurnoEnum {
+		DAY, NIGHT
+	}
+	
+	private TurnoEnum name;
 	private Status status;
 	private String turnoId;
 	private List<Persona> personas;
 	private Molino molino;
 	private List<TurnoHistorial> history;
 	
-	public String getName() {
+	public TurnoEnum getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public void setName(TurnoEnum name) {
 		this.name = name;
 	}
 	public Status getStatus() {

@@ -63,6 +63,7 @@
 		<result property="statusAdmin" column="estado_admin"/>
 		<result property="stage" column="etapa"/>
 		<result property="hours" column="horas"/>
+		<result property="ordenTrabajo" column="orden_trabajo"/>
 		<result property="updateDate" column="fec_act"/>
 		<result property="updateUser" column="user_act"/>
 		<result property="turns" column="id" select="getTurnosByMolino"/>
@@ -82,6 +83,11 @@
 		<result property="id" column="id"/>
 		<result property="creationDate" column="fec_creacion"/>
 		<result property="name" column="nombre"/>
+		<result property="rut" column="rut"/>
+		<result property="address" column="direccion"/>
+		<result property="contactName" column="contact_name"/>
+		<result property="contactPhone" column="contact_phone"/>
+		<result property="email" column="email"/>
 	</resultMap>
 	
 	<resultMap id="Etapa" class="com.htg.mills.entities.maintenance.Etapa">
@@ -280,14 +286,15 @@
 	</select>
 	
 	<select id="getMolinoById" resultMap="Molino">
-		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, faena_id, fec_act, user_act
+		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, orden_trabajo, faena_id, fec_act, user_act
 		from molinos
 		where id = #value#
 	</select>
 	
 	<select id="getMolinos" resultMap="Molino">
-		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, faena_id, fec_act, user_act
+		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, orden_trabajo, faena_id, fec_act, user_act
 		from molinos
+		order by nombre
 	</select>
 	
 	<select id="getEtapasByMolino" resultMap="Etapa">
@@ -337,7 +344,7 @@
 	</select>
 	
 	<select id="getClienteById" resultMap="Cliente">
-		select id, fec_creacion, nombre
+		select id, fec_creacion, nombre, rut, direccion, contact_name, contact_phone, email
 		from clientes
 		where id = #value#	
 	</select>
@@ -436,5 +443,35 @@
 				user_termino = #userFinish#
 		where id = #id#
 	</update>
+	
+	<insert id="insertClient">
+		insert into clientes(id, fec_creacion, nombre, rut, direccion, contact_name, contact_phone, email)
+			values(#id#, #creationDate#, #name#, #rut#, #address#, #contactName#, #contactPhone#, #email#)
+	</insert>
+	
+	<insert id="insertFaena">
+		insert into faenas(id, fec_creacion, nombre, cliente_id)
+			values(#id#, #creationDate#, #name#, #client.id#)
+	</insert>
+	
+	<insert id="insertMolino">
+		insert into molinos(id, fec_creacion, nombre, tipo, estado_admin, faena_id, horas, orden_trabajo)
+			values(#id#, #creationDate#, #name#, #type#, #statusAdmin#, #faena.id#, #hours#, #ordenTrabajo#)
+	</insert>
+	
+	<insert id="insertParte">
+		insert into molino_partes(id, fec_creacion, nombre, tipo, cantidad, botadas, limpiadas, montadas, total_botadas, total_limpiadas, total_montadas, molino_id)
+			values(#id#, #creationDate#, #name#, #type#, #qty#, #botadas#, #limpiadas#, #montadas#, #totalBotadas#, #totalLimpiadas#, #totalMontadas#, #molinoId#)
+	</insert>
+	
+	<insert id="insertTurno">
+		insert into turnos(id, fec_creacion, nombre, molino_id)
+			values(#id#, #creationDate#, #name#, #molino.id#)
+	</insert>
+	
+	<insert id="insertPersonaTurno">
+		insert into turno_personas(turno_id, nombre, rut, cargo, user_id_controller)
+			values(#turnoId#, #name#, #rut#, #role#, #controllerId#)
+	</insert>
 
 </sqlMap>

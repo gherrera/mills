@@ -30,6 +30,7 @@ public class Molino extends Entity {
 	private List<Parte> parts;
 	private Faena faena;
 	private Integer hours;
+	private String ordenTrabajo;
 	private Timestamp updateDate;
 	private String updateUser;
 
@@ -255,5 +256,13 @@ public class Molino extends Entity {
 	public void setUpdateUser(String updateUser) {
 		this.updateUser = updateUser;
 	}
-	
+
+	public String getOrdenTrabajo() {
+		return ordenTrabajo;
+	}
+
+	public void setOrdenTrabajo(String ordenTrabajo) {
+		this.ordenTrabajo = ordenTrabajo;
+	}
+
 }

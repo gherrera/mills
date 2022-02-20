@@ -1,5 +1,6 @@
 package com.htg.mills.entities.maintenance;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.htg.mills.entities.Entity;
 
 public class Parte extends Entity {
@@ -15,6 +16,8 @@ public class Parte extends Entity {
 	private int totalBotadas;
 	private int totalLimpiadas;
 	private int totalMontadas;
+	@JsonIgnore
+	private String molinoId;
 	
 	public String getName() {
 		return name;
@@ -69,5 +72,11 @@ public class Parte extends Entity {
 	}
 	public void setTotalMontadas(int totalMontadas) {
 		this.totalMontadas = totalMontadas;
+	}
+	public String getMolinoId() {
+		return molinoId;
+	}
+	public void setMolinoId(String molinoId) {
+		this.molinoId = molinoId;
 	}
 }
