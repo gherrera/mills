@@ -13,6 +13,11 @@ DROP TABLE clientes;
 CREATE TABLE clientes(
 id VARCHAR(50) NOT NULL,
 nombre VARCHAR(150) NOT NULL,
+rut VARCHAR(20),
+direccion VARCHAR(200),
+contact_name VARCHAR(100),
+contact_phone VARCHAR(50),
+email VARCHAR(50),
 fec_creacion TIMESTAMP,
 PRIMARY KEY(id)
 );
@@ -35,6 +40,7 @@ estado_admin VARCHAR(20),
 estado VARCHAR(20),
 etapa VARCHAR(20),
 horas INT,
+orden_trabajo VARCHAR(20),
 fec_act TIMESTAMP,
 user_act VARCHAR(50),
 faena_id VARCHAR(50) NOT NULL,

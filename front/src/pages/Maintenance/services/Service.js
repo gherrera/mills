@@ -7,5 +7,12 @@ export default {
       url: apiConfig.url + '/getMolinos',
       method: 'post'
     })
+  },
+  saveMolino: (molino) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/saveMolino',
+      method: 'post',
+      body: molino
+    })
   }
 }

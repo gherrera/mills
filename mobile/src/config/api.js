@@ -9,4 +9,5 @@ if ( process.env.REACT_APP_ENV === 'prod') {
   //api.url = 'http://192.168.100.11:5000/api'
 }
 api.env = "prod"
+//api.env = "dev"
 export default api

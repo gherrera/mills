@@ -70,6 +70,11 @@ export default class Home extends Component {
         this.init()
     }
 
+    getTurnoDesc(turno) {
+        if(turno === 'DAY') return 'Día'
+        else if(turno === 'NIGHT') return 'Noche'
+    }
+
     render() {
         const { currentUser } = this.props
         const { turnos, turno } = this.state
@@ -90,7 +95,7 @@ export default class Home extends Component {
                                     >
                                             <ListItem.Content>
                                                 <ListItem.Title style={{ fontWeight: '700', fontSize:20 }}>
-                                                    {t.molino.name+' - ' +t.molino.faena.name+' - ' +t.name + (t.status === 'OPEN' ? ' (Abierto)':'')}
+                                                    {t.molino.name+' - ' +t.molino.faena.name+' - ' +this.getTurnoDesc(t.name) + (t.status === 'OPEN' ? ' (Abierto)':'')}
                                                     {!t.enable && ' (No permitido)'}
                                                 </ListItem.Title>
                                                 <ListItem.Subtitle style={{ fontWeight: '700', fontSize:18 }}>{t.molino.faena.client.name}</ListItem.Subtitle>

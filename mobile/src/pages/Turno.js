@@ -209,6 +209,16 @@ export default class Turno extends Component {
         this.init()
     }
 
+    getTurnoDesc(turno) {
+        if(turno === 'DAY') return 'Día'
+        else if(turno === 'NIGHT') return 'Noche'
+    }
+
+    getRoleDesc(role) {
+        if(role === 'CONTROLLER') return 'Controlador'
+        else return role
+    }
+
     render() {
         const { currentUser } = this.props
         const { tabIndex, turno, isVisibleInterruption, isLoadingInterruption } = this.state
@@ -417,7 +427,7 @@ export default class Turno extends Component {
                                             <Text style={{fontSize:20, color: StylesGlobal.colorBlack90}}>Turno</Text>
                                         </View>
                                         <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorGray10, padding:5}}>
-                                            <Text style={{fontSize:20, color: StylesGlobal.colorBlack90}}>{turno.name}</Text>
+                                            <Text style={{fontSize:20, color: StylesGlobal.colorBlack90}}>{this.getTurnoDesc(turno.name)}</Text>
                                         </View>
 
                                         <View style={{ ...styles.col, width: '50%', padding:5}}>
@@ -439,7 +449,7 @@ export default class Turno extends Component {
                                                         <Text style={{fontSize:17, color: StylesGlobal.colorBlack90}}>{persona.name}</Text>
                                                 </View>
                                                 <View style={{ ...styles.col, width: '50%', padding:5, backgroundColor: (index%2===1?StylesGlobal.colorGray10:null)}}>
-                                                    <Text style={{fontSize:17, color: StylesGlobal.colorBlack90}}>{persona.role}</Text>
+                                                    <Text style={{fontSize:17, color: StylesGlobal.colorBlack90}}>{this.getRoleDesc(persona.role)}</Text>
                                                 </View>
                                             </React.Fragment>
                                         )}
