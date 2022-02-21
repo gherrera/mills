@@ -154,4 +154,3 @@ FOREIGN KEY(parte_id) REFERENCES molino_partes(id),
 FOREIGN KEY(turno_id) REFERENCES turno_historial(id),
 PRIMARY KEY(id)
 );
-
