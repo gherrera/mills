@@ -268,9 +268,9 @@ public class MillsController {
 	
 	@PostMapping("getMolinos")
     @ResponseBody
-	public List<Molino> getMolinos() {
+	public List<Molino> getMolinos(@RequestBody Map<String, String> params) {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.getMolinos(currentUser.getUser().getId());
+		return app.getMolinos(currentUser.getUser().getId(), params);
 	}
 
 	@PostMapping("inicioTurno")

@@ -20,6 +20,8 @@ public class Molino extends Entity {
 		STARTED, FINISHED
 	}
 
+	private String createUser;
+	private int nro;
 	private String name;
 	private String type;
 	private StatusAdmin statusAdmin;
@@ -263,6 +265,31 @@ public class Molino extends Entity {
 
 	public void setOrdenTrabajo(String ordenTrabajo) {
 		this.ordenTrabajo = ordenTrabajo;
+	}
+
+	public int getNro() {
+		return nro;
+	}
+
+	public void setNro(int nro) {
+		this.nro = nro;
+	}
+	
+	public Timestamp getStartDate() {
+		if(stages != null) {
+			for(Etapa st : stages) {
+				if(st.getStage().equals(Etapa.EtapaEnum.BEGINNING)) return st.getCreationDate();
+			}
+		}
+		return null;
+	}
+
+	public String getCreateUser() {
+		return createUser;
+	}
+
+	public void setCreateUser(String createUser) {
+		this.createUser = createUser;
 	}
 
 }

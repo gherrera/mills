@@ -56,6 +56,7 @@
 	
 	<resultMap id="Molino" class="com.htg.mills.entities.maintenance.Molino">
 		<result property="id" column="id"/>
+		<result property="nro" column="nro"/>
 		<result property="creationDate" column="fec_creacion"/>
 		<result property="name" column="nombre"/>
 		<result property="type" column="tipo"/>
@@ -66,6 +67,7 @@
 		<result property="ordenTrabajo" column="orden_trabajo"/>
 		<result property="updateDate" column="fec_act"/>
 		<result property="updateUser" column="user_act"/>
+		<result property="createUser" column="create_user"/>
 		<result property="turns" column="id" select="getTurnosByMolino"/>
 		<result property="stages" column="id" select="getEtapasByMolino"/>
 		<result property="parts" column="id" select="getPartesByMolino"/>
@@ -286,15 +288,23 @@
 	</select>
 	
 	<select id="getMolinoById" resultMap="Molino">
-		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, orden_trabajo, faena_id, fec_act, user_act
+		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, orden_trabajo, faena_id, fec_act, user_act, create_user
 		from molinos
 		where id = #value#
 	</select>
 	
 	<select id="getMolinos" resultMap="Molino">
-		select id, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, orden_trabajo, faena_id, fec_act, user_act
+		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, orden_trabajo, faena_id, fec_act, user_act, create_user
 		from molinos
-		order by nombre
+		<isNotNull property="status">
+			<isEqual property="status" compareValue="PENDING">
+				where estado is null
+			</isEqual>
+			<isNotEqual property="status" compareValue="PENDING">
+				where estado = #status#
+			</isNotEqual>
+		</isNotNull>
+		order by nro desc
 	</select>
 	
 	<select id="getEtapasByMolino" resultMap="Etapa">
@@ -455,8 +465,8 @@
 	</insert>
 	
 	<insert id="insertMolino">
-		insert into molinos(id, fec_creacion, nombre, tipo, estado_admin, faena_id, horas, orden_trabajo)
-			values(#id#, #creationDate#, #name#, #type#, #statusAdmin#, #faena.id#, #hours#, #ordenTrabajo#)
+		insert into molinos(id, fec_creacion, nombre, tipo, estado_admin, faena_id, horas, orden_trabajo, create_user)
+			values(#id#, #creationDate#, #name#, #type#, #statusAdmin#, #faena.id#, #hours#, #ordenTrabajo#, #createUser#)
 	</insert>
 	
 	<insert id="insertParte">

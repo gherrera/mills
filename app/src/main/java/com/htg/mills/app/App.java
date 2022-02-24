@@ -395,13 +395,13 @@ public class App {
 		return dao.getTurnosActivosController(userId);
 	}
 	
-	public List<Molino> getMolinos(String userId) {
-		return dao.getMolinos();
+	public List<Molino> getMolinos(String userId, Map<String, String> params) {
+		return dao.getMolinos(params);
 	}
 	
 	public Molino saveMolino(Usuario user, Molino molino) {
 		try {
-			dao.saveMolino(molino);
+			dao.saveMolino(user, molino);
 			return dao.getMolinoById(molino.getId());
 		} catch (SQLException e) {
 			log.error("Error al guardar Molino", e);

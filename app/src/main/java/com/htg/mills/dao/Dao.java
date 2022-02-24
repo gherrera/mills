@@ -259,16 +259,16 @@ public class Dao {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Molino> getMolinos() {
+	public List<Molino> getMolinos(Map<String, String> params) {
 		try {
-			return (List<Molino>)sqlMap.queryForList("getMolinos");
+			return (List<Molino>)sqlMap.queryForList("getMolinos", params);
 		} catch (SQLException e) {
 			log.error("Error al leer molinos", e);
 			return null;
 		}
 	}
 	
-	public void saveMolino(Molino molino) throws SQLException {
+	public void saveMolino(Usuario user, Molino molino) throws SQLException {
 		if(molino.getFaena() != null && molino.getFaena().getClient() != null) {
 			try {
 				Cliente cliente = molino.getFaena().getClient();
@@ -293,6 +293,7 @@ public class Dao {
 				molino.setId(UUID.randomUUID().toString());
 				molino.setCreationDate(fecha);
 				molino.setStatusAdmin(StatusAdmin.ACTIVE);
+				molino.setCreateUser(user.getName());
 				sqlMap.insert("insertMolino", molino);
 				
 				if(molino.getParts() != null) {
