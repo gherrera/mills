@@ -14,7 +14,7 @@ class ModalContentCreate extends React.Component {
       email: '',
       type: '',
       login: '',
-      password: props.password,
+      password: '',
       token: null,
       status: 'ACTIVE',
       modules: [],
