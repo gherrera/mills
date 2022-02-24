@@ -434,7 +434,7 @@ export default class Turno extends Component {
                                             <Text style={{fontSize:20, color: StylesGlobal.colorBlack90}}>Responsable</Text>
                                         </View>
                                         <View style={{ ...styles.col, width: '50%', padding:5}}>
-                                            <Text style={{fontSize:20, color: StylesGlobal.colorBlack90}}>{currentUser.name}</Text>
+                                            <Text style={{fontSize:20, color: StylesGlobal.colorBlack90}}>{turno.molino.createUser}</Text>
                                         </View>
 
                                         <View style={{ ...styles.col, width: '50%', backgroundColor:StylesGlobal.colorGray10, padding:5}}>

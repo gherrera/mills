@@ -43,8 +43,8 @@ class Maintenance extends Component {
             />
         <Page>
           <PageContent>
-            {(match.params.action === 'setup' || match.params.action === 'new') &&
-              <Setup currentUser={currentUser} action={match.params.action} />
+            {(match.params.action === 'setup' || match.params.action === 'new' || match.params.action === 'PENDING' || match.params.action === 'STARTED' || match.params.action === 'FINISHED') &&
+              <Setup key={match.params.action} currentUser={currentUser} action={match.params.action} />
             }
           </PageContent>
         </Page>

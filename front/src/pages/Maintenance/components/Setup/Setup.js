@@ -5,7 +5,7 @@ import { withRouter } from 'react-router'
 import { Button, Table, Row, Col, Spin, Steps, Modal, notification } from 'antd'
 import { getMolinosPromise, saveMolinoPromise } from '../../promises'
 import moment from "moment";
-import { Step1, Step2, Step3, Step4 } from './components'
+import { Step1, Step2, Step3, Step4, Edit } from './components'
 import { getUsersByClientPromise } from '../../../../promises'
 
 const { confirm } = Modal;
@@ -13,6 +13,7 @@ const { confirm } = Modal;
 const Setup = ({currentUser, action, history}) => {
   const [molinos, setMolinos] = useState([])
   const [isModalVisibleNew, setIsModalVisibleNew] = useState(false)
+  const [isModalVisibleEdit, setIsModalVisibleEdit] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [client, setClient] = useState({})
   const [faena, setFaena] = useState({})
@@ -20,6 +21,7 @@ const Setup = ({currentUser, action, history}) => {
   const [personal, setPersonal] = useState([])
   const [currentStep, setCurrentStep] = useState(0)
   const [usuarios, setUsuarios] = useState([])
+  const [faenaSel, setFaenaSel] = useState(null)
 
   useEffect(() => {
     if(action === 'new') setIsModalVisibleNew(true)
@@ -29,7 +31,7 @@ const Setup = ({currentUser, action, history}) => {
 
   const loadMolinos = () => {
     setIsLoading(true)
-    getMolinosPromise().then(m => {
+    getMolinosPromise(action === 'new' || action === 'setup' ? null : action).then(m => {
         setMolinos(m)
         setIsLoading(false)
     })
@@ -37,55 +39,170 @@ const Setup = ({currentUser, action, history}) => {
 
   const { t } = useTranslation()
 
-  const tableColumns = [
-    /*
-    { 
-        title: "Nro",
-        dataIndex: "id"
-    },
-    */
-    { 
-        title: "Razón social",
-        dataIndex: "faena",
-        render: (faena, record) => {
-            return faena.client.name
+  const getStatus = (status) => {
+    if(status === 'FINISHED') return 'Finalizado'
+    else if(status === 'STARTED') return 'Iniciado'
+    else if(!status) return 'Pendiente'
+  }
+
+  const getStageDesc = (stage) => {
+    if(stage === 'BEGINNING') return 'Inicio'
+    else if(stage === 'EXECUTION') return 'Ejecución'
+    else if(stage === 'FINISHED') return 'Término'
+    else if(stage === 'DELIVERY') return 'Entrega'
+  }
+
+  const onClickFaena = (f) => {
+    setFaenaSel(f)
+    setIsModalVisibleEdit(true)
+  }
+
+  const getTableColumns = () => {
+    let columns = [
+      { 
+          title: "Nro",
+          dataIndex: "nro",
+          sorter: (a, b) => {
+            if(a.nro < b.nro) return -1
+            else if(a.nro > b.nro) return 1
+            else return 0
+          },
+      },
+      { 
+          title: "Razón social",
+          dataIndex: "faena",
+          sorter: (a, b) => {
+            if(a.faena.client.name < b.faena.client.name) return -1
+            else if(a.faena.client.name > b.faena.client.name) return 1
+            else return 0
+          },
+          render: (faena, record) => {
+              return <a onClick={() => onClickFaena(record)}>{faena.client.name}</a>
+          }
+      },
+      { 
+          title: "Tipo de Proyecto",
+          dataIndex: "faena",
+          sorter: (a, b) => {
+            if(a.faena.name < b.faena.name) return -1
+            else if(a.faena.name > b.faena.name) return 1
+            else return 0
+          },
+          render: (faena, record) => {
+              return faena.name
+          }
+      },
+      { 
+          title: "Orden de trabajo",
+          dataIndex: "ordenTrabajo",
+          sorter: (a, b) => {
+            if(a.ordenTrabajo < b.ordenTrabajo) return -1
+            else if(a.ordenTrabajo > b.ordenTrabajo) return 1
+            else return 0
+          },
+      },
+      { 
+          title: "Tipo de Equipo",
+          dataIndex: "type",
+          sorter: (a, b) => {
+            if(a.type < b.type) return -1
+            else if(a.type > b.type) return 1
+            else return 0
+          },
+      },
+      { 
+        title: "Molino",
+        dataIndex: "name",
+        sorter: (a, b) => {
+          if(a.name < b.name) return -1
+          else if(a.name > b.name) return 1
+          else return 0
+        },
+      }
+    ]
+    if(action === 'setup' || action === 'new') {
+      columns.push(
+        { 
+          title: "Actualización",
+          dataIndex: "updateDate",
+          render: (date) => {
+              if(date) return moment(date).format("DD/MM/YYYY HH:mm")
+          }
+        },
+        { 
+            title: "Estado",
+            dataIndex: "status",
+            sorter: (a, b) => {
+              const statusA = getStatus(a.status)
+              const statusB = getStatus(b.status)
+              if(statusA < statusB) return -1
+              else if(statusA > statusB) return 1
+              else return 0
+            },
+            render: (text) => getStatus(text)
         }
-    },
-    { 
-        title: "Tipo de Proyecto",
-        dataIndex: "faena",
-        render: (faena, record) => {
-            return faena.name
+      )
+    }else if(action === 'STARTED' || action === 'PENDING' || action === 'FINISHED') {
+      columns.push(
+        { 
+            title: "Planificacion",
+            dataIndex: "hours",
+            sorter: (a, b) => {
+              if(a.hours < b.hours) return -1
+              else if(a.hours > b.hours) return 1
+              else return 0
+            },
+            render: (text) => {
+              return text + ' horas'
+            }
         }
-    },
-    { 
-        title: "Orden de trabajo",
-        dataIndex: "ordenTrabajo"
-    },
-    { 
-        title: "Tipo de Equipo",
-        dataIndex: "type"
-    },
-    { 
-      title: "Molino",
-      dataIndex: "name"
-    },
-    { 
-        title: "Actualización",
-        dataIndex: "updateDate",
-        render: (date) => {
-            if(date) return moment(date).format("DD/MM/YYYY HH:mm")
-        }
-    },
-    { 
-        title: "Estado",
-        dataIndex: "status",
-        render: (text) => {
-          if(text === 'FINISHED') return 'Finalizado'
-          else if(text === 'STARTED') return 'Iniciado'
-        }
+      )
+
+      if(action === 'STARTED') {
+        columns.push(
+          { 
+            title: "Inicio",
+            dataIndex: "startDate",
+            render: (date) => {
+                if(date) return moment(date).format("DD/MM/YYYY HH:mm")
+            }
+          },
+          { 
+            title: "Avance",
+            dataIndex: "percentage",
+            render: (text) => {
+                return text + '%'
+            }
+          },
+          { 
+            title: "Fase en curso",
+            dataIndex: "currentStage",
+            render: (stage) => {
+                return getStageDesc(stage.stage)
+            }
+          }
+        )
+      }else if(action === 'FINISHED') {
+        columns.push(
+          { 
+            title: "Inicio",
+            dataIndex: "startDate",
+            render: (date) => {
+                if(date) return moment(date).format("DD/MM/YYYY HH:mm")
+            }
+          },
+          { 
+            title: "Finalización",
+            dataIndex: "updateDate",
+            render: (date) => {
+                if(date) return moment(date).format("DD/MM/YYYY HH:mm")
+            }
+          }
+        )
+      }
     }
-  ]
+    return columns
+  }
 
   const nextStep1 = (cliente) => {
     setClient(cliente)
@@ -186,17 +303,28 @@ const Setup = ({currentUser, action, history}) => {
                 </Row>
             </Row>
         </Row>
-        :
+       : isModalVisibleEdit ?
+        <Row className="edit-faena">
+          <div className="tools-area">
+              <span className="title">Faena Nro. {faenaSel.nro}</span>
+              <span className="createAt">Creada en Fecha: {moment(faena.creationDate).format('DD/MM/YYYY')}</span>
+              <Button icon="close" onClick={() => setIsModalVisibleEdit(false)} size="small"/>
+          </div>
+          <Edit molino={faenaSel} action={action} />
+        </Row>
+       :
         <>
-            <div className="tools-area">
-                <Button id="create-faena" type="primary" icon="plus" onClick={nuevaFaena}>Nueva faena</Button>
-            </div>
+            { (action === 'new' || action === 'setup') &&
+              <div className="tools-area">
+                  <Button id="create-faena" type="primary" icon="plus" onClick={nuevaFaena}>Nueva faena</Button>
+              </div>
+            }
             <div className="table-wrapper">
             {
                 isLoading ?
                 <Spin spinning={ true } size="large" />
                 :
-                <Table columns={ tableColumns } dataSource={ molinos } size="small"/>
+                <Table columns={ getTableColumns() } dataSource={ molinos } size="small"/>
             }
             </div>
         </>

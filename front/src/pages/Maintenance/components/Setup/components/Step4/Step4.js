@@ -78,7 +78,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios }) => {
 
       let ps = [...personas, p]
       setPersonas(ps)
-      setFieldsValue({turno: null, role: null, name: null, rut: null})
+      setFieldsValue({turno: undefined, role: undefined, name: null, rut: null})
     })
   }
 
@@ -175,8 +175,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios }) => {
                         })(
                             <Select placeholder="Cargo" onChange={changeCargo}>
                               <Select.Option value="CONTROLLER">Controlador</Select.Option>
-                              <Select.Option value="Operario1">Operario1</Select.Option>
-                              <Select.Option value="Operario2">Operario2</Select.Option>
+                              <Select.Option value="Operario">Operario</Select.Option>
                               <Select.Option value="Ayudante">Ayudante</Select.Option>
                             </Select>
                         )}

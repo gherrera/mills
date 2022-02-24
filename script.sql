@@ -36,6 +36,7 @@ id VARCHAR(50) NOT NULL,
 nombre VARCHAR(150) NOT NULL,
 tipo VARCHAR(150) NOT NULL,
 fec_creacion TIMESTAMP,
+create_user VARCHAR(255) NOT NULL,
 estado_admin VARCHAR(20),
 estado VARCHAR(20),
 etapa VARCHAR(20),
@@ -43,9 +44,11 @@ horas INT,
 orden_trabajo VARCHAR(20),
 fec_act TIMESTAMP,
 user_act VARCHAR(50),
+nro INT NOT NULL AUTO_INCREMENT,
 faena_id VARCHAR(50) NOT NULL,
 FOREIGN KEY(faena_id) REFERENCES faenas(id),
-PRIMARY KEY(id)
+PRIMARY KEY(id),
+INDEX(`nro`)
 );
 
 CREATE TABLE turnos(

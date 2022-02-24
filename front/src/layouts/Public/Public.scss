@@ -50,6 +50,9 @@
 
   #maintenance-setup #header .navigation li#setup,
   #maintenance-new #header .navigation li#setup,
+  #maintenance-PENDING #header .navigation li#projects,
+  #maintenance-STARTED #header .navigation li#projects,
+  #maintenance-FINISHED #header .navigation li#projects,
   {
     background-color: $action-color !important;
     color: #fff;

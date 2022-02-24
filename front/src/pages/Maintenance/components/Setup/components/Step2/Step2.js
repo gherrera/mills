@@ -16,8 +16,10 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
     const uniqueFaenas = [];
     if(client.id) {
       molinos.map((item) => {
-          var findItem = uniqueFaenas.find((x) => x.id === item.faena.id && item.faena.client.id === client.id);
+        if(item.faena.client.id === client.id) {
+          var findItem = uniqueFaenas.find((x) => x.id === item.faena.id);
           if (!findItem) uniqueFaenas.push(item.faena);
+        }
       });
     }
     setFaenas(uniqueFaenas)
@@ -93,7 +95,7 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
   return (
     <div className='step2'>
         <Row>
-            A continuación ingrese los datos de la Faena
+            A continuación ingrese los datos de la Faena 
         </Row>
         <Row gutter={12}>
             <Form>
@@ -103,7 +105,7 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                             initialValue: faena.faena,
                             rules: [{
                                 required: true,
-                                message: 'Ingrese Nombre de Faena'
+                                message: 'Ingrese Nombre de División o Mina'
                             }]
                         })(
                           <AutoComplete
@@ -115,7 +117,7 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                               //style={{ width: 200 }}
                               onSelect={onSelect}
                               onSearch={onSearch}
-                              placeholder="Faena"
+                              placeholder="División o Mina"
                           />
                         )}
                     </Form.Item>
@@ -137,21 +139,6 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                 </Col>
                 <Col span={8}>
                     <Form.Item >
-                        { getFieldDecorator('name', {
-                            initialValue: faena.name,
-                            rules: [{
-                                required: true,
-                                message: 'Ingrese Nombre del molino'
-                            }]
-                        })(
-                            <Input
-                                placeholder="Nombre del molino"
-                            />
-                        )}
-                    </Form.Item>
-                </Col>
-                <Col span={8}>
-                    <Form.Item >
                         { getFieldDecorator('type', {
                             initialValue: faena.type,
                             rules: [{
@@ -159,8 +146,24 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                                 message: 'Ingrese Tipo de equipo'
                             }]
                         })(
+                            <Select placeholder="Tipo de equipo">
+                              <Select.Option value="Molino SAG">Molino SAG</Select.Option>
+                              <Select.Option value="Molino Bolas">Molino Bolas</Select.Option>
+                            </Select>
+                        )}
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item >
+                        { getFieldDecorator('name', {
+                            initialValue: faena.name,
+                            rules: [{
+                                required: true,
+                                message: 'Ingrese Nombre del equipo'
+                            }]
+                        })(
                             <Input
-                                placeholder="Tipo de equipo"
+                                placeholder="Nombre del equipo"
                             />
                         )}
                     </Form.Item>
@@ -171,7 +174,7 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                             initialValue: faena.hours,
                             rules: [{
                                     required: true,
-                                    message: 'Ingrese Estimado de tiempo de trabajo(horas)'
+                                    message: 'Ingrese Estimado de tiempo de trabajo (horas)'
                                 },
                                 {
                                     validator: (rule, value, callback) => getValidator(rule, value, callback, {type: 'number', decimals: 0})
@@ -179,7 +182,7 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                             ]
                         })(
                             <Input
-                                placeholder="Estimado de tiempo de trabajo(horas)"
+                                placeholder="Estimado de tiempo de trabajo (horas)"
                             />
                         )}
                     </Form.Item>

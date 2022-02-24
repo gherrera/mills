@@ -148,190 +148,171 @@ class ModalContentCreate extends React.Component {
     return (
       <div>
         <Form onSubmit={this.handleSubmit.bind(this)} className="login-form" layout="inline">
-          <Tabs type="card">
-            <Tabs.TabPane tab={[<Icon type="info-circle" />, t('messages.aml.information')]} key="1">
-              <Row gutter={[8]}>
-                <Col span={24}>
-                  <Form.Item label="Perfil">
-                    {getFieldDecorator('type', {
-                      rules: [
-                        {
-                          required: true,
-                          message: 'Perfil es obligatorio',
-                        },
-                      ],
-                    })(
-                      <Select
-                        className="type"
-                        showSearch
-                        placeholder="Perfil"
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }
-                        onChange={(value) => this.handleOnChangeType(value)}
-                        value={this.state.type}
-                        disabled={modalType === 'view' || this.state.type === 'ADMIN'}
-                      >
-                          {
-                            this.getOptionsUsers()
-                          }
-                      </Select>
-                    )}
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item label={t('messages.aml.name')}>
-                    {getFieldDecorator('name', {
-                      rules: [
-                        {
-                          required: true,
-                          message: t('messages.aml.nameMandatory'),
-                        },
-                      ],
-                    })(<Input value={this.state.name} onChange={(e) => this.handleOnChange('name', e.target.value)} disabled={modalType === 'view'} />)}
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item label="E-mail">
-                    {getFieldDecorator('email', {
-                      rules: [
-                        {
-                          type: 'email',
-                          message: t('messages.aml.emailNotValid'),
-                        },
-                        {
-                          required: true,
-                          message: t('messages.aml.emailMandatory'),
-                        },
-                      ],
-                    })(
-                      <Input
-                        onChange={(e) => this.handleOnChange('email', e.target.value)}
-                        value={this.state.email}
-                        disabled={modalType === 'view'}
-                      />
-                    )
+          <Row gutter={[8]}>
+            <Col span={24}>
+              <Form.Item label="Perfil">
+                {getFieldDecorator('type', {
+                  rules: [
+                    {
+                      required: true,
+                      message: 'Perfil es obligatorio',
+                    },
+                  ],
+                })(
+                  <Select
+                    className="type"
+                    showSearch
+                    placeholder="Perfil"
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     }
-                  </Form.Item>
-                </Col>                 
-                <Col xs={24}>
-                  <Form.Item className="username" label="Usuario">
-                    {getFieldDecorator('login', {
-                      rules: [
-                        {
-                          required: true,
-                          message: t('messages.aml.loginMandatory'),
-                        }
-                      ],
-                    })(
-                      <div className="username-wrapper">
-                        <Input
-                          prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                          className="username-input"
-                          maxlength="20"
-                          onKeyDown={this.handleUsernameOnKeyDown}
-                          onChange={(e) => this.handleOnChange('login', e.target.value.toLowerCase())}
-                          value={this.state.login}
-                          disabled={modalType === 'view'}
-                        />
-                      </div>
-                    )
-                    }
-                  </Form.Item>
-                </Col>
-                {(modalType === 'edit' || modalType === 'create') &&
-                  <Col xs={24}>
-                    <Form.Item label="Contraseña">
-                      {getFieldDecorator('password')(
-                        modalType === 'create' ?
-                        <>
-                          <Col span={17}>
-                            <Input
-                              prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                              value={this.state.password}
-                              onChange={(e) => this.handleOnChange('password', e.target.value)}
-                            />
-                          </Col>
-                          <Col span={6} offset={1}>
-                            <Tooltip placement="top" title={t('messages.aml.copyPasswordToClipboard')}>
-                              <CopyToClipboard text={this.props.password} onCopy={() => this.handleCopyToClipboard('password')}>
-                                <Button type="primary">
-                                  <Icon type="copy" />
-                                </Button>
-                              </CopyToClipboard>
-                            </Tooltip>
-                          </Col>
-                        </>
-                        : this.state.isPasswordReset ?
-                        <>
-                          <Col span={17}>
-                            <Input
-                              prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                              value={this.state.password}
-                              onChange={(e) => this.handleOnChange('password', e.target.value)}
-                            />
-                          </Col>
-                          <Col span={6} offset={1}>
-                            <Tooltip placement="top" title={t('messages.aml.copyPasswordToClipboard')}>
-                              <CopyToClipboard text={this.props.password} onCopy={() => this.handleCopyToClipboard('password')}>
-                                <Button type="primary">
-                                  <Icon type="copy" />
-                                </Button>
-                              </CopyToClipboard>
-                            </Tooltip>
-                          </Col>
-                        </>
-                        :
-                        <Button type="primary" className="password-reset" onClick={this.handlePasswordReset.bind(this)}><Icon type="lock" /> {t('messages.aml.resetPassword')}</Button>
-                      )
+                    onChange={(value) => this.handleOnChangeType(value)}
+                    value={this.state.type}
+                    disabled={modalType === 'view' || this.state.type === 'ADMIN'}
+                  >
+                      {
+                        this.getOptionsUsers()
                       }
-                    </Form.Item>
-                  </Col>
+                  </Select>
+                )}
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item label={t('messages.aml.name')}>
+                {getFieldDecorator('name', {
+                  rules: [
+                    {
+                      required: true,
+                      message: t('messages.aml.nameMandatory'),
+                    },
+                  ],
+                })(<Input value={this.state.name} onChange={(e) => this.handleOnChange('name', e.target.value)} disabled={modalType === 'view'} />)}
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item label="E-mail">
+                {getFieldDecorator('email', {
+                  rules: [
+                    {
+                      type: 'email',
+                      message: t('messages.aml.emailNotValid'),
+                    },
+                    {
+                      required: true,
+                      message: t('messages.aml.emailMandatory'),
+                    },
+                  ],
+                })(
+                  <Input
+                    onChange={(e) => this.handleOnChange('email', e.target.value)}
+                    value={this.state.email}
+                    disabled={modalType === 'view'}
+                  />
+                )
                 }
+              </Form.Item>
+            </Col>                 
+            <Col xs={24}>
+              <Form.Item className="username" label="Usuario">
+                {getFieldDecorator('login', {
+                  rules: [
+                    {
+                      required: true,
+                      message: t('messages.aml.loginMandatory'),
+                    }
+                  ],
+                })(
+                  <div className="username-wrapper">
+                    <Input
+                      prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                      className="username-input"
+                      maxlength="20"
+                      onKeyDown={this.handleUsernameOnKeyDown}
+                      onChange={(e) => this.handleOnChange('login', e.target.value.toLowerCase())}
+                      value={this.state.login}
+                      disabled={modalType === 'view'}
+                    />
+                  </div>
+                )
+                }
+              </Form.Item>
+            </Col>
+            {(modalType === 'edit' || modalType === 'create') &&
+              <Col xs={24}>
+                <Form.Item label="Contraseña">
+                  {getFieldDecorator('password')(
+                    modalType === 'create' ?
+                    <>
+                      <Col span={17}>
+                        <Input
+                          prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                          value={this.state.password}
+                          onChange={(e) => this.handleOnChange('password', e.target.value)}
+                        />
+                      </Col>
+                      <Col span={6} offset={1}>
+                        <Tooltip placement="top" title={t('messages.aml.copyPasswordToClipboard')}>
+                          <CopyToClipboard text={this.props.password} onCopy={() => this.handleCopyToClipboard('password')}>
+                            <Button type="primary">
+                              <Icon type="copy" />
+                            </Button>
+                          </CopyToClipboard>
+                        </Tooltip>
+                      </Col>
+                    </>
+                    : this.state.isPasswordReset ?
+                    <>
+                      <Col span={17}>
+                        <Input
+                          prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                          value={this.state.password}
+                          onChange={(e) => this.handleOnChange('password', e.target.value)}
+                        />
+                      </Col>
+                      <Col span={6} offset={1}>
+                        <Tooltip placement="top" title={t('messages.aml.copyPasswordToClipboard')}>
+                          <CopyToClipboard text={this.props.password} onCopy={() => this.handleCopyToClipboard('password')}>
+                            <Button type="primary">
+                              <Icon type="copy" />
+                            </Button>
+                          </CopyToClipboard>
+                        </Tooltip>
+                      </Col>
+                    </>
+                    :
+                    <Button type="primary" className="password-reset" onClick={this.handlePasswordReset.bind(this)}><Icon type="lock" /> {t('messages.aml.resetPassword')}</Button>
+                  )
+                  }
+                </Form.Item>
+              </Col>
+            }
 
-                { modalType !== 'create' &&
-                  <Col span={ 24 }>
-                    <Form.Item label={ t('messages.aml.status') }>
-                    { getFieldDecorator('status', {
-                      rules: [
-                        {
-                          required: true,
-                          message: t('messages.aml.status'),
-                        },
-                      ],
-                    })(
-                      <Select
-                          placeholder={ t('messages.aml.status') }
-                          onChange={ (value) => this.handleOnChangeStatus(value) }
-                          value={ this.state.status }
-                          disabled={modalType === 'view' }
-                        >
-                          <Select.Option value="ACTIVE">{ t('messages.aml.rule.status.ACTIVE') }</Select.Option>
-                          <Select.Option value="INACTIVE">{ t('messages.aml.rule.status.INACTIVE') }</Select.Option>
-                        </Select>
-                    )}
-                      </Form.Item>
-                  </Col>
-                }
-              </Row>
-            </Tabs.TabPane>
-            {/*
-            <Tabs.TabPane tab={[<Icon type="lock" />, 'Permisos']} key="2">
-              <Row gutter={[8]}>
-                
-                <Col span={24}>
-                  <Form.Item label="Informes">
-                    {getFieldDecorator('reports', {
-                    })(
-                      <Switch onChange={(checked) => this.handleOnChangeModule('REPORT', checked)} defaultChecked={this.state.modules.includes('REPORT') ? true : false} disabled={modalType === 'view'} />
-                    )}
+            { modalType !== 'create' &&
+              <Col span={ 24 }>
+                <Form.Item label={ t('messages.aml.status') }>
+                { getFieldDecorator('status', {
+                  rules: [
+                    {
+                      required: true,
+                      message: t('messages.aml.status'),
+                    },
+                  ],
+                })(
+                  <Select
+                      placeholder={ t('messages.aml.status') }
+                      onChange={ (value) => this.handleOnChangeStatus(value) }
+                      value={ this.state.status }
+                      disabled={modalType === 'view' }
+                    >
+                      <Select.Option value="ACTIVE">{ t('messages.aml.rule.status.ACTIVE') }</Select.Option>
+                      <Select.Option value="INACTIVE">{ t('messages.aml.rule.status.INACTIVE') }</Select.Option>
+                    </Select>
+                )}
                   </Form.Item>
-                </Col>
-              </Row>
-            </Tabs.TabPane>
-            */}
-          </Tabs>
+              </Col>
+            }
+          </Row>
           <div className="ant-modal-footer">
             {modalType !== 'view' && <Button onClick={this.props.onCancel}>{t('messages.aml.cancel')}</Button>}
             {modalType !== 'view' ? <Button type="primary" htmlType="submit" className="login-form-button">{t('messages.aml.save')}</Button> : <Button onClick={() => this.props.onOk('view')} type="primary">Ok</Button>}

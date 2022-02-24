@@ -1,0 +1,37 @@
+.edit-faena {
+    .edit {
+        .section {
+            padding: 10px;
+            margin-top: 10px;
+            background-color: rgba(255,255,255,.85) !important;
+
+            .fields {
+                padding-top: 10px;
+
+                .ant-form-item {
+                    margin-bottom: 12px;
+                    
+                    .ant-form-item-label {
+                        line-height: unset;
+                    }
+                    .ant-form-item-control {
+                        line-height: unset;
+                    }
+                }
+            }
+        }
+        .tools {
+            padding: 15px 0px;
+
+            .next-step {
+                float: right;
+                margin-right: 10px;
+
+                .anticon {
+                    font-size: 20px;
+                    color: black;
+                }
+            }
+        }
+    }
+}

@@ -24,7 +24,7 @@ class AdminUsers extends React.Component {
 
   getBreadcrumbs() {
     const breadcrumbs = [
-      { title: 'Gesitón de cuentas', icon: 'form', link: '/accounts', onClick: this.clickMenuDesign.bind(this) }
+      { title: 'Gestión de cuentas', icon: 'form', link: '/accounts', onClick: this.clickMenuDesign.bind(this) }
     ]
 
     return breadcrumbs
@@ -208,14 +208,13 @@ class AdminUsers extends React.Component {
       }) },
       { title: '', dataIndex: 'id', render: (id, user) => (
         <div className="actions">
-          <Icon type="eye" theme="filled" onClick={ this.renderModal.bind(this, 'view', user) } /> &nbsp;&nbsp;
           { !(currentUser.type === 'ADMIN' || (currentUser.id === id )) ?
             <Icon className="disabled" type="edit" theme="filled" />
             :
             <Icon type="edit" theme="filled" onClick={ this.renderModal.bind(this, 'edit', user) } />
           }&nbsp;&nbsp;
           {
-            currentUser.type === 'AUDIT' || currentUser.id === id || user.type === 'SADMIN' ?
+            (currentUser.id === id) ?
               <Tooltip title="No tiene permisos eliminar este usuario." placement="left" trigger="click">
                 <Icon className="disabled" type="delete" theme="filled" />
               </Tooltip>
@@ -236,10 +235,8 @@ class AdminUsers extends React.Component {
           <PageContent>
               <div className="tools-area">
               { currentUser.type !== 'AUDIT' &&
-                <Button id="create-user" type="primary" icon="plus" onClick={ this.renderModal.bind(this, 'create', currentUser) }>{ t('messages.aml.createNewUser') }</Button>
+                <Button id="create-user" type="primary" icon="user" onClick={ this.renderModal.bind(this, 'create', currentUser) }>{ t('messages.aml.createNewUser') }</Button>
               }
-              &nbsp;
-              <Button type="primary" icon="file-excel" onClick={ this.exportHandler.bind(this) }>Exportar</Button>
               </div>
               <div className="table-wrapper">
                 {

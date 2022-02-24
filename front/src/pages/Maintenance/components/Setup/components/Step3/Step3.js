@@ -1,16 +1,31 @@
 import './Step3.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input, Button, Row, Col, Form, Icon, Table, notification} from 'antd'
+import { Input, Button, Row, Col, Form, Icon, Table, Select, notification} from 'antd'
 import { validateRutHelper } from '../../../../../../helpers'
 
 const Step3 = ({form, pieces, prevStep, nextStep }) => {
   const { getFieldDecorator, validateFields, setFieldsValue } = form;
   const [piezas, setPiezas] = useState([])
+  const [tipoPiezas, setTipoPiezas] = useState([])
+  const [type, setType] = useState(null)
 
   useEffect(() => {
     if(pieces) setPiezas(pieces)
     
+    let tPiezas = [
+      {
+        type: 'Tapa Alimentación',
+        pieces: ['Monoblock DEFG']
+      }, {
+        type: 'Cilindro',
+        pieces: ['Placa Alimentación', 'Lifter  Alimentación 30° y 35°', 'Placa Descarga', 'Lifter Descarga 30° y 35°']
+      }, {
+        type: 'Tapa Descarga',
+        pieces: ['Parrilla I', 'Parrilla JK']
+      }
+    ]
+    setTipoPiezas(tPiezas)
   }, [])
 
   const { t } = useTranslation()
@@ -75,7 +90,7 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
     validateFields(['type','name','qty']).then((p) => {
       let ps = [...piezas, {type: p.type, name: p.name, qty: parseInt(p.qty, 10)}]
       setPiezas(ps)
-      setFieldsValue({type: null, name: null, qty: null})
+      setFieldsValue({type: undefined, name: undefined, qty: null})
     })
   }
 
@@ -83,7 +98,7 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
     {
       title: "Sección",
       dataIndex: "type",
-      width: "31%",
+      width: "30%",
       sorter: (a, b) => {
         if(a.type < b.type) return -1
         else if(a.type > b.type) return 1
@@ -93,7 +108,7 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
     {
       title: "Pieza",
       dataIndex: "name",
-      width: "33%",
+      width: "30%",
       sorter: (a, b) => {
         if(a.name < b.name) return -1
         else if(a.name > b.name) return 1
@@ -103,14 +118,14 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
     {
       title: "Cantidad",
       dataIndex: "qty",
-      width: "31%",
+      width: "30%",
       sorter: (a, b) => {
         return a.qty - b.qty
       }
     },
     {
       title: "Eliminar",
-      width: "5%",
+      width: "10%",
       align: 'center',
       render: (text, record, index) => {
         return <Button type="primary" size="small" icon="close" onClick={() => {
@@ -120,6 +135,11 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
       }
     }
   ]
+
+  const changeSection = (value) => {
+    setFieldsValue({name: null})
+    setType(value)
+  }
 
   return (
     <div className='step3'>
@@ -136,9 +156,11 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
                                 message: 'Ingrese Nombre de Sección'
                             }]
                         })(
-                            <Input
-                                placeholder="Nombre de Sección"
-                            />
+                            <Select placeholder="Nombre de Sección" onChange={changeSection}>
+                              {tipoPiezas.map(t => 
+                                <Select.Option value={t.type}>{t.type}</Select.Option>
+                              )}
+                            </Select>
                         )}
                     </Form.Item>
                 </Col>
@@ -150,9 +172,14 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
                                 message: 'Ingrese Nombre de la Pieza'
                             }]
                         })(
-                            <Input
-                                placeholder="Nombre de la Pieza"
-                            />
+                            <Select placeholder="Nombre de la Pieza">
+                              {tipoPiezas.map(t => 
+                                t.type === type &&
+                                t.pieces.map(p =>
+                                  <Select.Option value={p}>{p}</Select.Option>
+                                )
+                              )}
+                            </Select>
                         )}
                     </Form.Item>
                 </Col>

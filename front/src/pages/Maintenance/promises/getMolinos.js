@@ -1,8 +1,8 @@
 import { ServiceService } from '../services'
 
-export default () => {
+export default (status) => {
   return new Promise((resolve, reject) => {
-    ServiceService.getMolinos()
+    ServiceService.getMolinos(status)
     .then(response => resolve(response.data))
     .then(err => reject({ error: true }))
   })

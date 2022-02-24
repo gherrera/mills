@@ -2,10 +2,13 @@ import apiConfig from '../../../config/api'
 import { apiRequestorHelper } from '../../../helpers'
 
 export default {
-  getMolinos: () => {
+  getMolinos: (status) => {
     return apiRequestorHelper({
       url: apiConfig.url + '/getMolinos',
-      method: 'post'
+      method: 'post',
+      body: {
+        status
+      }
     })
   },
   saveMolino: (molino) => {
