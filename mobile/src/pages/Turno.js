@@ -311,7 +311,7 @@ export default class Turno extends Component {
                                     {turno.molino.name} - {turno.molino.type}
                                 </Text>
                                 <Text style={{fontSize: 22, color: StylesGlobal.colorBlack90, fontWeight:'400'}}>
-                                    Cliente: {turno.molino.faena.client.name}
+                                    {turno.molino.faena.client.name}
                                 </Text>
                             </View>
                             <View style={{ ...styles.col, width: '15%'}}>
