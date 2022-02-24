@@ -108,7 +108,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios }) => {
     {
       title: "Nombre",
       dataIndex: "name",
-      width: "35%",
+      width: "30%",
       sorter: (a, b) => {
         if(a.name < b.name) return -1
         else if(a.name > b.name) return 1
@@ -127,7 +127,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios }) => {
     },
     {
       title: "Eliminar",
-      width: "5%",
+      width: "10%",
       align: 'center',
       render: (text, record, index) => {
         return <Button type="primary" size="small" icon="close" onClick={() => {
