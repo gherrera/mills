@@ -1,108 +1,53 @@
 import './Edit.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input, Row, Col, Form, Icon } from 'antd'
-import moment from 'moment';
+import { Row, Button } from 'antd'
+import Client from './Client'
+import Faena from './Faena'
 
-const Edit = ({form, molino, action }) => {
-  const { getFieldDecorator, validateFields, getFieldsError, setFieldsValue } = form;
+const Edit = ({molino, action }) => {
   const [mode, setMode] = useState('view')
   const [readOnly, setReadOnly] = useState(true)
+  const [cliente, setCliente] = useState(molino.faena.client)
+  const [faena, setFaena] = useState(molino)
 
   useEffect(() => {
 
   }, [])
 
+  const changeEdit = () => {
+    setMode('edit')
+    setReadOnly(false)
+  }
+
+  const saveFaena = () => {
+
+  }
+
+  const changeCliente = (c) => {
+    setCliente(c)
+  }
+
+  const changeFaena = (f) => {
+    setFaena(f)
+  }
+
   return (
     <div className='edit'>
+        { (action === 'new' || action === 'setup') &&
+            <Row className="tools-btn">
+                <Button disabled={mode === 'edit'} onClick={changeEdit} icon="edit">Modificar</Button>
+                <Button disabled={mode === 'view'} onClick={saveFaena} icon="save">Guardar</Button>
+            </Row>
+        }
         <Row className="section">
-            <span className="title">Datos del cliente</span>
-            <Form>
-                <Row className="fields" gutter={12}>
-                    <Col span={17}>
-                        <Form.Item label="Razón social">
-                            { getFieldDecorator('name', {
-                                initialValue: molino.faena.client.name,
-                                rules: [{
-                                    required: !readOnly,
-                                    message: 'Ingrese Razón social'
-                                }]
-                            })(
-                                <Input placeholder="Razón social" readOnly />
-                            )}
-                        </Form.Item>
-                        
-                    </Col>
-                    <Col span={7}>
-                        <Form.Item label="Nro de identificación">
-                            { getFieldDecorator('rut', {
-                                initialValue: molino.faena.client.rut,
-                                rules: [{
-                                    required: !readOnly,
-                                    message: 'Ingrese Razón social'
-                                }]
-                            })(
-                                <Input placeholder="Nro de identificación" readOnly />
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item label="Dirección">
-                            { getFieldDecorator('address', {
-                                initialValue: molino.faena.client.address,
-                                rules: [{
-                                    required: !readOnly,
-                                    message: 'Dirección'
-                                }]
-                            })(
-                                <Input placeholder="Dirección" readOnly />
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col span={17}>
-                        <Form.Item label="Persona de Contacto">
-                            { getFieldDecorator('contactName', {
-                                initialValue: molino.faena.client.contactName,
-                                rules: [{
-                                    required: !readOnly,
-                                    message: 'Persona de Contacto'
-                                }]
-                            })(
-                                <Input placeholder="Persona de Contacto" readOnly />
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col span={7}>
-                        <Form.Item label="Teléfono de Contacto">
-                            { getFieldDecorator('contactPhone', {
-                                initialValue: molino.faena.client.contactPhone,
-                                rules: [{
-                                    required: !readOnly,
-                                    message: 'Teléfono de Contacto'
-                                }]
-                            })(
-                                <Input placeholder="Teléfono de Contacto" readOnly />
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item label="Correo electrónico de contacto">
-                            { getFieldDecorator('email', {
-                                initialValue: molino.faena.client.email,
-                                rules: [{
-                                    required: !readOnly,
-                                    message: 'Correo electrónico de contacto'
-                                }]
-                            })(
-                                <Input placeholder="Correo electrónico de contacto" readOnly />
-                            )}
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
+            <Client key={action+"-"+mode} client={cliente} action={action} readOnly={readOnly} changeCliente={changeCliente} />
+        </Row>
+        <Row className="section">
+            <Faena key={action+"-"+mode} molino={faena} action={action} readOnly={readOnly} changeFaena={changeFaena} />
         </Row>
     </div>
   )
 }
 
-export default Form.create()(Edit);
+export default Edit;
