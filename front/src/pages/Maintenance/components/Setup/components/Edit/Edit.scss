@@ -15,6 +15,16 @@
             //padding-left: -10px;
             background-color: rgba(255,255,255,.85) !important;
 
+            .title {
+                font-size: 1.1em;
+
+                .ver-mas {
+                    font-size: .9em;
+                    text-align: right;
+                    text-decoration: underline;
+                }
+            }
+
             .fields {
                 padding-top: 10px;
 

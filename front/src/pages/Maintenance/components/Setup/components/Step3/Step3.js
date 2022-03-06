@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { Input, Button, Row, Col, Form, Icon, Table, Select, notification} from 'antd'
 import { validateRutHelper } from '../../../../../../helpers'
 
-const Step3 = ({form, pieces, prevStep, nextStep }) => {
+const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
   const { getFieldDecorator, validateFields, setFieldsValue } = form;
   const [piezas, setPiezas] = useState([])
   const [tipoPiezas, setTipoPiezas] = useState([])
   const [type, setType] = useState(null)
+  const [ indexEdit, setIndexEdit] = useState(null)
 
   useEffect(() => {
     if(pieces) setPiezas(pieces)
@@ -91,50 +92,98 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
       let ps = [...piezas, {type: p.type, name: p.name, qty: parseInt(p.qty, 10)}]
       setPiezas(ps)
       setFieldsValue({type: undefined, name: undefined, qty: null})
+
+      if(notifPiezas) notifPiezas(ps)
     })
   }
 
-  const tableColumns = [
-    {
-      title: "Sección",
-      dataIndex: "type",
-      width: "30%",
-      sorter: (a, b) => {
-        if(a.type < b.type) return -1
-        else if(a.type > b.type) return 1
-        else return 0
+  const handlePressEnter = (index, value) => {
+    debugger
+    validateFields(['qty-'+index]).then(p => {
+      let ps = [...piezas]
+      ps[index].qty = value
+      setPiezas(ps)
+      setIndexEdit(null)
+    })
+  }
+
+  const getTableColumns = () => {
+    let columns = [
+      {
+        title: "Sección",
+        dataIndex: "type",
+        width: "30%",
+        sorter: (a, b) => {
+          if(a.type < b.type) return -1
+          else if(a.type > b.type) return 1
+          else return 0
+        }
+      },
+      {
+        title: "Pieza",
+        dataIndex: "name",
+        width: "30%",
+        sorter: (a, b) => {
+          if(a.name < b.name) return -1
+          else if(a.name > b.name) return 1
+          else return 0
+        }
+      },
+      {
+        title: "Cantidad",
+        dataIndex: "qty",
+        width: "30%",
+        sorter: (a, b) => {
+          return a.qty - b.qty
+        },
+        render: (text, record, index) => {
+          if((mode === "new" || mode === "edit") && indexEdit === index) {
+            return <Form.Item>
+                { getFieldDecorator('qty-'+index, {
+                  initialValue: text,
+                  rules: [{
+                      required: true,
+                      message: 'Ingrese Cantidad'
+                    },
+                    {
+                      validator: (rule, value, callback) => getValidator(rule, value, callback, {type: 'number', decimals: 0})
+                    }
+                  ]
+              })(
+                  <Input placeholder="Cantidad" onPressEnter={(e) => handlePressEnter(index, e.target.value)} />
+              )}
+            </Form.Item>
+          }else {
+            return text
+          }
+        }
       }
-    },
-    {
-      title: "Pieza",
-      dataIndex: "name",
-      width: "30%",
-      sorter: (a, b) => {
-        if(a.name < b.name) return -1
-        else if(a.name > b.name) return 1
-        else return 0
-      }
-    },
-    {
-      title: "Cantidad",
-      dataIndex: "qty",
-      width: "30%",
-      sorter: (a, b) => {
-        return a.qty - b.qty
-      }
-    },
-    {
-      title: "Eliminar",
-      width: "10%",
-      align: 'center',
-      render: (text, record, index) => {
-        return <Button type="primary" size="small" icon="close" onClick={() => {
-          let p = piezas.filter((item, i) => index !==i)
-          setPiezas(p)
-        }} />
-      }
+    ]
+    if(mode === "new" || mode === "edit") {
+      columns.push(
+        {
+          title: "",
+          width: "10%",
+          align: 'center',
+          render: (text, record, index) => {
+            return <div>
+              <Button type={index === indexEdit ? "ghost" : "primary"} title="Editar" size="small" icon="edit" className="btn-edit" onClick={() => {
+                if(index === indexEdit) setIndexEdit(null)
+                else setIndexEdit(index)
+              }} />
+              <Button type="primary" size="small" icon="close" title="Borrar" className="btn-edit" onClick={() => {
+                let p = piezas.filter((item, i) => index !==i)
+                setPiezas(p)
+
+                if(notifPiezas) notifPiezas(p)
+              }} />
+            </div>
+          }
+        }
+      )
     }
-  ]
+    return columns
+  }
 
   const changeSection = (value) => {
     setFieldsValue({name: null})
@@ -143,76 +192,80 @@ const Step3 = ({form, pieces, prevStep, nextStep }) => {
 
   return (
     <div className='step3'>
+        { mode === "new" &&
+          <Row>
+              A continuación ingrese los datos del equipo y las piezas que se reemplazarán
+          </Row>
+        }
+        { (mode === "new" || mode === "edit") &&
+          <Row gutter={12}>
+              <Form>
+                  <Col span={7}>
+                      <Form.Item>
+                          { getFieldDecorator('type', {
+                              rules: [{
+                                  required: true,
+                                  message: 'Ingrese Nombre de Sección'
+                              }]
+                          })(
+                              <Select placeholder="Nombre de Sección" onChange={changeSection}>
+                                {tipoPiezas.map(t => 
+                                  <Select.Option value={t.type}>{t.type}</Select.Option>
+                                )}
+                              </Select>
+                          )}
+                      </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                      <Form.Item >
+                          { getFieldDecorator('name', {
+                              rules: [{
+                                  required: true,
+                                  message: 'Ingrese Nombre de la Pieza'
+                              }]
+                          })(
+                              <Select placeholder="Nombre de la Pieza">
+                                {tipoPiezas.map(t => 
+                                  t.type === type &&
+                                  t.pieces.map(p =>
+                                    <Select.Option value={p}>{p}</Select.Option>
+                                  )
+                                )}
+                              </Select>
+                          )}
+                      </Form.Item>
+                  </Col>
+                  <Col span={7}>
+                      <Form.Item >
+                          { getFieldDecorator('qty', {
+                              rules: [{
+                                  required: true,
+                                  message: 'Ingrese Cantidad'
+                                },
+                                {
+                                  validator: (rule, value, callback) => getValidator(rule, value, callback, {type: 'number', decimals: 0})
+                                }
+                              ]
+                          })(
+                              <Input placeholder="Cantidad" />
+                          )}
+                      </Form.Item>
+                  </Col>
+                  <Col offset={1} span={1}>
+                    <Button icon="plus" size="small" type="primary" onClick={addPieza} className="btnAdd" />
+                  </Col>
+              </Form>
+          </Row>
+        }
         <Row>
-            A continuación ingrese los datos del equipo y las piezas que se reemplazarán
+          <Table columns={ getTableColumns() } dataSource={ piezas } size="small"/>
         </Row>
-        <Row gutter={12}>
-            <Form>
-                <Col span={7}>
-                    <Form.Item>
-                        { getFieldDecorator('type', {
-                            rules: [{
-                                required: true,
-                                message: 'Ingrese Nombre de Sección'
-                            }]
-                        })(
-                            <Select placeholder="Nombre de Sección" onChange={changeSection}>
-                              {tipoPiezas.map(t => 
-                                <Select.Option value={t.type}>{t.type}</Select.Option>
-                              )}
-                            </Select>
-                        )}
-                    </Form.Item>
-                </Col>
-                <Col span={8}>
-                    <Form.Item >
-                        { getFieldDecorator('name', {
-                            rules: [{
-                                required: true,
-                                message: 'Ingrese Nombre de la Pieza'
-                            }]
-                        })(
-                            <Select placeholder="Nombre de la Pieza">
-                              {tipoPiezas.map(t => 
-                                t.type === type &&
-                                t.pieces.map(p =>
-                                  <Select.Option value={p}>{p}</Select.Option>
-                                )
-                              )}
-                            </Select>
-                        )}
-                    </Form.Item>
-                </Col>
-                <Col span={7}>
-                    <Form.Item >
-                        { getFieldDecorator('qty', {
-                            rules: [{
-                                required: true,
-                                message: 'Ingrese Cantidad'
-                              },
-                              {
-                                validator: (rule, value, callback) => getValidator(rule, value, callback, {type: 'number', decimals: 0})
-                              }
-                            ]
-                        })(
-                            <Input
-                                placeholder="Cantidad"
-                            />
-                        )}
-                    </Form.Item>
-                </Col>
-                <Col offset={1} span={1}>
-                  <Button icon="plus" size="small" type="primary" onClick={addPieza} className="btnAdd" />
-                </Col>
-            </Form>
-        </Row>
-        <Row>
-          <Table columns={ tableColumns } dataSource={ piezas } size="small"/>
-        </Row>
-        <Row className="tools">
-            <a onClick={prevStepLocal} className="prev-step"><Icon type="left" /></a>
-            <a onClick={nextStepLocal} className="next-step"><Icon type="right" /></a>
-        </Row>
+        { mode === "new" &&
+          <Row className="tools">
+              <a onClick={prevStepLocal} className="prev-step"><Icon type="left" /></a>
+              <a onClick={nextStepLocal} className="next-step"><Icon type="right" /></a>
+          </Row>
+        }
     </div>
   )
 }
