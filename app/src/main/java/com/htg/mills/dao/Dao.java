@@ -281,6 +281,8 @@ public class Dao {
 					cliente.setId(UUID.randomUUID().toString());
 					cliente.setCreationDate(fecha);
 					sqlMap.insert("insertClient", cliente);
+				}else {
+					sqlMap.update("updateClient", cliente);
 				}
 				
 				Faena faena = molino.getFaena();
@@ -288,34 +290,91 @@ public class Dao {
 					faena.setId(UUID.randomUUID().toString());
 					faena.setCreationDate(fecha);
 					sqlMap.insert("insertFaena", faena);
+				}else {
+					sqlMap.update("updateFaena", faena);
 				}
 				
-				molino.setId(UUID.randomUUID().toString());
-				molino.setCreationDate(fecha);
-				molino.setStatusAdmin(StatusAdmin.ACTIVE);
-				molino.setCreateUser(user.getName());
-				sqlMap.insert("insertMolino", molino);
-				
-				if(molino.getParts() != null) {
-					for(Parte part : molino.getParts()) {
-						part.setId(UUID.randomUUID().toString());
-						part.setCreationDate(fecha);
-						part.setMolinoId(molino.getId());
-						sqlMap.insert("insertParte", part);
+				if(molino.getId() == null) {
+					molino.setId(UUID.randomUUID().toString());
+					molino.setCreationDate(fecha);
+					molino.setStatusAdmin(StatusAdmin.ACTIVE);
+					molino.setCreateUser(user.getName());
+					sqlMap.insert("insertMolino", molino);
+					
+					if(molino.getParts() != null) {
+						for(Parte part : molino.getParts()) {
+							part.setId(UUID.randomUUID().toString());
+							part.setCreationDate(fecha);
+							part.setMolinoId(molino.getId());
+							sqlMap.insert("insertParte", part);
+						}
 					}
-				}
-				
-				if(molino.getTurns() != null) {
-					for(Turno turno : molino.getTurns()) {
-						turno.setId(UUID.randomUUID().toString());
-						turno.setCreationDate(fecha);
-						turno.setMolino(molino);
-						sqlMap.insert("insertTurno", turno);
-						
-						if(turno.getPersonas() != null) {
-							for(Persona persona : turno.getPersonas()) {
-								persona.setTurnoId(turno.getId());
-								sqlMap.insert("insertPersonaTurno", persona);
+					
+					if(molino.getTurns() != null) {
+						for(Turno turno : molino.getTurns()) {
+							turno.setId(UUID.randomUUID().toString());
+							turno.setCreationDate(fecha);
+							turno.setMolino(molino);
+							sqlMap.insert("insertTurno", turno);
+							
+							if(turno.getPersonas() != null) {
+								for(Persona persona : turno.getPersonas()) {
+									persona.setTurnoId(turno.getId());
+									sqlMap.insert("insertPersonaTurno", persona);
+								}
+							}
+						}
+					}
+				}else {
+					sqlMap.insert("updateMolinoAttr", molino);
+					Molino _molino = getMolinoById(molino.getId());
+					if(molino.getTurns() != null) {
+						for(Turno turno : molino.getTurns()) {
+							Turno _turno = existeTurno(turno, _molino.getTurns());
+							if(_turno == null) {
+								turno.setId(UUID.randomUUID().toString());
+								turno.setCreationDate(fecha);
+								turno.setMolino(molino);
+								sqlMap.insert("insertTurno", turno);
+							}else {
+								turno.setId(_turno.getId());
+								sqlMap.delete("deletePersonasTurno", _turno.getId());
+							}
+							
+							if(turno.getPersonas() != null) {
+								for(Persona persona : turno.getPersonas()) {
+									persona.setTurnoId(turno.getId());
+									sqlMap.insert("insertPersonaTurno", persona);
+								}
+							}
+						}
+					}
+					if(_molino.getTurns() != null) {
+						for(Turno turno : _molino.getTurns()) {
+							Turno _turno = existeTurno(turno, molino.getTurns());
+							if(_turno == null) {
+								sqlMap.delete("deleteTurno", turno.getId());
+							}
+						}
+					}
+					
+					if(molino.getParts() != null) {
+						for(Parte part : molino.getParts()) {
+							if(part.getId() == null) {
+								part.setId(UUID.randomUUID().toString());
+								part.setCreationDate(fecha);
+								part.setMolinoId(molino.getId());
+								sqlMap.insert("insertParte", part);
+							}else {
+								sqlMap.update("updateQtyParte", part);
+							}
+						}
+					}
+					if(_molino.getParts() != null) {
+						for(Parte parte : _molino.getParts()) {
+							Parte _parte = existeParte(parte, molino.getParts());
+							if(_parte == null) {
+								sqlMap.delete("deleteParte", parte.getId());
 							}
 						}
 					}
@@ -328,6 +387,24 @@ public class Dao {
 				try {sqlMap.endTransaction();}catch(Exception e){}
 			}
 		}
+	}
+	
+	private Turno existeTurno(Turno turno, List<Turno> turnos) {
+		if(turnos != null) {
+			for(Turno t : turnos) {
+				if(t.getName().equals(turno.getName())) return t;
+			}
+		}
+		return null;
+	}
+	
+	private Parte existeParte(Parte parte, List<Parte> partes) {
+		if(partes != null) {
+			for(Parte p : partes) {
+				if(parte.getId().equals(p.getId())) return p;
+			}
+		}
+		return null;
 	}
 	
 	public Turno getTurnoById(String id) {

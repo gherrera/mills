@@ -298,8 +298,8 @@ const Setup = ({currentUser, action, history}) => {
                 <Row style={{padding:10, backgroundColor: 'rgba(0,0,0,.02)'}}>
                     { currentStep === 0 && <Step1 client={client} nextStep={nextStep1} molinos={molinos} /> }
                     { currentStep === 1 && <Step2 client={client} faena={faena} nextStep={nextStep2} prevStep={prevStep2} molinos={molinos} /> }
-                    { currentStep === 2 && <Step3 pieces={piezas} nextStep={nextStep3} prevStep={prevStep3}/> }
-                    { currentStep === 3 && <Step4 personal={personal} saveFaena={saveFaena} prevStep={prevStep4} usuarios={usuarios} /> }
+                    { currentStep === 2 && <Step3 pieces={piezas} nextStep={nextStep3} prevStep={prevStep3} mode="new" /> }
+                    { currentStep === 3 && <Step4 personal={personal} saveFaena={saveFaena} prevStep={prevStep4} usuarios={usuarios} mode="new" /> }
                 </Row>
             </Row>
         </Row>
@@ -310,7 +310,7 @@ const Setup = ({currentUser, action, history}) => {
               <span className="createAt">Creada en Fecha: {moment(faena.creationDate).format('DD/MM/YYYY')}</span>
               <Button icon="close" onClick={() => setIsModalVisibleEdit(false)} size="small"/>
           </div>
-          <Edit molino={faenaSel} action={action} />
+          <Edit molino={faenaSel} action={action} loadMolinos={loadMolinos} />
         </Row>
        :
         <>

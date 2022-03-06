@@ -32,12 +32,12 @@
 		<result property="name" column="nombre"/>
 		<result property="status" column="estado"/>
 		<result property="turnoId" column="turno_id"/>
+		<result property="personas" column="id" select="getPersonasTurno"/>
 	</resultMap>
 
 	<resultMap id="Turno" class="com.htg.mills.entities.maintenance.Turno" extends="TurnoCore">
 		<result property="molino" column="molino_id" select="getMolinoById"/>
 		<result property="history" column="id" select="getHistorialTurno"/>
-		<result property="personas" column="id" select="getPersonasTurno"/>
 	</resultMap>
 
 	<resultMap id="Persona" class="com.htg.mills.entities.maintenance.Persona">
@@ -366,6 +366,22 @@
 		where id=#id#
 	</update>
 	
+	<delete id="deleteTurno">
+		delete from turnos
+		where id = #value#
+	</delete>
+	
+	<delete id="deleteParte">
+		delete from molino_partes
+		where id = #value#
+	</delete>
+	
+	<update id="updateQtyParte">
+		update molino_partes
+			set cantidad = #qty#
+		where id = #id#
+	</update>
+	
 	<insert id="insertTurnoHistorial">
 		insert into turno_historial(id, turno_id, fecha_inicio)
 		values(#id#, #turno.id#, #fecha#)
@@ -483,5 +499,36 @@
 		insert into turno_personas(turno_id, nombre, rut, cargo, user_id_controller)
 			values(#turnoId#, #name#, #rut#, #role#, #controllerId#)
 	</insert>
+	
+	<delete id="deletePersonasTurno">
+		delete from turno_personas
+		where turno_id = #value#
+	</delete>
+	
+	<update id="updateClient">
+		update clientes
+			set nombre = #name#, 
+				direccion = #address#, 
+				contact_name = #contactName#, 
+				contact_phone = #contactPhone#, 
+				email = #email#
+		where id = #id#
+	</update>
+
+	<update id="updateFaena">
+		update faenas
+				set nombre = #name#
+		where id = #id#
+	</update>
+
+	<update id="updateMolinoAttr">
+		update molinos
+				set nombre = #name#,
+				tipo = #type#, 
+				horas = #hours#, 
+				orden_trabajo = #ordenTrabajo#
+		where id = #id#
+	</update>
+
 
 </sqlMap>
