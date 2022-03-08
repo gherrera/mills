@@ -135,7 +135,7 @@ class App extends Component {
       */
     }
 
-    return isLoggedIn ? <CurrentPage currentUser={ currentUser } service={protectedContent} /> : <LoginPage successHandler={ this.handleLogin.bind(this) } />
+    return isLoggedIn ? <CurrentPage key={Math.random()} currentUser={ currentUser } service={protectedContent} /> : <LoginPage successHandler={ this.handleLogin.bind(this) } />
   }
 
   render() {

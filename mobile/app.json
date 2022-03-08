@@ -1,5 +1,15 @@
 {
-  "name": "mobile",
-  "displayName": "mobile",
-  "orientation": "portrait"
+  "name": "Mills",
+  "displayName": "Mills",
+  "orientation": "portrait",
+  "expo": {
+    "name": "Mills",
+    "icon": "./logo.png",
+    "version": "1.0.0",
+    "slug": "mills",
+    "ios": {
+      "bundleIdentifier": "com.htg.mills",
+      "buildNumber": "1.0.0"
+    }
+  }
 }

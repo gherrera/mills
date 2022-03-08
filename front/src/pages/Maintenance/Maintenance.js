@@ -12,14 +12,17 @@ class Maintenance extends Component {
 
   getBreadcrumbs() {
     const { t, match } = this.props
-
     if(match.params.action === 'setup' || match.params.action === 'new') {
       return [
-        { title: 'Setup', icon: 'appstore', link: '/maintenance/setup' },
+        { title: 'Setup', icon: 'appstore'},
+      ]
+    }else if(match.params.action === 'PENDING' || match.params.action === 'STARTED' || match.params.action === 'FINISHED'){
+      return [
+        { title: 'Proyectos', icon: 'appstore' },
       ]
     }else {
       return [
-        { title: 'Dashboard', icon: 'appstore', link: '/maintenance' },
+        { title: 'Dashboard', icon: 'appstore' },
       ]
     }
   }

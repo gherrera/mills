@@ -13,8 +13,8 @@ const Faena = ({form, molino, action, readOnly, initFormFaena, mode }) => {
 
   const formItemLayout =
         {
-            labelCol: { span: 8},
-            wrapperCol: { span: 16 },
+            labelCol: { span: 9},
+            wrapperCol: { span: 15 },
         }
 
   const formItemLayout1 =

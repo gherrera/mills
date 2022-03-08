@@ -3,6 +3,49 @@
         .avance {
             .title {
                padding-bottom: 10px;
+
+               .indicadores {
+                   text-align: right;
+
+                   label {
+                       padding: 0px 10px;
+                       margin-left: 10px;
+                   }
+                   span {
+                       padding: 1px 5px;
+                       background-color: white;
+                       border: 1px solid rgba(0,0,0,.2);
+                       border-radius: 2px;
+                       min-width: 120px;
+                       text-align: center;
+                       display: inline-block;
+                   }
+               }
+            }
+            .indicators {
+                padding-top: 10px;
+                .indicator {
+                    float: left;
+                    width: 20%;
+                    text-align: center;
+                    background-color: rgba(254, 244, 60, .3);
+                    padding: 5px;
+                    height: 55px;
+                    margin-right: 15px;
+                    color: rgba(0,0,0,.7);
+                    border-radius: 3px;
+                }
+            }
+
+            .stage {
+                padding-top: 10px;
+                border-radius: 3px;
+
+                .title-stage {
+                    background-color: rgba(250, 199, 16, .5);
+                    padding: 5px;
+                    font-size: larger;
+                }
             }
         }
     }
