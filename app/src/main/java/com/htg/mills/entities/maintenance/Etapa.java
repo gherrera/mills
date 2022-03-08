@@ -1,7 +1,10 @@
 package com.htg.mills.entities.maintenance;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.htg.mills.entities.Entity;
 
@@ -159,4 +162,34 @@ public class Etapa extends Entity {
 		}
 		return false;
 	}
+	
+	public float getDuration() {
+		float duration = 0;
+		if(tasks != null) {
+			Tarea last = null;
+			for(Tarea t : tasks) {
+				if(last == null) duration += t.getDuration();
+				else if(last.getFinishDate() != null) {
+					int comp = t.getCreationDate().compareTo(last.getFinishDate());
+					if(comp >= 0) {
+						duration += t.getDuration();
+					}else {
+						Timestamp finish = t.getFinishDate();
+						if(finish == null) {
+							Calendar c = Calendar.getInstance(TimeZone.getDefault());
+							Date date = c.getTime();
+							finish = new Timestamp(date.getTime());
+						}
+						long diff = finish.getTime() - last.getFinishDate().getTime();
+						int min = (int)diff / 1000;
+						
+						duration += min;
+					}
+				}
+				last = t;
+			}
+		}
+		return duration;
+	}
+
 }

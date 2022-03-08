@@ -35,6 +35,7 @@ public class Molino extends Entity {
 	private String ordenTrabajo;
 	private Timestamp updateDate;
 	private String updateUser;
+	private Timestamp finishDate;
 
 	public String getName() {
 		return name;
@@ -292,4 +293,21 @@ public class Molino extends Entity {
 		this.createUser = createUser;
 	}
 
+	public float getDuration() {
+		float duration = 0;
+		if(stages != null) {
+			for(Etapa stage : stages) {
+				duration += stage.getDuration();
+			}
+		}
+		return duration;
+	}
+
+	public Timestamp getFinishDate() {
+		return finishDate;
+	}
+
+	public void setFinishDate(Timestamp finishDate) {
+		this.finishDate = finishDate;
+	}
 }
