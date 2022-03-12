@@ -713,12 +713,12 @@ public class Dao {
 								tarea.setFinishDate(fecha);
 								tarea.setUserFinish(user.getLogin());
 							}
-						}else if(task.equals(Tarea.TareaEnum.MONTAJE) && parte.getBotadas() >= (parte.getMontadas() + cant)) {
+						}else if(task.equals(Tarea.TareaEnum.MONTAJE) && parte.getTotalLimpiadas() >= (parte.getTotalMontadas() + cant)) {
 							success = true;
 							parte.setMontadas(parte.getMontadas()+cant);
 							parte.setTotalMontadas(parte.getTotalMontadas()+cant);
 							
-							if(turno.getMolino().getBotadas() == turno.getMolino().getMontadas()) {
+							if(turno.getMolino().getTotalBotadas() == turno.getMolino().getTotalMontadas()) {
 								tarea.setFinishDate(fecha);
 								tarea.setUserFinish(user.getLogin());
 							}

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Row, Col } from 'antd'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
+import AvanceFase from './AvanceFase'
 
 const Avance = ({molino, action }) => {
     const [piezas, setPiezas] = useState(molino.parts)
@@ -73,11 +74,7 @@ const Avance = ({molino, action }) => {
             </div>
         </Row>
         { molino.stages.map(stage =>
-            <Row className="stage">
-              <div className="title-stage">
-                Fase {t('messages.mills.stage.'+stage.stage)}
-              </div>
-            </Row>
+          <AvanceFase stage={stage}/>
         )}
     </div>
   )

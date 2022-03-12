@@ -103,15 +103,15 @@ class ModalContentCreate extends React.Component {
     let description = 'Copiado'
 
     if (id === 'username') {
-      description = t('messages.aml.usernameCopiedToClipboard')
+      description = t('messages.mills.usernameCopiedToClipboard')
     }
 
     if (id === 'password') {
-      description = t('messages.aml.passwordCopiedToClipboard')
+      description = t('messages.mills.passwordCopiedToClipboard')
     }
 
     notification['success']({
-      message: t('messages.aml.notifications.succesfulOperation'),
+      message: t('messages.mills.notifications.succesfulOperation'),
       description
     })
   }
@@ -179,12 +179,12 @@ class ModalContentCreate extends React.Component {
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item label={t('messages.aml.name')}>
+              <Form.Item label="Nombre">
                 {getFieldDecorator('name', {
                   rules: [
                     {
                       required: true,
-                      message: t('messages.aml.nameMandatory'),
+                      message: t('messages.mills.mandatory'),
                     },
                   ],
                 })(<Input value={this.state.name} onChange={(e) => this.handleOnChange('name', e.target.value)} disabled={modalType === 'view'} />)}
@@ -196,11 +196,11 @@ class ModalContentCreate extends React.Component {
                   rules: [
                     {
                       type: 'email',
-                      message: t('messages.aml.emailNotValid'),
+                      message: t('messages.mills.emailNotValid'),
                     },
                     {
                       required: true,
-                      message: t('messages.aml.emailMandatory'),
+                      message: t('messages.mills.mandatory'),
                     },
                   ],
                 })(
@@ -219,7 +219,7 @@ class ModalContentCreate extends React.Component {
                   rules: [
                     {
                       required: true,
-                      message: t('messages.aml.loginMandatory'),
+                      message: t('messages.mills.mandatory'),
                     }
                   ],
                 })(
@@ -252,7 +252,7 @@ class ModalContentCreate extends React.Component {
                         />
                       </Col>
                       <Col span={6} offset={1}>
-                        <Tooltip placement="top" title={t('messages.aml.copyPasswordToClipboard')}>
+                        <Tooltip placement="top" title={t('messages.mills.copyPasswordToClipboard')}>
                           <CopyToClipboard text={this.props.password} onCopy={() => this.handleCopyToClipboard('password')}>
                             <Button type="primary">
                               <Icon type="copy" />
@@ -271,7 +271,7 @@ class ModalContentCreate extends React.Component {
                         />
                       </Col>
                       <Col span={6} offset={1}>
-                        <Tooltip placement="top" title={t('messages.aml.copyPasswordToClipboard')}>
+                        <Tooltip placement="top" title={t('messages.mills.copyPasswordToClipboard')}>
                           <CopyToClipboard text={this.props.password} onCopy={() => this.handleCopyToClipboard('password')}>
                             <Button type="primary">
                               <Icon type="copy" />
@@ -281,7 +281,7 @@ class ModalContentCreate extends React.Component {
                       </Col>
                     </>
                     :
-                    <Button type="primary" className="password-reset" onClick={this.handlePasswordReset.bind(this)}><Icon type="lock" /> {t('messages.aml.resetPassword')}</Button>
+                    <Button type="primary" className="password-reset" onClick={this.handlePasswordReset.bind(this)}><Icon type="lock" /> {t('messages.mills.resetPassword')}</Button>
                   )
                   }
                 </Form.Item>
@@ -290,23 +290,23 @@ class ModalContentCreate extends React.Component {
 
             { modalType !== 'create' &&
               <Col span={ 24 }>
-                <Form.Item label={ t('messages.aml.status') }>
+                <Form.Item label="Estado">
                 { getFieldDecorator('status', {
                   rules: [
                     {
                       required: true,
-                      message: t('messages.aml.status'),
+                      message: t('messages.mills.mandatory'),
                     },
                   ],
                 })(
                   <Select
-                      placeholder={ t('messages.aml.status') }
+                      placeholder="Estado"
                       onChange={ (value) => this.handleOnChangeStatus(value) }
                       value={ this.state.status }
                       disabled={modalType === 'view' }
                     >
-                      <Select.Option value="ACTIVE">{ t('messages.aml.rule.status.ACTIVE') }</Select.Option>
-                      <Select.Option value="INACTIVE">{ t('messages.aml.rule.status.INACTIVE') }</Select.Option>
+                      <Select.Option value="ACTIVE">{ t('messages.mills.status.ACTIVE') }</Select.Option>
+                      <Select.Option value="INACTIVE">{ t('messages.mills.status.INACTIVE') }</Select.Option>
                     </Select>
                 )}
                   </Form.Item>
@@ -314,8 +314,8 @@ class ModalContentCreate extends React.Component {
             }
           </Row>
           <div className="ant-modal-footer">
-            {modalType !== 'view' && <Button onClick={this.props.onCancel}>{t('messages.aml.cancel')}</Button>}
-            {modalType !== 'view' ? <Button type="primary" htmlType="submit" className="login-form-button">{t('messages.aml.save')}</Button> : <Button onClick={() => this.props.onOk('view')} type="primary">Ok</Button>}
+            {modalType !== 'view' && <Button onClick={this.props.onCancel}>{t('messages.mills.cancel')}</Button>}
+            {modalType !== 'view' ? <Button type="primary" htmlType="submit" className="login-form-button">{t('messages.mills.save')}</Button> : <Button onClick={() => this.props.onOk('view')} type="primary">Ok</Button>}
           </div>
         </Form>
       </div>

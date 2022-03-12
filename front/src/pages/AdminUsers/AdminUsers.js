@@ -61,12 +61,12 @@ class AdminUsers extends React.Component {
             this.loadUsers()
 
             notification.success({
-              message: t('messages.aml.notifications.succesfulOperation'),
+              message: t('messages.mills.notifications.succesfulOperation'),
               description: 'La cuenta de usuario ha sido correctamente eliminada.'
             })
           }else {
             notification.error({
-              message: t('messages.aml.notifications.anErrorOcurred'),
+              message: t('messages.mills.notifications.anErrorOcurred'),
               description: 'Error al eliminar Usuario'
             })
           }
@@ -103,12 +103,12 @@ class AdminUsers extends React.Component {
             this.setState({ data, isModalVisible: false })
 
             notification['success']({
-              message: t('messages.aml.notifications.succesfulOperation'),
+              message: t('messages.mills.notifications.succesfulOperation'),
               description: 'Usuario creado exitosamente'
             })
           }else {
             notification.error({
-              message: t('messages.aml.notifications.anErrorOcurred'),
+              message: t('messages.mills.notifications.anErrorOcurred'),
               description: response.data.message
             })
           }
@@ -123,12 +123,12 @@ class AdminUsers extends React.Component {
             this.setState({ data, isModalVisible: false })
 
             notification['success']({
-              message: t('messages.aml.notifications.succesfulOperation'),
+              message: t('messages.mills.notifications.succesfulOperation'),
               description: 'Usuario guardado'
             })
           }else {
             notification.error({
-              message: t('messages.aml.notifications.anErrorOcurred'),
+              message: t('messages.mills.notifications.anErrorOcurred'),
               description: response.data.message
             })
           }
@@ -144,7 +144,7 @@ class AdminUsers extends React.Component {
 
     if (type === 'create') {
       content = {
-        title: [ <Icon type="user-add" />, ' ', t('messages.aml.createNewUser') ],
+        title: [ <Icon type="user-add" />, ' ', 'Nuevo usuario' ],
         className: 'modal-user-create',
         content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } currentUser={ user } password={ generatePasswordHelper() } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="create" />
       }
@@ -152,7 +152,7 @@ class AdminUsers extends React.Component {
 
     if (type === 'view') {
       content = {
-        title: [ <Icon type="eye" />, ' ', t('messages.aml.viewUserInfo') ],
+        title: [ <Icon type="eye" />, ' ', 'Información' ],
         className: 'modal-user-create',
         content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } currentUser={ currentUser } user={ user } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="view" />
       }
@@ -160,7 +160,7 @@ class AdminUsers extends React.Component {
 
     if (type === 'edit') {
       content = {
-        title: [ <Icon type="edit" />, ' ', t('messages.aml.editUserInfo') ],
+        title: [ <Icon type="edit" />, ' ', 'Editar usuario' ],
         className: 'modal-user-create',
         content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } user={ user }  password={ generatePasswordHelper() } currentUser={ currentUser } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="edit" />
       }
@@ -180,7 +180,7 @@ class AdminUsers extends React.Component {
       { title: 'Perfil', dataIndex: 'type', render: (text => {
         switch(text) {
           case 'ADMIN':
-            return t('messages.aml.admin')
+            return 'Administrador'
           case 'CONTROLLER':
             return 'Controlador'
           default:
@@ -188,23 +188,18 @@ class AdminUsers extends React.Component {
         }
       })
       },
-      { title: t('messages.aml.name'), dataIndex: 'name' },
-      { title: t('messages.aml.username'), dataIndex: 'login' },
+      { title: 'Nombre', dataIndex: 'name' },
+      { title: 'Usuario', dataIndex: 'login' },
       { title: 'Correo', dataIndex: 'email' },
       { 
-        title: t('messages.aml.creationDate'), 
+        title: t('messages.mills.creationDate'), 
         dataIndex: 'creationDate', 
         render: (text => 
           moment(text).format('DD/MM/YYYY HH:mm')
         ) 
       },
-      { title: t('messages.aml.status'), dataIndex: 'status', render: (text => {
-        switch(text) {
-          case 'ACTIVE':
-            return t('messages.aml.active')
-          default:
-            return t('messages.aml.inactive')
-        }
+      { title: "Estado", dataIndex: 'status', render: (text => {
+          return t('messages.mills.status.' + text)
       }) },
       { title: '', dataIndex: 'id', render: (id, user) => (
         <div className="actions">
@@ -235,7 +230,7 @@ class AdminUsers extends React.Component {
           <PageContent>
               <div className="tools-area">
               { currentUser.type !== 'AUDIT' &&
-                <Button id="create-user" type="primary" icon="user" onClick={ this.renderModal.bind(this, 'create', currentUser) }>{ t('messages.aml.createNewUser') }</Button>
+                <Button id="create-user" type="primary" icon="user" onClick={ this.renderModal.bind(this, 'create', currentUser) }>Nuevo Usuario</Button>
               }
               </div>
               <div className="table-wrapper">

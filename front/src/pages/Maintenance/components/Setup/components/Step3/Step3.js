@@ -258,7 +258,7 @@ const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
           </Row>
         }
         <Row>
-          <Table columns={ getTableColumns() } dataSource={ piezas } size="small"/>
+          <Table columns={ getTableColumns() } dataSource={ piezas } size="small" pagination={piezas.length > 10}/>
         </Row>
         { mode === "new" &&
           <Row className="tools">

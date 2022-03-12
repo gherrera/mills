@@ -37,23 +37,23 @@ class ModalChangePassword extends React.Component {
 
     return (
       <Modal
-        title={ isForced ? [ <Icon type="exclamation-circle" theme="filled" />, ' ', t('messages.aml.mandatoryAction') ] : [ <Icon type="lock" />, ' ', t('messages.aml.changePwd') ] }
+        title={ [ <Icon type="lock" />, ' ', 'Cambiar contraseña' ] }
         className={ ( isForced ? 'forced' : 'normal' ) + ' modal-change-password' }
         visible={ visible }
         footer={ [
           <Button onClick={ () => onCancel() }>
-            { t('messages.aml.btnClose') }
+            Cerrar
           </Button>
           ,
           <Button key="submit" type="primary" onClick={ () => onOk(this.state.passwordCurrent, this.state.passwordNew, this.state.passwordNewConfirm) }>
-            { t('messages.aml.save') }
+            { t('messages.mills.save') }
           </Button>
         ] }
         onCancel={ onCancel }
         onOk={ onOk }
         >
         { isForced &&
-            <p>{ t('messages.aml.forcedChangePasswordDescription')}.</p>
+            <p>Se requiere cambiar la contraseña.</p>
         }
         <Form.Item>
           { getFieldDecorator('password-current', {
@@ -65,13 +65,12 @@ class ModalChangePassword extends React.Component {
             <Input
               prefix={ <Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} /> }
               type="password"
-              placeholder={ t('messages.aml.currentPassword') }
+              placeholder="Contraseña actual"
               onChange={ (e) => this.handlePasswordCurrentOnChange.bind(this)(e.target.value) }
             />
           )}
         </Form.Item>
         <Divider />
-        <p>{ t('messages.aml.newPasswordMustContain') }: <br /><strong>{ t('messages.aml.newPasswordInstructions') }</strong>.</p>
         <div className="new-pass-input-group">
           <Form.Item>
             { getFieldDecorator('password-new', {
@@ -83,7 +82,7 @@ class ModalChangePassword extends React.Component {
               <Input
                 prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                 type="password"
-                placeholder={ t('messages.aml.newPassword') }
+                placeholder="Nueva contraseña"
                 onChange={ (e) => this.handlePasswordNewOnChange.bind(this)(e.target.value) }
               />,
             )}
@@ -98,7 +97,7 @@ class ModalChangePassword extends React.Component {
               <Input
                 prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                 type="password"
-                placeholder={ t('messages.aml.newPasswordConfirm') }
+                placeholder="Confirmar contraseña"
                 onChange={ (e) => this.handlePasswordNewConfirmOnChange.bind(this)(e.target.value) }
               />
             )}

@@ -326,7 +326,7 @@
 		select id, fecha_inicio, tarea, fecha_termino, user_inicio, user_termino, turno_id_inicio, turno_id_termino
 		from etapa_tareas
 		where etapa_id = #value#
-		order by fecha_inicio
+		order by fecha_inicio, tarea
 	</select>
 
 	<select id="getPartesByMolino" resultMap="Parte">

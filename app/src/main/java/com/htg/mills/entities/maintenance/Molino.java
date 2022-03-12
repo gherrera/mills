@@ -177,6 +177,16 @@ public class Molino extends Entity {
 		return montadas;
 	}
 	
+	public int getTotalBotadas() {
+		int botadas = 0;
+		if(parts != null) {
+			for(Parte parte : parts) {
+				botadas += parte.getTotalBotadas();
+			}
+		}
+		return botadas;
+	}
+	
 	public int getGiros() {
 		int giros = 0;
 		if(stages != null) {

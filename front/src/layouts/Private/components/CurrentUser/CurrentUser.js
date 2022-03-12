@@ -56,12 +56,12 @@ class User extends React.Component {
         }
         <Menu.Item key="2">
           <Link to={ '#' } onClick={ this.handleOpenModalChangePassword.bind(this) }>
-            <Icon type="lock" /> &nbsp;{ t('messages.aml.changePwd') }
+            <Icon type="lock" /> &nbsp;Cambiar contraseña
           </Link>
         </Menu.Item>
         <Menu.Item key="3">
           <Link to={ '#' } onClick={ this.handleLogout.bind(this) }>
-            <Icon type="logout" /> &nbsp;{ t('messages.aml.logout') }
+            <Icon type="logout" /> &nbsp;Cerrar sesión
           </Link>
         </Menu.Item>
       </Menu>

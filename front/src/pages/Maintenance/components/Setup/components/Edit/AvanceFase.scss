@@ -1,0 +1,41 @@
+.edit-faena {
+    .edit {
+        .avance {
+            .stage {
+                padding-top: 10px;
+                border-radius: 3px;
+
+                .title-stage {
+                    background-color: rgba(250, 199, 16, .5);
+                    padding: 5px;
+                    font-size: larger;
+
+                    .data-title {
+                        text-align: right;
+                        font-size: .9em;
+                        
+                        span.info {
+                            font-size: .97em;
+                            background-color: white;
+                            margin-left: 10px;
+                            margin-right: 30px;
+                            padding: 2px 4px;
+                            border-radius: 2px;
+                            border: 1px solid rgba(0,0,0,.1); 
+                            width: 130px;
+                            display: inline-block;
+                            text-align: center;
+
+                            &.duration, &.interruption {
+                                width: 60px !important;
+                            }
+                        }
+                    }
+                }
+                .data-table {
+                    margin-top: 10px;
+                }
+            }
+        }
+    }
+}

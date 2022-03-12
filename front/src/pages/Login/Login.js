@@ -86,8 +86,8 @@ class Login extends Component {
 
     if (reset.success) {
       notification.success({
-        message: t('messages.aml.successfulOperation'),
-        description: t('messages.aml.checkYourEmail')
+        message: t('messages.mills.successfulOperation'),
+        description: 'Email enviado'
       })
 
       window.setTimeout(async () => {
@@ -95,8 +95,8 @@ class Login extends Component {
       }, 4500)
     } else {
       notification.error({
-        message: t('messages.aml.anErrorOcurred'),
-        description: t('messages.aml.usernameDoesNotExists')
+        message: t('messages.mills.anErrorOcurred'),
+        description: 'Usuario no existe'
       })
     }
 
@@ -128,7 +128,7 @@ class Login extends Component {
                             <Input
                               disabled={ false }
                               onChange={ (e) => this.handleUsernameOnChange.bind(this)(e.target.value) }
-                              placeholder={ t('messages.aml.username') }
+                              placeholder="Usuario"
                               prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
                               />
                           )
@@ -146,7 +146,7 @@ class Login extends Component {
                                   onChange={ (e) => this.handlePasswordOnChange.bind(this)(e.target.value) }
                                   type="password"
                                   autoComplete="off"
-                                  placeholder={ t('messages.aml.password') }
+                                  placeholder="Contraseña"
                                   prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                                 />
                               )
@@ -158,8 +158,8 @@ class Login extends Component {
                           <Button htmlType="submit">Ingresar</Button>
                       </Row>
                       <Row className="olvidoCon">
-                        { !isRestore && <a href='#' onClick={ this.handleSwitchToRestore.bind(this) }>{ t('messages.aml.forgotYourPassword') }</a> }
-                          { isRestore && <a href='#' onClick={ this.handleSwitchToLogin.bind(this) }>{ t('messages.aml.backToLogin') }</a> }
+                        { !isRestore && <a href='#' onClick={ this.handleSwitchToRestore.bind(this) }>Olvidé mi contraseña</a> }
+                          { isRestore && <a href='#' onClick={ this.handleSwitchToLogin.bind(this) }>Volver</a> }
                       </Row>
                   </Row>               
               </Row>

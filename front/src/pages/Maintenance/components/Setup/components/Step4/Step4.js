@@ -232,7 +232,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
           </Row>
         }
         <Row>
-          <Table columns={ getTableColumns() } dataSource={ personas } size="small"/>
+          <Table columns={ getTableColumns() } dataSource={ personas } size="small" pagination={personas.length > 10}/>
         </Row>
         { mode === "new" &&
           <Row className="tools">
