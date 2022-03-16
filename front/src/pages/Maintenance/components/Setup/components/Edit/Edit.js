@@ -8,7 +8,7 @@ import Personal from './Personal'
 import Piezas from './Piezas'
 import Avance from './Avance'
 
-import { saveMolinoPromise } from '../../../../promises'
+import { saveMolinoPromise, getMolinoPromise } from '../../../../promises'
 
 const { confirm } = Modal;
 
@@ -22,7 +22,9 @@ const Edit = ({molino, action, loadMolinos }) => {
   const [ molinoVar, setMolinoVar ] = useState(molino)
 
   useEffect(() => {
-
+    getMolinoPromise(molino.id).then(m => {
+      setMolinoVar(m)
+    })
   }, [])
 
   const changeEdit = () => {
@@ -112,8 +114,6 @@ const Edit = ({molino, action, loadMolinos }) => {
       },
       onCancel() {},
     });
-
-    console.log(molinoVar)
   }
 
   const initFormCliente = (c) => {

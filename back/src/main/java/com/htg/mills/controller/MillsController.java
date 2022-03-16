@@ -273,6 +273,12 @@ public class MillsController {
 		return app.getMolinos(currentUser.getUser().getId(), params);
 	}
 
+	@PostMapping("getMolino")
+    @ResponseBody
+	public Molino getMolino(@RequestBody Map<String, String> params) {
+		return app.getMolinoById(params.get("id"));
+	}
+	
 	@PostMapping("inicioTurno")
     @ResponseBody Turno inicioTurno(@RequestBody Map<String, String> params) {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -11,6 +11,15 @@ export default {
       }
     })
   },
+  getMolino: (id) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/getMolino',
+      method: 'post',
+      body: {
+        id
+      }
+    })
+  },
   saveMolino: (molino) => {
     return apiRequestorHelper({
       url: apiConfig.url + '/saveMolino',

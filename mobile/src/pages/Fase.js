@@ -79,7 +79,8 @@ export default class Fase extends Component {
         const {t} = this.props.screenProps; 
         const molino = this.state.turno.molino
         if(this.state.currentStage.currentTask) {
-            if(this.state.currentStage.currentTask.task === 'BOTADO' && molino.botadas === 0) {
+            // Se permite finalizar Botado sin piezas para avanzar a montaje
+            if(false && this.state.currentStage.currentTask.task === 'BOTADO' && molino.botadas === 0) {
                 Alert.alert(
                     "Error", "Debe agregar piezas a la tarea de Botado antes de Finalizar"
                 );
@@ -477,15 +478,28 @@ export default class Fase extends Component {
                         "Fase Finalizada"
                     }
                 </Text>
-                { (currentStage.stage === 'BEGINNING' 
-                    || currentStage.stage === 'FINISHED' 
-                    || (currentStage.stage === 'EXECUTION' && 
-                        (currentStage.currentTask === null || 
-                            currentStage.currentTask.task === 'BOTADO' || 
-                            currentStage.currentTask.task === 'GIRO' || 
-                            (molino.nextTask === 'GIRO' && currentStage.currentTask.finishDate !== null && molino.totalMontadas < molino.piezas)
+                { currentStage.currentTask &&  currentStage.currentTask.finishDate === null && currentStage.currentTask.task === 'MONTAJE' &&  molino.limpiadas === molino.botadas ?
+                    <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
+                        <View style={{ ...styles.col, width: '100%', textAlign:'center', padding:16}}>
+                            <Button
+                                title="No continuar montaje"
+                                type={"solid"}
+                                buttonStyle={{padding:5, borderColor: StylesGlobal.colorGray, borderWidth:1.4, borderRadius:5, backgroundColor: "rgba(0,0,0,0.85)"}}
+                                titleStyle={{fontSize:20}}
+                                onPress={this.finishTask.bind(this)}
+                            />
+                        </View>
+                    </View>
+                    :
+                    (currentStage.stage === 'BEGINNING' 
+                        || currentStage.stage === 'FINISHED' 
+                        || (currentStage.stage === 'EXECUTION' && 
+                            (currentStage.currentTask === null || 
+                                currentStage.currentTask.task === 'BOTADO' || 
+                                currentStage.currentTask.task === 'GIRO' || 
+                                (molino.nextTask === 'GIRO' && currentStage.currentTask.finishDate !== null && molino.totalMontadas < molino.piezas)
+                            )
                         )
-                       )
                     ) &&
                     <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
                         <View style={{ ...styles.col, width: '50%', textAlign:'center', padding:16}}>
@@ -510,6 +524,7 @@ export default class Fase extends Component {
                         </View>
                     </View>
                 }
+
                 { false && currentStage.currentTask && currentStage.currentTask.finishDate === null &&
                     <Text style={{fontSize:20, color: StylesGlobal.colorBlack90, borderRadius:10, textAlign:'center'}}>
                     { currentStage.currentTask.finishDate === null && currentStage.currentTask.task !== 'LIMPIEZA' ?
@@ -744,19 +759,31 @@ export default class Fase extends Component {
                                         <Text style={{fontSize:20, color:StylesGlobal.colorBlack}}>Montaje</Text>
                                     </View>
                                     <View style={{ ...styles.col, width: '15%', textAlign:'center', padding:5}}>
-                                        { currentStage.currentTask && currentStage.currentTask.task !== 'BOTADO' 
-                                            && part.montadas < part.botadas && part.botadas === part.limpiadas && 
+                                        { currentStage.currentTask && (currentStage.currentTask.task === 'LIMPIEZA' || currentStage.currentTask.task === 'MONTAJE' )
+                                            && currentStage.currentTask.finishDate === null
+                                            && (part.botadas === part.limpiadas && part.totalMontadas < part.totalLimpiadas) && 
                                             this.getBotonAddParte('MONTAJE', part.id)
                                         }
+                                        
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
-                                        { currentStage.currentTask && currentStage.currentTask.task !== 'BOTADO'
-                                            && part.botadas === part.limpiadas && part.botadas > 0 &&
+                                        { currentStage.currentTask && (currentStage.currentTask.task === 'LIMPIEZA' || currentStage.currentTask.task === 'MONTAJE' )
+                                            && currentStage.currentTask.finishDate === null
+                                            && (part.botadas === part.limpiadas && part.totalMontadas < part.totalLimpiadas) && 
                                             <Text style={{fontSize:20, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'100%'}}>
                                                 {part.montadas}
                                             </Text>
                                         }
                                     </View>
+                                    { currentStage.currentTask && currentStage.currentTask.task === 'MONTAJE' 
+                                        && currentStage.currentTask.finishDate === null
+                                        && (part.botadas === part.limpiadas && part.totalMontadas < part.totalLimpiadas) &&
+                                        <View style={{ ...styles.col, width: '25%', padding:5}}>
+                                            <Text style={{fontSize:18, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'95%'}}>
+                                                {part.totalLimpiadas - part.totalMontadas}
+                                            </Text>
+                                        </View>
+                                    }
                                 </View>
                             </React.Fragment>
                         )

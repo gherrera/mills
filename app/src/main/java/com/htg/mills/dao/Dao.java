@@ -477,6 +477,16 @@ public class Dao {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<TareaParte> getPartesByTarea(String id) {
+		try {
+			return (List<TareaParte>)sqlMap.queryForList("getPartesByTarea", id);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+	
 	public Molino getMolinoById(String id) {
 		try {
 			return (Molino)sqlMap.queryForObject("getMolinoById", id);

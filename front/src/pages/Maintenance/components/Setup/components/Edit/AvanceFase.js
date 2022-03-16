@@ -35,50 +35,65 @@ const AvanceFase = ({stage}) => {
     setChecked(chk)
   }
 
-  const columnsStage = [
-    {
-      title: 'Proceso',
-      dataIndex: 'task',
-      width: '20px',
-      render: (text) => t('messages.mills.task.'+text)
-    },
-    {
-      title: 'Inicio',
-      dataIndex: 'creationDate',
-      width: '20%',
-      render: (text) => moment(text).format("DD/MM/YYYY HH:mm")
-    },
-    {
-      title: 'Fin',
-      dataIndex: 'finishDate',
-      width: '20%',
-      render: (text) => text ? moment(text).format("DD/MM/YYYY HH:mm") : 'N/A'
-    },
-    {
-      title: 'Total',
-      dataIndex: 'duration',
-      width: '20%',
-      render: (text) => secondsToHms(text)
-    },
-    {
-      title: 'Turno',
-      dataIndex: 'turnoStart',
-      width: '10%',
-      render: (text, record) => {
-        let turno = record.turnoStart.turno.name
-        if(record.turnoFinish) turno = record.turnoFinish.turno.name
-        if(turno === 'DAY') return <FontAwesomeIcon icon={faSun} />
-        else return <FontAwesomeIcon icon={faMoon} />
-      }
-    },
-    {
-      title: 'Acciones',
-      width: '10%',
-      render: (text, record, index) => {
-        return <div></div>
-      }
+  const getColumnsStage = () => {
+    let columns = [
+      {
+        title: 'Proceso',
+        dataIndex: 'task',
+        width: '20px',
+        render: (text) => t('messages.mills.task.'+text)
+      },
+    ]
+    if(stage.stage === 'EXECUTION') {
+      columns.push(
+        {
+          title: 'Piezas',
+          dataIndex: 'parts',
+          width: '10%',
+          render: (text) => text && text.length
+        }
+      )
     }
-  ]
+    columns.push(
+      {
+        title: 'Inicio',
+        dataIndex: 'creationDate',
+        width: stage.stage === 'EXECUTION' ? '15%' : '20%',
+        render: (text) => moment(text).format("DD/MM/YYYY HH:mm")
+      },
+      {
+        title: 'Fin',
+        dataIndex: 'finishDate',
+        width: stage.stage === 'EXECUTION' ? '15%' : '20%',
+        render: (text) => text ? moment(text).format("DD/MM/YYYY HH:mm") : 'N/A'
+      },
+      {
+        title: 'Total',
+        dataIndex: 'duration',
+        width: '20%',
+        render: (text) => secondsToHms(text)
+      },
+      {
+        title: 'Turno',
+        dataIndex: 'turnoStart',
+        width: '10%',
+        render: (text, record) => {
+          let turno = record.turnoStart.turno.name
+          if(record.turnoFinish) turno = record.turnoFinish.turno.name
+          if(turno === 'DAY') return <FontAwesomeIcon icon={faSun} />
+          else return <FontAwesomeIcon icon={faMoon} />
+        }
+      },
+      {
+        title: 'Acciones',
+        width: '10%',
+        render: (text, record, index) => {
+          return <div></div>
+        }
+      }
+    )
+    return columns
+  }
 
   return (
     <div className="stage">
@@ -104,7 +119,7 @@ const AvanceFase = ({stage}) => {
         </Row>
         { checked &&
           <Row className="data-table">
-            <Table dataSource={stage.tasks} columns={columnsStage} size="small" pagination={stage.tasks.length > 10} />
+            <Table dataSource={stage.tasks} columns={getColumnsStage()} size="small" pagination={stage.tasks.length > 10} />
           </Row>
         }
     </div>

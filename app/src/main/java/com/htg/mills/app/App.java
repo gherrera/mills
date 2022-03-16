@@ -399,10 +399,24 @@ public class App {
 		return dao.getMolinos(params);
 	}
 	
+	public Molino getMolinoById(String id) {
+		Molino molino = dao.getMolinoById(id);
+		if(molino != null && molino.getStages() != null) {
+			for(Etapa stage : molino.getStages()) {
+				if(stage.getTasks() != null && stage.getStage().equals(Etapa.EtapaEnum.EXECUTION)) {
+					for(Tarea task : stage.getTasks()) {
+						task.setParts(dao.getPartesByTarea(task.getId()));
+					}
+				}
+			}
+		}
+		return molino;
+	}
+	
 	public Molino saveMolino(Usuario user, Molino molino) {
 		try {
 			dao.saveMolino(user, molino);
-			return dao.getMolinoById(molino.getId());
+			return getMolinoById(molino.getId());
 		} catch (SQLException e) {
 			log.error("Error al guardar Molino", e);
 			return null;
