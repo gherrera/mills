@@ -50,7 +50,7 @@ const AvanceFase = ({stage}) => {
           title: 'Piezas',
           dataIndex: 'parts',
           width: '10%',
-          render: (text) => text && text.length
+          render: (text, record) => text && record.task !== 'GIRO' && text.length
         }
       )
     }
@@ -114,12 +114,14 @@ const AvanceFase = ({stage}) => {
             <label>Interrupciones</label>
             <span className="info interruption">{stage.events.length}</span>
 
-            <Switch size="small" defaultChecked={checked} onChange={onChangeSwitch}/>
+            { stage.stage !== 'DELIVERY' &&
+              <Switch size="small" defaultChecked={checked} onChange={onChangeSwitch}/>
+            }
           </Col>
         </Row>
-        { checked &&
+        { checked && stage.stage !== 'DELIVERY' &&
           <Row className="data-table">
-            <Table dataSource={stage.tasks} columns={getColumnsStage()} size="small" pagination={stage.tasks.length > 10} />
+            <Table dataSource={stage.tasks} columns={getColumnsStage()} size="small" pagination={false} />
           </Row>
         }
     </div>

@@ -230,8 +230,12 @@ public class Molino extends Entity {
 			next = etapa.getNextTask();
 			Tarea current = etapa.getCurrentTask();
 			if(etapa.getStage().equals(Etapa.EtapaEnum.EXECUTION) && current != null && current.getFinishDate() != null) {
-				if(Tarea.TareaEnum.GIRO.equals(next) && getTotalMontadas() == getPiezas()) {
-					next = null;
+				if(Tarea.TareaEnum.GIRO.equals(next)) {
+					if(getTotalMontadas() == getPiezas()) {
+						next = null;
+					}else if(getTotalBotadas() == getPiezas()) {
+						next = Tarea.TareaEnum.MONTAJE;
+					}
 				}
 			}
 		}

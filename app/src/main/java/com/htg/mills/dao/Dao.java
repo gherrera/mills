@@ -672,6 +672,8 @@ public class Dao {
 					turno.getMolino().setStatus(Molino.Status.FINISHED);
 					turno.getMolino().setFinishDate(fecha);
 					sqlMap.update("updateStatusMolino", turno.getMolino());
+					
+					finTurno(user, turno);
 				}
 			}
 			
