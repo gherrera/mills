@@ -233,7 +233,9 @@ public class Molino extends Entity {
 				if(Tarea.TareaEnum.GIRO.equals(next)) {
 					if(getTotalMontadas() == getPiezas()) {
 						next = null;
-					}else if(getTotalBotadas() == getPiezas()) {
+					}
+				}else if(Tarea.TareaEnum.GIRO.equals(current.getTask())) {
+					if(getTotalBotadas() == getPiezas()) {
 						next = Tarea.TareaEnum.MONTAJE;
 					}
 				}

@@ -453,21 +453,25 @@ public class Dao {
 		}
 	}
 	
+	private void finTurnoPrivate(Usuario user, Turno turno) throws SQLException {
+		Calendar c = Calendar.getInstance(TimeZone.getDefault());
+		Date date = c.getTime();
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("turnoId", turno.getTurnoId());
+		params.put("fecha", new Timestamp(date.getTime()));
+		sqlMap.insert("finTurnoHistorial", params);
+
+		turno.setStatus(Turno.Status.CLOSED);
+		turno.setTurnoId(null);
+		sqlMap.update("updateStatusTurno", turno);
+	}
+	
 	public void finTurno(Usuario user, Turno turno) throws SQLException {
 		try {
 			sqlMap.startTransaction();
 
-			Calendar c = Calendar.getInstance(TimeZone.getDefault());
-			Date date = c.getTime();
-			
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("turnoId", turno.getTurnoId());
-			params.put("fecha", new Timestamp(date.getTime()));
-			sqlMap.insert("finTurnoHistorial", params);
-
-			turno.setStatus(Turno.Status.CLOSED);
-			turno.setTurnoId(null);
-			sqlMap.update("updateStatusTurno", turno);
+			finTurnoPrivate(user, turno);
 			
 			sqlMap.commitTransaction();
 		} catch (SQLException e) {
@@ -673,7 +677,7 @@ public class Dao {
 					turno.getMolino().setFinishDate(fecha);
 					sqlMap.update("updateStatusMolino", turno.getMolino());
 					
-					finTurno(user, turno);
+					finTurnoPrivate(user, turno);
 				}
 			}
 			

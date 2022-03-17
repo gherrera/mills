@@ -121,7 +121,7 @@ const AvanceFase = ({stage}) => {
         </Row>
         { checked && stage.stage !== 'DELIVERY' &&
           <Row className="data-table">
-            <Table dataSource={stage.tasks} columns={getColumnsStage()} size="small" pagination={false} />
+            <Table dataSource={stage.tasks} columns={getColumnsStage()} size="small" pagination={false} rowClassName={(record, index) => 'row-task-'+record.task} />
           </Row>
         }
     </div>

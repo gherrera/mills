@@ -119,7 +119,7 @@ export default class Turno extends Component {
         if(turno.status !== 'OPEN') {
             Alert.alert(
                 "Inicio de Turno",
-                "Confirma el Inicio del Turno: " +turno.name+ "?",
+                "Confirma el Inicio del Turno: " +this.getTurnoDesc(turno.name)+ "?",
                 [
                   {
                     text: "Cancelar",
@@ -190,7 +190,7 @@ export default class Turno extends Component {
         const { turno } = this.state
         Alert.alert(
             "Fin de Turno",
-            "Confirma el Fin del Turno: " +turno.name+ "?",
+            "Confirma el Fin del Turno: " +this.getTurnoDesc(turno.name)+ "?",
             [
             {
                 text: "Cancelar",
@@ -242,9 +242,7 @@ export default class Turno extends Component {
                             padding:12,
                             borderColor:StylesGlobal.colorGray, 
                             borderWidth:3}}>
-                            <Text style={{fontSize:26, padding:10, textAlign:'center', color: StylesGlobal.colorBlack90}}>
-                                Interrupcion
-                            </Text>
+                            
                             <Text style={{fontSize:24, padding:10, textAlign:'center', color: StylesGlobal.colorBlack90}}>
                                 { turno.molino.currentStage.hasInterruption ?
                                     "Interrupción en curso"
