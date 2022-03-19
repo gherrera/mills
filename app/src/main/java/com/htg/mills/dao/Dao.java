@@ -153,30 +153,6 @@ public class Dao {
 		}
 	}
 	
-	private static int getDiasHabiles(Date fecIni, Date fecFin) {
-		Calendar startCal = Calendar.getInstance();
-		startCal.setTime(fecIni);
-		Calendar endCal = Calendar.getInstance();
-		endCal.setTime(fecFin);
-		
-		int workDays = 0;
-		if(startCal.getTimeInMillis() < endCal.getTimeInMillis()) {
-			do {
-			    if (startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-			        ++workDays;
-			    }
-			    startCal.add(Calendar.DAY_OF_MONTH, 1);
-			} while (startCal.getTimeInMillis() < endCal.getTimeInMillis());
-		}
-		return workDays;
-	}
-	
-//	private Date getLocalDatetime(Timestamp date) {
-//		DateTime dt = new DateTime(date);
-//		DateTime dtus = dt.withZone(dtZone);
-//		return dtus.toLocalDateTime().toDate();
-//	}
-	
 	public Date addDiasHabiles(Date fec, int dias) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(fec);
@@ -508,15 +484,16 @@ public class Dao {
 				if(et.getStage().equals(stage)) etapa = et;
 			}
 		}
-		Tarea.TareaEnum task = molino.getNextTask(etapa);
-		if(task != null) {
+		Tarea task = etapa.getCurrentTask();
+		Tarea.TareaEnum next = molino.getNextTask(etapa);
+		if(next != null) {
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
 			
 			Tarea tarea = new Tarea();
 			tarea.setId(UUID.randomUUID().toString());
 			tarea.setCreationDate(new Timestamp(date.getTime()));
-			tarea.setTask(task);
+			tarea.setTask(next);
 			tarea.setUserStart(user.getLogin());
 			
 			Map<String, Object> params = new HashMap<String, Object>();
@@ -530,11 +507,11 @@ public class Dao {
 			molino.setUpdateUser(user.getLogin());
 			sqlMap.update("updateMolino", molino);
 			
-			if(task.equals(Tarea.TareaEnum.LIMPIEZA)) {
+			if(next.equals(Tarea.TareaEnum.LIMPIEZA)) {
 				turno = getTurnoById(turno.getId());
 				startTask(user, turno, stage);
-			}else if(task.equals(Tarea.TareaEnum.GIRO)) {
-				sqlMap.update("updateGiro", molino.getId());
+			}else if(task != null && task.getTask().equals(Tarea.TareaEnum.GIRO)) {
+				sqlMap.update("updateGiro", turno.getMolino().getId());
 			}
 		}
 	}
@@ -562,7 +539,7 @@ public class Dao {
 		task.setTurnoFinish(t);
 		
 		sqlMap.update("finishTarea", task);
-		
+
 		Molino molino = turno.getMolino();
 		Tarea.TareaEnum next = molino.getNextTask(etapa);
 		if(next == null) {

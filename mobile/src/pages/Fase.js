@@ -227,7 +227,7 @@ export default class Fase extends Component {
 
     async deliveryMolino() {
         let t = await this.startEtapa()
-        this.forwardMenuHandler(t)
+        this.returnMenuHandler()
     }
 
     startReapriete() {
@@ -687,7 +687,7 @@ export default class Fase extends Component {
                     <View style={{flexDirection: "row", flexWrap: "wrap", borderBottomColor: StylesGlobal.colorBlack, borderBottomWidth: 1, marginTop: 10, marginBottom: 5}} textAlign="flex-start">
                         <View style={{ ...styles.col, width: '55%', padding:5}}>
                             <Text style={{fontSize:18, color: StylesGlobal.colorBlack}}>
-                                Giro: {turno.molino.giros+1}
+                                Giros: {turno.molino.giros}
                             </Text>
                         </View>
                         <View style={{ ...styles.col, width: '20%', padding:5}}>
@@ -728,14 +728,18 @@ export default class Fase extends Component {
                                         }
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', padding:5}}>
-                                        <Text style={{fontSize:18, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'100%'}}>
-                                            {part.botadas}
-                                        </Text>
+                                        { (part.botadas > 0 || (part.qty - part.totalBotadas) > 0 || currentStage.currentTask.task === 'BOTADO') &&
+                                            <Text style={{fontSize:18, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'100%'}}>
+                                                {part.botadas}
+                                            </Text>
+                                        }
                                     </View>
                                     <View style={{ ...styles.col, width: '25%', padding:5}}>
-                                        <Text style={{fontSize:18, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'95%'}}>
-                                            {part.qty - part.totalBotadas}
-                                        </Text>
+                                        { (part.botadas > 0 || (part.qty - part.totalBotadas) > 0 || currentStage.currentTask.task === 'BOTADO') &&
+                                            <Text style={{fontSize:18, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'95%'}}>
+                                                {part.qty - part.totalBotadas}
+                                            </Text>
+                                        }
                                     </View>
 
                                     <View style={{ ...styles.col, width: '40%', padding:5}}>
@@ -767,17 +771,17 @@ export default class Fase extends Component {
                                         
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
-                                        { currentStage.currentTask && (currentStage.currentTask.task === 'LIMPIEZA' || currentStage.currentTask.task === 'MONTAJE' )
-                                            && currentStage.currentTask.finishDate === null
-                                            && (part.botadas === part.limpiadas && part.totalMontadas < part.totalLimpiadas) && 
+                                        { currentStage.currentTask && (currentStage.currentTask.task === 'GIRO' || currentStage.currentTask.task === 'MONTAJE' )
+                                            //&& currentStage.currentTask.finishDate === null
+                                            && part.botadas === part.limpiadas &&  (part.montadas > 0 || part.totalMontadas < part.totalLimpiadas || part.botadas > 0) &&
                                             <Text style={{fontSize:20, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'100%'}}>
                                                 {part.montadas}
                                             </Text>
                                         }
                                     </View>
-                                    { currentStage.currentTask && currentStage.currentTask.task === 'MONTAJE' 
-                                        && currentStage.currentTask.finishDate === null
-                                        && (part.botadas === part.limpiadas && part.totalMontadas < part.totalLimpiadas) &&
+                                    { currentStage.currentTask && (currentStage.currentTask.task === 'GIRO' || currentStage.currentTask.task === 'MONTAJE' )
+                                        //&& currentStage.currentTask.finishDate === null
+                                        && part.botadas === part.limpiadas &&  (part.montadas > 0 || part.totalMontadas < part.totalLimpiadas || part.botadas > 0) &&
                                         <View style={{ ...styles.col, width: '25%', padding:5}}>
                                             <Text style={{fontSize:18, padding:1, color: StylesGlobal.colorBlack, textAlign:'center', backgroundColor: StylesGlobal.colorGray25, width:'95%'}}>
                                                 {part.totalLimpiadas - part.totalMontadas}
