@@ -4,7 +4,8 @@ import { Row, Col } from 'antd'
 import { Step3 } from '..'
 
 const Piezas = ({molino, action, readOnly, mode, handleChangePiezas }) => {
-    const [piezas, setPiezas] = useState(molino.parts)
+    const [ piezas, setPiezas] = useState(molino.parts)
+    const [ nroPiezas, setNroPiezas] = useState(molino.parts.reduce((accumulator, current) => accumulator + current.qty, 0))
     const [ showAll, setShowAll ] = useState(action !== 'STARTED' && action !== 'FINISHED')
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const Piezas = ({molino, action, readOnly, mode, handleChangePiezas }) => {
         </Row>
         { showAll &&
         <>
-          <div className="info">{piezas.length} pieza{piezas.length !== 1 && 's'}</div>
+          <div className="info">{nroPiezas} pieza{nroPiezas !== 1 && 's'}</div>
           <Step3 key={mode} pieces={piezas} notifPiezas={handleNotifPiezas} mode={mode} />
         </>
         }
