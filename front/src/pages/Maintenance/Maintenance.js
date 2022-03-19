@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import { withRouter } from 'react-router-dom'
 import { Page, PageContent, PageHeader } from '../../layouts/Private/components'
-import { Setup } from './components'
+import { Setup, Dashboard } from './components'
 
 class Maintenance extends Component {
   state = {
@@ -46,8 +46,10 @@ class Maintenance extends Component {
             />
         <Page>
           <PageContent>
-            {(match.params.action === 'setup' || match.params.action === 'new' || match.params.action === 'PENDING' || match.params.action === 'STARTED' || match.params.action === 'FINISHED') &&
-              <Setup key={match.params.action} currentUser={currentUser} action={match.params.action} />
+            {(match.params.action === 'setup' || match.params.action === 'new' || match.params.action === 'PENDING' || match.params.action === 'STARTED' || match.params.action === 'FINISHED') ?
+                <Setup key={match.params.action} currentUser={currentUser} action={match.params.action} />
+              : match.params.action === undefined &&
+                <Dashboard/>
             }
           </PageContent>
         </Page>
