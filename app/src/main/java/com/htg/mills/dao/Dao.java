@@ -476,6 +476,16 @@ public class Dao {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<TurnoHistorial> getHistorialTurno(String turnoId) {
+		try {
+			return (List<TurnoHistorial>)sqlMap.queryForList("getHistorialTurno", turnoId);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+	
 	public void startTask(Usuario user, Turno turno, Etapa.EtapaEnum stage) throws SQLException {
 		Molino molino = turno.getMolino();
 		Etapa etapa = null;

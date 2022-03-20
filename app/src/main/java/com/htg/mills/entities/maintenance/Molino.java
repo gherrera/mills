@@ -2,6 +2,8 @@ package com.htg.mills.entities.maintenance;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -325,5 +327,22 @@ public class Molino extends Entity {
 
 	public void setFinishDate(Timestamp finishDate) {
 		this.finishDate = finishDate;
+	}
+	
+	public List<TurnoHistorial> getTurnoHistorial() {
+		List<TurnoHistorial> turnos = new ArrayList<TurnoHistorial>();
+		if(turns != null) {
+			for(Turno turno : turns) {
+				if(turno.getHistory() != null) turnos.addAll(turno.getHistory());
+			}
+		}
+		Collections.sort(turnos, new Comparator<TurnoHistorial>() {
+			@Override
+			public int compare(TurnoHistorial t1, TurnoHistorial t2) {
+				return t1.getCreationDate().compareTo(t2.getCreationDate());
+			}
+		});
+		
+		return turnos;
 	}
 }

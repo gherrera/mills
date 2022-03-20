@@ -4,10 +4,23 @@
         margin-bottom: 10px;
         padding: 15px;
 
-        .title {
+        .turno-header {
             background-color: rgba(0,0,0,.8);
-            color: rgba(255,255,255,.8);
-            padding: 2px 5px;
+            color: white;
+            text-align: center;
+        }
+        .stat-stage {
+            padding: 3px;
+        }
+        .stat-number {
+            text-align: center;
+        }
+
+        .title {
+            font-size: 1.1em;
+            background-color: rgba(0,0,0,.8);
+            color: rgba(255,255,255,.9);
+            padding: 5px 5px;
             border-radius: 2px;
         }
 
@@ -15,22 +28,19 @@
             padding: 10px 0px;
 
             .indicator {
-                .content-indicator {
-                    margin-right: 20px;
-                    height: 60px;
+                //margin-right: 20px;
+                height: 60px;
 
-                    padding: 13px;
-                    background-color: white;
-                    font-size: larger;
-                    line-height: 18px;
+                padding: 13px;
+                background-color: white;
+                font-size: larger;
+                line-height: 18px;
 
-                    .number {
-                        font-size: 2em;
-                        margin-top: 5px;
-                        text-align: center;
-                    }
+                .number {
+                    font-size: 2em;
+                    margin-top: 5px;
+                    text-align: center;
                 }
-                
             }
         }
     }

@@ -401,12 +401,19 @@ public class App {
 	
 	public Molino getMolinoById(String id) {
 		Molino molino = dao.getMolinoById(id);
-		if(molino != null && molino.getStages() != null) {
-			for(Etapa stage : molino.getStages()) {
-				if(stage.getTasks() != null && stage.getStage().equals(Etapa.EtapaEnum.EXECUTION)) {
-					for(Tarea task : stage.getTasks()) {
-						task.setParts(dao.getPartesByTarea(task.getId()));
+		if(molino != null) {
+			if(molino.getStages() != null) {
+				for(Etapa stage : molino.getStages()) {
+					if(stage.getTasks() != null && stage.getStage().equals(Etapa.EtapaEnum.EXECUTION)) {
+						for(Tarea task : stage.getTasks()) {
+							task.setParts(dao.getPartesByTarea(task.getId()));
+						}
 					}
+				}
+			}
+			if(molino.getTurns() != null) {
+				for(Turno turno : molino.getTurns()) {
+					turno.setHistory(dao.getHistorialTurno(turno.getId()));
 				}
 			}
 		}
