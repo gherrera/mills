@@ -2,19 +2,19 @@ import './Dashboard.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
-import { Button, Table, Row, Col, Spin, Steps, Modal, Select } from 'antd'
+import { Statistic, DatePicker, Row, Col, Spin, Skeleton, Modal, Select } from 'antd'
 import { getMolinosPromise, getMolinoPromise } from '../../promises'
 import moment from "moment";
-
-const { confirm } = Modal;
 
 const Dashboard = () => {
     const [molinos, setMolinos] = useState([])
     const [clientes, setClientes] = useState([])
     const [cliente, setCliente] = useState(null)
     const [molino, setMolino] = useState(null)
-    const [ots, setOts] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const [isLoadingMolino, setIsLoadingMolino] = useState(false)
+    const [fecha, setFecha] = useState(null)
+    const [avances, setAvances] = useState({})
 
     useEffect(() => {
         setIsLoading(true)
@@ -33,8 +33,14 @@ const Dashboard = () => {
     }, [])
 
     const handleChangeMolino = (id) => {
+        setIsLoadingMolino(true)
         getMolinoPromise(id).then(m => {
             setMolino(m)
+            let f = m.status === 'FINISHED' ? m.finishDate : new Date()
+            f = moment(f)
+            setFecha(f)
+            setStatsAvances(f, m)
+            setIsLoadingMolino(false)
         })
     }
 
@@ -52,6 +58,44 @@ const Dashboard = () => {
         return parts
     }
 
+    const setStatsAvances = (pFecha, pMolino) => {
+        let avObj = {...avances}
+        const f = new Date(pFecha.format())
+
+        let giros = 0
+        let turnos = {}
+        pMolino.stages && pMolino.stages.map(s => {
+            s.stage === 'EXECUTION' && s.tasks && s.tasks.map(task => {
+                if(task.task === 'GIRO') {
+                    let fec = moment(task.creationDate)
+                    if(fec.isBefore(pFecha)) giros++
+                }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
+                    task.parts && task.parts.map(part => {
+                        let fec = moment(part.creationDate)
+                        if(fec.isBefore(pFecha)) {
+                            if(!turnos[part.turno.id]) turnos[part.turno.id] = 0
+                            turnos[part.turno.id] = turnos[part.turno.id] + part.qty
+                        }
+                    })
+                }
+            })
+        })
+
+        avObj.giros = giros
+        const movs = Object.entries(turnos).reduce((accumulator, current) => {
+            return accumulator + current[1]
+        }, 0)
+        const nTurnos = Object.entries(turnos).length
+        avObj.promMovTurno = nTurnos === 0 ? 0 : movs/nTurnos
+        setAvances(avObj)
+    }
+
+    const handleChangeAvance = (value) => {
+        let f = new Date(value)
+        f.setDate(f.getDate() + 1);
+        setStatsAvances(moment(f), molino)
+    }
+
     const getTotalByTurno = (tasks) => {
         let parts = 0
         molino.stages.map(st => {
@@ -67,7 +111,7 @@ const Dashboard = () => {
     return (
         <div className='dashboard'>
             {isLoading ?
-                <Spin spinning={ true } size="large" />
+                <Spin size="large" />
                 :
                 <>
                     <Row className="block">
@@ -153,8 +197,8 @@ const Dashboard = () => {
                                 </Col>
                             </Row>
                         </Row>
-
-                        { molino &&
+                        { isLoadingMolino ? <Skeleton active />
+                        : molino &&
                             <>
                                 <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5, marginTop: 5}}>
                                     <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
@@ -267,6 +311,39 @@ const Dashboard = () => {
                                                 <Col span={12} style={{textAlign:'right'}}>{molino.status === 'FINISHED' ? moment(molino.finishDate).format('DD/MM/YYYY HH:mm') : 'En curso'}</Col>
                                             </Row>
                                         </div>
+                                    </Col>
+                                </Row>
+                                <Row style={{marginTop: 5}} gutter={[8,8]}>
+                                    <Col span={12}>
+                                        <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5}}>
+                                            <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
+                                                <Col span={12}>
+                                                    Avances al
+                                                </Col>
+                                                <Col span={12} style={{textAlign:'right'}}>
+                                                    <DatePicker size="small" defaultValue={fecha} format="DD/MM/YYYY" onChange={handleChangeAvance} />
+                                                </Col>
+                                            </Row>
+                                            <Row style={{padding:10}}>
+                                                <Col span={6}>
+                                                    <Statistic title="Prom Mov/Turno" value={avances.promMovTurno}/>
+                                                </Col>
+                                                <Col span={6}>
+                                                    <Statistic title="Prom Mov/Pieza" value={"N/A"}/>
+                                                </Col>
+                                                <Col span={6}>
+                                                    <Statistic title="Giros" value={avances.giros}/>
+                                                </Col>
+                                                <Col span={6}>
+                                                    <Statistic title="Retraso esperado" value={"N/A"}/>
+                                                </Col>
+                                            </Row>
+                                        </Row>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5}}>
+                                            
+                                        </Row>
                                     </Col>
                                 </Row>
                             </>
