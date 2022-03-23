@@ -40,6 +40,7 @@ public class AuthenticationService implements UserDetailsService {
     	if(user != null) {
         	GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_CLIENT");
             grantList.add(authority);
+            if(user.getType().equals(Usuario.Type.CONTROLLER)) timeout = 600;
     	}else {
             throw new UsernameNotFoundException("User " + username + " was not found in the database");
         }

@@ -112,7 +112,7 @@ const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
       {
         title: "Sección",
         dataIndex: "type",
-        width: "30%",
+        width: (mode === "view" || mode === "edit") ? "20%" : "30%",
         sorter: (a, b) => {
           if(a.type < b.type) return -1
           else if(a.type > b.type) return 1
@@ -122,7 +122,7 @@ const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
       {
         title: "Pieza",
         dataIndex: "name",
-        width: "30%",
+        width: (mode === "view" || mode === "edit") ? "25%" : "30%",
         sorter: (a, b) => {
           if(a.name < b.name) return -1
           else if(a.name > b.name) return 1
@@ -132,7 +132,7 @@ const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
       {
         title: "Cantidad",
         dataIndex: "qty",
-        width: "30%",
+        width: (mode === "view" || mode === "edit") ? "15%" : "30%",
         sorter: (a, b) => {
           return a.qty - b.qty
         },
@@ -159,6 +159,26 @@ const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
         }
       }
     ]
+    if(mode === "view" || mode === "edit") {
+      columns.push(
+        {
+          title: "Botadas",
+          dataIndex: "totalBotadas",
+          width: "15%",
+          sorter: (a, b) => {
+            return a.totalBotadas - b.totalBotadas
+          }
+        },
+        {
+          title: "Montadas",
+          dataIndex: "totalMontadas",
+          width: "15%",
+          sorter: (a, b) => {
+            return a.totalMontadas - b.totalMontadas
+          }
+        }
+      )
+    }
     if(mode === "new" || mode === "edit") {
       columns.push(
         {

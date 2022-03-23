@@ -86,7 +86,7 @@ const Dashboard = () => {
             return accumulator + current[1]
         }, 0)
         const nTurnos = Object.entries(turnos).length
-        avObj.promMovTurno = nTurnos === 0 ? 0 : movs/nTurnos
+        avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movs/nTurnos)
         setAvances(avObj)
     }
 
@@ -161,11 +161,11 @@ const Dashboard = () => {
                             </Col>
                             <Col span={8}>
                                 <Row className="indicator">
-                                    <Col span={16}>
+                                    <Col span={18}>
                                         <div>Ultimo cliente:</div>
                                         <div style={{fontWeight:'bold'}}>{molinos && molinos.length > 0 ? molinos[0].faena.client.name: 'N/A'}</div>
                                     </Col>
-                                    <Col span={8}>
+                                    <Col span={6} style={{textAlign:'center'}}>
                                         {molinos && molinos.length > 0 ? moment(molinos[0].creationDate).format('MMMM YYYY'): 'N/A'}
                                     </Col>
                                 </Row>
