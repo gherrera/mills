@@ -98,7 +98,6 @@ const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
   }
 
   const handlePressEnter = (index, value) => {
-    debugger
     validateFields(['qty-'+index]).then(p => {
       let ps = [...piezas]
       ps[index].qty = value
@@ -150,7 +149,7 @@ const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
                     }
                   ]
               })(
-                  <Input placeholder="Cantidad" onPressEnter={(e) => handlePressEnter(index, e.target.value)} />
+                  <Input placeholder="Cantidad" onPressEnter={(e) => handlePressEnter(index, e.target.value)} onBlur={(e) => handlePressEnter(index, e.target.value)} />
               )}
             </Form.Item>
           }else {
