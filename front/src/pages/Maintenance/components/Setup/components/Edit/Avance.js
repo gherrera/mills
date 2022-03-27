@@ -48,8 +48,8 @@ const Avance = ({molino, action }) => {
                 }
               </span>
 
-              <label>Duración total</label>
-              <span>{molino.hours}</span>
+              <label>Tiempo estimado</label>
+              <span>{molino.hours} horas</span>
             </Col>
         </Row>
         <Row className="indicators">
@@ -74,7 +74,7 @@ const Avance = ({molino, action }) => {
             </div>
         </Row>
         { molino.stages.map(stage =>
-          <AvanceFase stage={stage}/>
+          <AvanceFase stage={stage} molino={molino} />
         )}
     </div>
   )

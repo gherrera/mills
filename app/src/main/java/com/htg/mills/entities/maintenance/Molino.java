@@ -2,11 +2,14 @@ package com.htg.mills.entities.maintenance;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.htg.mills.entities.Entity;
 
@@ -311,6 +314,21 @@ public class Molino extends Entity {
 		this.createUser = createUser;
 	}
 
+	public float getRealDuration() {
+		float duration = 0;
+		if(stages != null && stages.size() >0) {
+			Timestamp finish = getFinishDate();
+			if(finish == null) {
+				Calendar c = Calendar.getInstance(TimeZone.getDefault());
+				Date date = c.getTime();
+				finish = new Timestamp(date.getTime());
+			}
+			long diff = finish.getTime() - stages.get(0).getCreationDate().getTime();
+			duration = (int)diff / 1000;
+		}
+		return duration;		
+	}
+	
 	public float getDuration() {
 		float duration = 0;
 		if(stages != null) {

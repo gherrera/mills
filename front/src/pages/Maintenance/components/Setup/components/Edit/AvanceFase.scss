@@ -5,6 +5,13 @@
                 padding-top: 10px;
                 border-radius: 3px;
 
+                .indicators {
+                    padding-top: 2px;
+                    .indicator {
+                        height: 30px;
+                    }
+                }
+
                 .title-stage {
                     background-color: rgba(250, 199, 16, .5);
                     padding: 5px;

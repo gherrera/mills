@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoon, faSun } from '@fortawesome/free-regular-svg-icons'
 
-const AvanceFase = ({stage}) => {
+const AvanceFase = ({molino, stage}) => {
     const { t } = useTranslation()
-    const [checked, setChecked] = useState(true)
+    const [checked, setChecked] = useState(stage.stage !== 'DELIVERY')
 
   useEffect(() => {
     
@@ -101,25 +101,51 @@ const AvanceFase = ({stage}) => {
           <Col span={6}>
             Fase {t('messages.mills.stage.'+stage.stage)}
           </Col>
-          <Col span={18} className="data-title">
-            <label>Inicio</label>
-            <span className="info datetime">{moment(stage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
+          { stage.stage === 'DELIVERY' ?
+            <Col span={18} className="data-title" style={{paddingRight:'600px'}}>
+              <label>Fecha</label>
+              <span className="info datetime">{moment(stage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
+            </Col>
+            :
+            <Col span={18} className="data-title">
+              <label>Inicio</label>
+              <span className="info datetime">{moment(stage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
 
-            <label>Fin</label>
-            <span className="info datetime">{stage.finishDate ? moment(stage.finishDate).format("DD/MM/YYYY HH:mm") : 'N/A'}</span>
+              <label>Fin</label>
+              <span className="info datetime">{stage.finishDate ? moment(stage.finishDate).format("DD/MM/YYYY HH:mm") : 'N/A'}</span>
 
-            <label>Duración total</label>
-            <span className="info duration">{secondsToHms(stage.duration)}</span>
+              <label>Duración total</label>
+              <span className="info duration">{secondsToHms(stage.duration)}</span>
 
-            <label>Interrupciones</label>
-            <span className="info interruption">{stage.events.length}</span>
+              <label>Duración real</label>
+              <span className="info duration">{secondsToHms(stage.realDuration)}</span>
 
-            { stage.stage !== 'DELIVERY' &&
-              <Switch size="small" defaultChecked={checked} onChange={onChangeSwitch}/>
-            }
-          </Col>
+              <label>Interrupciones</label>
+              <span className="info interruption">{stage.events.length}</span>
+
+              { stage.stage !== 'DELIVERY' &&
+                <Switch size="small" defaultChecked={checked} onChange={onChangeSwitch}/>
+              }
+            </Col>
+          }
         </Row>
-        { checked && stage.stage !== 'DELIVERY' &&
+        { stage.stage === 'EXECUTION' &&
+          <Row className="indicators">
+            <div className="indicator">
+              Piezas botadas: {molino.totalBotadas}
+            </div>
+            <div className="indicator">
+              Piezas montadas: {molino.totalMontadas}
+            </div>
+            <div className="indicator">
+              Giros: {molino.giros}
+            </div>
+            <div className="indicator">
+
+            </div>
+          </Row>
+        }
+        { checked &&
           <Row className="data-table">
             <Table dataSource={stage.tasks} columns={getColumnsStage()} size="small" pagination={false} rowClassName={(record, index) => 'row-task-'+record.task} />
           </Row>

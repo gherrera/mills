@@ -163,6 +163,18 @@ public class Etapa extends Entity {
 		return false;
 	}
 	
+	public float getRealDuration() {
+		Timestamp finish = getFinishDate();
+		if(finish == null) {
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			finish = new Timestamp(date.getTime());
+		}
+		long diff = finish.getTime() - getCreationDate().getTime();
+		int min = (int)diff / 1000;
+		return min;
+	}
+	
 	public float getDuration() {
 		float duration = 0;
 		if(tasks != null) {
