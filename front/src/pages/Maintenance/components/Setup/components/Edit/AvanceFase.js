@@ -102,7 +102,7 @@ const AvanceFase = ({molino, stage}) => {
             Fase {t('messages.mills.stage.'+stage.stage)}
           </Col>
           { stage.stage === 'DELIVERY' ?
-            <Col span={18} className="data-title" style={{paddingRight:'600px'}}>
+            <Col span={18} className="data-title" style={{paddingRight:'795px'}}>
               <label>Fecha</label>
               <span className="info datetime">{moment(stage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
             </Col>
@@ -115,10 +115,10 @@ const AvanceFase = ({molino, stage}) => {
               <span className="info datetime">{stage.finishDate ? moment(stage.finishDate).format("DD/MM/YYYY HH:mm") : 'N/A'}</span>
 
               <label>Duración total</label>
-              <span className="info duration">{secondsToHms(stage.duration)}</span>
+              <span className="info duration">{secondsToHms(stage.realDuration)}</span>
 
               <label>Duración real</label>
-              <span className="info duration">{secondsToHms(stage.realDuration)}</span>
+              <span className="info duration">{secondsToHms(stage.duration)}</span>
 
               <label>Interrupciones</label>
               <span className="info interruption">{stage.events.length}</span>
@@ -132,16 +132,19 @@ const AvanceFase = ({molino, stage}) => {
         { stage.stage === 'EXECUTION' &&
           <Row className="indicators">
             <div className="indicator">
-              Piezas botadas: {molino.totalBotadas}
+              <div className="content-indicator">
+                Piezas botadas: {molino.totalBotadas}
+              </div>
             </div>
             <div className="indicator">
-              Piezas montadas: {molino.totalMontadas}
+              <div className="content-indicator">
+                Piezas montadas: {molino.totalMontadas}
+              </div>
             </div>
             <div className="indicator">
-              Giros: {molino.giros}
-            </div>
-            <div className="indicator">
-
+              <div className="content-indicator">
+                Giros: {molino.giros}
+              </div>
             </div>
           </Row>
         }

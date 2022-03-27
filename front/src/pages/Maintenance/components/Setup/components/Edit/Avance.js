@@ -48,29 +48,37 @@ const Avance = ({molino, action }) => {
                 }
               </span>
 
-              <label>Tiempo estimado</label>
-              <span>{molino.hours} horas</span>
+              <label>Tiempo total</label>
+              <span>{secondsToHms(molino.realDuration)}</span>
             </Col>
         </Row>
         <Row className="indicators">
             <div className="indicator">
-                <div>Total de piezas</div>
-                {molino.piezas} piezas
+                <div className="content-indicator">
+                  <div>Total de piezas</div>
+                  {molino.piezas} piezas
+                </div>
             </div>
             <div className="indicator">
-              <div>Avance en horas</div>
+              <div className="content-indicator">
+                <div>Avance en horas</div>
                 {secondsToHms(molino.duration)} horas
+              </div>
             </div>
             <div className="indicator">
-              <div>Piezas en movimiento</div>
+              <div className="content-indicator">
+                <div>Piezas en movimiento</div>
                 {molino.totalMontadas}/{molino.piezas}
+              </div>
             </div>
             <div className="indicator">
-              <div>Estimación horas faltantes</div>
+              <div className="content-indicator">
+                <div>Estimación horas faltantes</div>
                 { molino.totalMontadas > 0 ? secondsToHms(molino.duration*molino.piezas/molino.totalMontadas - molino.duration)
                 :
                   'N/A'
                 }
+              </div>
             </div>
         </Row>
         { molino.stages.map(stage =>
