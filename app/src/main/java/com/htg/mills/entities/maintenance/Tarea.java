@@ -87,14 +87,29 @@ public class Tarea extends Entity {
 	}
 	
 	public int getDuration() {
+		int seg = 0;
+		
 		Timestamp finish = finishDate;
 		if(finish == null) {
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
 			finish = new Timestamp(date.getTime());
 		}
-		long diff = finish.getTime() - getCreationDate().getTime();
-		int min = (int)diff / 1000;
-		return min;
+		if(turnoFinish != null && turnoStart != null && !turnoStart.getId().equals(turnoFinish.getId())) {
+			if(turnoStart.getClosedDate() != null && turnoStart.getClosedDate().before(finish)) {
+				finish = turnoStart.getClosedDate();
+				
+				long diff = finish.getTime() - getCreationDate().getTime();
+				seg += (int)diff / 1000;
+			}
+			if(turnoFinish.getCreationDate() != null && turnoStart.getCreationDate().before(finish)) {
+				long diff = finish.getTime() - turnoFinish.getCreationDate().getTime();
+				seg += (int)diff / 1000;
+			}
+		}else { // Hay cambio de turno
+			long diff = finish.getTime() - getCreationDate().getTime();
+			seg = (int)diff / 1000;
+		}
+		return seg;
 	}
 }
