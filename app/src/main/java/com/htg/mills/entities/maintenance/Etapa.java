@@ -180,6 +180,8 @@ public class Etapa extends Entity {
 		if(tasks != null) {
 			Tarea last = null;
 			for(Tarea t : tasks) {
+				duration += t.getDuration();
+				/*
 				if(last == null) duration += t.getDuration();
 				else if(last.getFinishDate() != null) {
 					int comp = t.getCreationDate().compareTo(last.getFinishDate());
@@ -199,6 +201,7 @@ public class Etapa extends Entity {
 					}
 				}
 				last = t;
+				*/
 			}
 		}
 		return duration;
