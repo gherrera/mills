@@ -307,7 +307,7 @@ const Setup = ({currentUser, action, history}) => {
         <Row className="edit-faena">
           <div className="tools-area">
               <span className="title">Faena Nro. {faenaSel.nro}</span>
-              <span className="createAt">Creada en Fecha: {moment(faena.creationDate).format('DD/MM/YYYY')}</span>
+              <span className="createAt">Creada en Fecha: {moment(faenaSel.creationDate).format('DD/MM/YYYY')}</span>
               <Button icon="close" onClick={() => setIsModalVisibleEdit(false)} size="small"/>
           </div>
           <Edit molino={faenaSel} action={action} loadMolinos={loadMolinos} />
