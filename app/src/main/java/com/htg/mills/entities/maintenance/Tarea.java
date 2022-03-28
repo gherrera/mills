@@ -97,12 +97,12 @@ public class Tarea extends Entity {
 		}
 		if(turnoFinish != null && turnoStart != null && !turnoStart.getId().equals(turnoFinish.getId())) {
 			if(turnoStart.getClosedDate() != null && turnoStart.getClosedDate().before(finish)) {
-				finish = turnoStart.getClosedDate();
+				Timestamp finish1 = turnoStart.getClosedDate();
 				
-				long diff = finish.getTime() - getCreationDate().getTime();
+				long diff = finish1.getTime() - getCreationDate().getTime();
 				seg += (int)diff / 1000;
 			}
-			if(turnoFinish.getCreationDate() != null && turnoStart.getCreationDate().before(finish)) {
+			if(turnoFinish.getCreationDate() != null && turnoFinish.getCreationDate().before(finish)) {
 				long diff = finish.getTime() - turnoFinish.getCreationDate().getTime();
 				seg += (int)diff / 1000;
 			}
