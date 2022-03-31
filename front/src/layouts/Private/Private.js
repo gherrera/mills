@@ -11,8 +11,6 @@ class LayoutPrivate extends Component {
   }
 
   async componentDidMount() {
-    const { currentUser } = this.props
-
     //await ReactGA.initialize('UA-156566165-1')
 
     //if (currentUser.cliente.abreviado !== 'demostraciones' && currentUser.cliente.abreviado !== 'demo') {

@@ -16,9 +16,17 @@ class Maintenance extends Component {
       return [
         { title: 'Setup', icon: 'appstore'},
       ]
-    }else if(match.params.action === 'PENDING' || match.params.action === 'STARTED' || match.params.action === 'FINISHED'){
+    }else if(match.params.action === 'PENDING') {
       return [
-        { title: 'Proyectos', icon: 'appstore' },
+        { title: 'Proyectos Pendientes', icon: 'appstore' },
+      ]
+    }else if(match.params.action === 'STARTED') {
+      return [
+        { title: 'Proyectos En curso', icon: 'appstore' },
+      ]
+    }else if(match.params.action === 'FINISHED'){
+      return [
+        { title: 'Proyectos Realizados', icon: 'appstore' },
       ]
     }else {
       return [
@@ -28,7 +36,6 @@ class Maintenance extends Component {
   }
 
   componentDidMount() {
-    const { match } = this.props
     const breadcrumbs = this.getBreadcrumbs()
     this.setState({
       breadcrumbs

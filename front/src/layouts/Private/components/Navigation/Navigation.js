@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Icon, Menu, Dropdown, Button } from 'antd'
 
-export default ({ currentUser, currentPage }) => {
+export default ({ currentPage }) => {
   const { t } = useTranslation()
 
   const dropdownMenu = (
@@ -43,7 +43,12 @@ export default ({ currentUser, currentPage }) => {
         <Menu.Item id="projects">
           <Dropdown overlay={ dropdownMenu } overlayClassName="overlay-menu-projects" className="menu-projects">
             <Button ghost>
-              Proyectos <Icon type="caret-down"/>
+              { currentPage === 'maintenance-PENDING' ? 'Pendientes'
+                : currentPage === 'maintenance-STARTED' ? 'En curso'
+                : currentPage === 'maintenance-FINISHED' ? 'Realizados'
+                : 'Proyectos'
+              }
+              <Icon type="caret-down"/>
             </Button>
           </Dropdown>
         </Menu.Item>

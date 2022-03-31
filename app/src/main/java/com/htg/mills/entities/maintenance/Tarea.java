@@ -1,9 +1,13 @@
 package com.htg.mills.entities.maintenance;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import com.htg.mills.entities.Entity;
@@ -111,5 +115,23 @@ public class Tarea extends Entity {
 			seg = (int)diff / 1000;
 		}
 		return seg;
+	}
+	
+	public List<Parte> getPartsByType() {
+		Map<String, Parte> parts = new HashMap<String, Parte>();
+		if(this.parts != null) {
+			for(TareaParte part : this.parts) {
+				if(part.getPart() != null) {
+					Parte p = parts.get(part.getPart().getId());
+					if(p == null) {
+						p = part.getPart();
+						parts.put(part.getPart().getId(), p);
+					}else {
+						p.setQty(p.getQty() + part.getPart().getQty());
+					}
+				}
+			}
+		}
+		return new ArrayList<>(parts.values());
 	}
 }

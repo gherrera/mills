@@ -98,16 +98,16 @@ const AvanceFase = ({molino, stage}) => {
   return (
     <div className="stage">
         <Row className="title-stage">
-          <Col span={6}>
+          <Col span={3}>
             Fase {t('messages.mills.stage.'+stage.stage)}
           </Col>
           { stage.stage === 'DELIVERY' ?
-            <Col span={18} className="data-title" style={{paddingRight:'795px'}}>
+            <Col span={21} className="data-title" style={{paddingRight:'777px'}}>
               <label>Fecha</label>
               <span className="info datetime">{moment(stage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
             </Col>
             :
-            <Col span={18} className="data-title">
+            <Col span={21} className="data-title">
               <label>Inicio</label>
               <span className="info datetime">{moment(stage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
 

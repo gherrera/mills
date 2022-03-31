@@ -160,7 +160,7 @@ const Dashboard = () => {
                                 </Row>
                             </Col>
                             <Col span={8}>
-                                <Row className="indicator">
+                                <Row className="indicator" style={{padding: 5}}>
                                     <Col span={18}>
                                         <div>Ultimo cliente:</div>
                                         <div style={{fontWeight:'bold'}}>{molinos && molinos.length > 0 ? molinos[0].faena.client.name: 'N/A'}</div>
@@ -200,7 +200,7 @@ const Dashboard = () => {
                         { isLoadingMolino ? <Skeleton active />
                         : molino &&
                             <>
-                                <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5, marginTop: 5}}>
+                                <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, marginTop: 5}}>
                                     <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
                                         Faena
                                     </Row>
@@ -231,9 +231,9 @@ const Dashboard = () => {
                                         </Col>
                                     </Row>
                                 </Row>
-                                <Row style={{marginTop: 5}} gutter={[8,8]}>
+                                <Row style={{marginTop: 4}} gutter={[8,8]} type="flex">
                                     <Col span={18}>
-                                        <div style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5, height: '150px'}}>
+                                        <div style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5, height: '100%'}}>
                                             <Row gutter={[6,6]}>
                                                 <Col span={3}>
                                                     <div className="turno-header">Turno</div>
@@ -289,33 +289,33 @@ const Dashboard = () => {
                                         </div>
                                     </Col>
                                     <Col span={6}>
-                                        <div style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5, height: '150px'}}>
-                                            <Row style={{padding: 4}}>
-                                                <Col span={12}>Nro. piezas a montar</Col>
-                                                <Col span={12} style={{textAlign:'right'}}>{molino.piezas}</Col>
+                                        <div style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
+                                            <Row style={{padding: 3}}>
+                                                <Col span={20}>Nro. piezas a montar</Col>
+                                                <Col span={4} style={{textAlign:'right'}}>{molino.piezas}</Col>
                                             </Row>
-                                            <Row style={{padding: 4}}>
-                                                <Col span={12}>Equipo de Trabajo</Col>
-                                                <Col span={12} style={{textAlign:'right'}}>{molino.turns.length}</Col>
+                                            <Row style={{padding: 3}}>
+                                                <Col span={20}>Equipo de Trabajo</Col>
+                                                <Col span={4} style={{textAlign:'right'}}>{molino.turns.length}</Col>
                                             </Row>
-                                            <Row style={{padding: 4}}>
-                                                <Col span={12}>Total de operarios p/turno</Col>
-                                                <Col span={12} style={{textAlign:'right'}}>{molino.turns.reduce((acum, current) => acum + current.personas.length, 0)}</Col>
+                                            <Row style={{padding: 3}}>
+                                                <Col span={20}>Total operarios p/turno</Col>
+                                                <Col span={4} style={{textAlign:'right'}}>{molino.turns.reduce((acum, current) => acum + current.personas.length, 0)}</Col>
                                             </Row>
-                                            <Row style={{padding: 4}}>
-                                                <Col span={12}>Inicio</Col>
-                                                <Col span={12} style={{textAlign:'right'}}>{moment(molino.startDate).format('DD/MM/YYYY HH:mm')}</Col>
+                                            <Row style={{padding: 3}}>
+                                                <Col span={8}>Inicio</Col>
+                                                <Col span={16} style={{textAlign:'right'}}>{moment(molino.startDate).format('DD/MM/YYYY HH:mm')}</Col>
                                             </Row>
-                                            <Row style={{padding: 4}}>
-                                                <Col span={12}>Fin real</Col>
-                                                <Col span={12} style={{textAlign:'right'}}>{molino.status === 'FINISHED' ? moment(molino.finishDate).format('DD/MM/YYYY HH:mm') : 'En curso'}</Col>
+                                            <Row style={{padding: 3}}>
+                                                <Col span={8}>Fin real</Col>
+                                                <Col span={16} style={{textAlign:'right'}}>{molino.status === 'FINISHED' ? moment(molino.finishDate).format('DD/MM/YYYY HH:mm') : 'En curso'}</Col>
                                             </Row>
                                         </div>
                                     </Col>
                                 </Row>
-                                <Row style={{marginTop: 5}} gutter={[8,8]}>
+                                <Row style={{marginTop: 4}} gutter={[8,8]} type="flex">
                                     <Col span={12}>
-                                        <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5}}>
+                                        <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
                                                 <Col span={12}>
                                                     Avances al
@@ -341,7 +341,7 @@ const Dashboard = () => {
                                         </Row>
                                     </Col>
                                     <Col span={12}>
-                                        <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5}}>
+                                        <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             
                                         </Row>
                                     </Col>
