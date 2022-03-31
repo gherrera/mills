@@ -125,10 +125,10 @@ public class Tarea extends Entity {
 					Parte p = parts.get(part.getPart().getId());
 					if(p == null) {
 						p = part.getPart();
+						p.setQty(0);
 						parts.put(part.getPart().getId(), p);
-					}else {
-						p.setQty(p.getQty() + part.getPart().getQty());
 					}
+					p.setQty(p.getQty() + part.getQty());
 				}
 			}
 		}
