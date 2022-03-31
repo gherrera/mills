@@ -2,8 +2,9 @@ package com.htg.mills.entities.maintenance;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -132,6 +133,13 @@ public class Tarea extends Entity {
 				}
 			}
 		}
-		return new ArrayList<>(parts.values());
+		List<Parte> ps = new ArrayList<Parte>(parts.values());
+		Collections.sort(ps, new Comparator<Parte>() {
+			@Override
+			public int compare(Parte p1, Parte p2) {
+				return p1.getType().compareTo(p2.getType());
+			}
+		});
+		return ps;
 	}
 }

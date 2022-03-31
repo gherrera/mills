@@ -1,6 +1,6 @@
 import './AvanceFase.scss'
 import React, { useEffect, useState } from 'react'
-import { Row, Col, Switch, Table } from 'antd'
+import { Row, Col, Switch, Table, Modal, Button, Spin } from 'antd'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -9,6 +9,7 @@ import { faMoon, faSun } from '@fortawesome/free-regular-svg-icons'
 const AvanceFase = ({molino, stage}) => {
     const { t } = useTranslation()
     const [checked, setChecked] = useState(stage.stage !== 'DELIVERY')
+    const [ detailParts, setDetailParts ] = useState(null)
 
   useEffect(() => {
     
@@ -50,7 +51,14 @@ const AvanceFase = ({molino, stage}) => {
           title: 'Piezas',
           dataIndex: 'parts',
           width: '10%',
-          render: (text, record) => text && record.task !== 'GIRO' && text.length
+          render: (parts, record) => 
+            parts ?
+              record.task !== 'GIRO' && 
+              <a onClick={() => {
+                setDetailParts(record.partsByType)
+              }}>{parts.length}</a>
+            :
+            <Spin size="small" />
         }
       )
     }
@@ -93,6 +101,28 @@ const AvanceFase = ({molino, stage}) => {
       }
     )
     return columns
+  }
+
+  const columnsParts = [
+    { 
+      title: 'Sección',
+      dataIndex: 'type',
+      with: '25%'
+    },
+    { 
+      title: 'Pieza',
+      dataIndex: 'name',
+      with: '55%'
+    },
+    { 
+      title: 'Cantidad',
+      dataIndex: 'qty',
+      with: '20%'
+    }
+  ]
+
+  const onCancelModal = () => {
+    setDetailParts(null)
   }
 
   return (
@@ -152,6 +182,23 @@ const AvanceFase = ({molino, stage}) => {
           <Row className="data-table">
             <Table dataSource={stage.tasks} columns={getColumnsStage()} size="small" pagination={false} rowClassName={(record, index) => 'row-task-'+record.task} />
           </Row>
+        }
+
+        { detailParts &&
+          <Modal
+            title="Detalle de piezas"
+            visible={true}
+            width={700}
+            onCancel={onCancelModal}
+            footer={ [
+              <Button onClick={onCancelModal}>
+                Cerrar
+              </Button>
+            ]}
+          >
+              <Table dataSource={detailParts} columns={columnsParts} size="small" pagination={false}/>
+
+          </Modal>
         }
     </div>
   )
