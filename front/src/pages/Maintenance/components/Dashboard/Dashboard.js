@@ -118,7 +118,17 @@ const Dashboard = () => {
                         <Row className="title">
                             Resumen total de Proyectos
                         </Row>
-                        <Row className="indicators" gutter={[8,8]}>
+                        <Row className="indicators" gutter={[8,8]} type="flex">
+                            <Col span={4}>
+                                <Row className="indicator">
+                                    <Col span={8} className="number">
+                                        { clientes.length }
+                                    </Col>
+                                    <Col span={16}>
+                                        Clientes
+                                    </Col>
+                                </Row>
+                            </Col>
                             <Col span={4}>
                                 <Row className="indicator">
                                     <Col span={8} className="number">
@@ -149,24 +159,16 @@ const Dashboard = () => {
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col span={4}>
-                                <Row className="indicator">
-                                    <Col span={8} className="number">
-                                        
-                                    </Col>
-                                    <Col span={16}>
-                                        
-                                    </Col>
-                                </Row>
-                            </Col>
                             <Col span={8}>
-                                <Row className="indicator" style={{padding: 5}}>
-                                    <Col span={18}>
+                                <Row className="indicator">
+                                    <Col span={12}>
                                         <div>Ultimo cliente:</div>
-                                        <div style={{fontWeight:'bold'}}>{molinos && molinos.length > 0 ? molinos[0].faena.client.name: 'N/A'}</div>
                                     </Col>
-                                    <Col span={6} style={{textAlign:'center'}}>
+                                    <Col span={12} style={{textAlign:'right'}}>
                                         {molinos && molinos.length > 0 ? moment(molinos[0].creationDate).format('MMMM YYYY'): 'N/A'}
+                                    </Col>
+                                    <Col span={24} style={{whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis'}}>
+                                        <div style={{fontWeight:'bold'}}>{molinos && molinos.length > 0 ? molinos[0].faena.client.name: 'N/A'}</div>
                                     </Col>
                                 </Row>
                             </Col>

@@ -19,8 +19,8 @@ const Faena = ({form, molino, action, readOnly, initFormFaena, mode }) => {
 
   const formItemLayout1 =
     {
-        labelCol: { span: 9 },
-        wrapperCol: { span: 15 },
+        labelCol: { span: 12 },
+        wrapperCol: { span: 12 },
     }
 
   const changeField = () => {
@@ -73,7 +73,7 @@ const Faena = ({form, molino, action, readOnly, initFormFaena, mode }) => {
                     </Form.Item>
                 </Col>
                 <Col span={8}>
-                    <Form.Item label="Tiempo estimado (horas)" {...formItemLayout}>
+                    <Form.Item label="Tiempo estimado" {...formItemLayout}>
                         { getFieldDecorator('hours', {
                             initialValue: molino.hours,
                             rules: [{
@@ -114,6 +114,19 @@ const Faena = ({form, molino, action, readOnly, initFormFaena, mode }) => {
                                 ]
                             })(
                                 <Input placeholder="Nombre de equipo" readOnly={readOnly} onChange={changeField} />
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="Tiempo ejecución" {...formItemLayout}>
+                            { getFieldDecorator('exHours', {
+                                initialValue: molino.exHours,
+                                rules: [{
+                                    required: !readOnly,
+                                    message: 'Ingrese Estimado de tiempo de ejecución (horas)'
+                                }]
+                            })(
+                                <Input placeholder="Estimado de tiempo de ejecución (horas)" readOnly={readOnly} onChange={changeField} />
                             )}
                         </Form.Item>
                     </Col>

@@ -37,6 +37,7 @@ public class Molino extends Entity {
 	private List<Parte> parts;
 	private Faena faena;
 	private Integer hours;
+	private Integer exHours;
 	private String ordenTrabajo;
 	private Timestamp updateDate;
 	private String updateUser;
@@ -362,5 +363,13 @@ public class Molino extends Entity {
 		});
 		
 		return turnos;
+	}
+
+	public Integer getExHours() {
+		return exHours;
+	}
+
+	public void setExHours(Integer exHours) {
+		this.exHours = exHours;
 	}
 }

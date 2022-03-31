@@ -64,6 +64,7 @@
 		<result property="statusAdmin" column="estado_admin"/>
 		<result property="stage" column="etapa"/>
 		<result property="hours" column="horas"/>
+		<result property="exHours" column="horas_ejec"/>
 		<result property="ordenTrabajo" column="orden_trabajo"/>
 		<result property="updateDate" column="fec_act"/>
 		<result property="updateUser" column="user_act"/>
@@ -289,13 +290,13 @@
 	</select>
 	
 	<select id="getMolinoById" resultMap="Molino">
-		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, orden_trabajo, faena_id, fec_act, user_act, create_user, fecha_termino
+		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, horas_ejec, orden_trabajo, faena_id, fec_act, user_act, create_user, fecha_termino
 		from molinos
 		where id = #value#
 	</select>
 	
 	<select id="getMolinos" resultMap="Molino">
-		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, orden_trabajo, faena_id, fec_act, user_act, create_user, fecha_termino
+		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, horas_ejec, orden_trabajo, faena_id, fec_act, user_act, create_user, fecha_termino
 		from molinos
 		<isNotNull property="status">
 			<isEqual property="status" compareValue="PENDING">
@@ -485,8 +486,8 @@
 	</insert>
 	
 	<insert id="insertMolino">
-		insert into molinos(id, fec_creacion, nombre, tipo, estado_admin, faena_id, horas, orden_trabajo, create_user)
-			values(#id#, #creationDate#, #name#, #type#, #statusAdmin#, #faena.id#, #hours#, #ordenTrabajo#, #createUser#)
+		insert into molinos(id, fec_creacion, nombre, tipo, estado_admin, faena_id, horas, horas_ejec, orden_trabajo, create_user)
+			values(#id#, #creationDate#, #name#, #type#, #statusAdmin#, #faena.id#, #hours#, #exHours#, #ordenTrabajo#, #createUser#)
 	</insert>
 	
 	<insert id="insertParte">
@@ -530,6 +531,7 @@
 				set nombre = #name#,
 				tipo = #type#, 
 				horas = #hours#, 
+				horas_ejec = #exHours#, 
 				orden_trabajo = #ordenTrabajo#
 		where id = #id#
 	</update>

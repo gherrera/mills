@@ -33,7 +33,7 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
   }
 
   const nextStepLocal = () => {
-    validateFields(['faena','name','type','hours','ordenTrabajo']).then((f) => {
+    validateFields(['faena','name','type','hours','exHours','ordenTrabajo']).then((f) => {
         nextStep({...f, id: faenaId})
     })
   }
@@ -168,7 +168,7 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                         )}
                     </Form.Item>
                 </Col>
-                <Col span={8}>
+                <Col span={4}>
                     <Form.Item >
                         { getFieldDecorator('hours', {
                             initialValue: faena.hours,
@@ -183,6 +183,25 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                         })(
                             <Input
                                 placeholder="Estimado de tiempo de trabajo (horas)"
+                            />
+                        )}
+                    </Form.Item>
+                </Col>
+                <Col span={4}>
+                    <Form.Item >
+                        { getFieldDecorator('exHours', {
+                            initialValue: faena.exHours,
+                            rules: [{
+                                    required: true,
+                                    message: 'Ingrese Estimado de tiempo de ejecución (horas)'
+                                },
+                                {
+                                    validator: (rule, value, callback) => getValidator(rule, value, callback, {type: 'number', decimals: 0})
+                                }
+                            ]
+                        })(
+                            <Input
+                                placeholder="Estimado de tiempo de ejecución (horas)"
                             />
                         )}
                     </Form.Item>

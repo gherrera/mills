@@ -206,6 +206,7 @@ public class App {
 				usuario.setId(null);
 				newUser=true;
 			}
+			/*
 			if(usuario.getId() != null && !usuario.getId().isEmpty()) {
 				Usuario u = getUserById(usuario.getId());
 				if(u.getType().equals(Usuario.Type.ADMIN) && !u.getType().equals(usuario.getType())){
@@ -215,7 +216,9 @@ public class App {
 				}
 			}else if(usuario.getType().equals(Usuario.Type.ADMIN)) {
 				throw new HTGException("No permitido");
-			}else {
+			}else {*/
+			
+			if(usuario.getId() == null || usuario.getId().isEmpty()) {
 				usuario.setId(UUID.randomUUID().toString());
 				Calendar c = Calendar.getInstance(TimeZone.getDefault());
 				Date date = c.getTime();

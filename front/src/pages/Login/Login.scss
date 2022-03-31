@@ -4,10 +4,11 @@ body {
 .login-page {
     padding-top: 120px;
     height: 100vh;
-    background-color: rgba(0,0,0,.4);
+    //background-color: rgba(0,0,0,.4);
+    background-color:rgba(0,0,0,.9);
     a {
             color: #fff;
-          }
+    }
 
 /* III.- TERCER BLOQUE - INICIO DE SESIÓN */      
     .tercerBloque {
@@ -38,7 +39,7 @@ body {
         margin: auto;
         width: 600px;
         border-radius: 5px;
-        background-color:rgba(0,0,0,.7);
+        //background-color:rgba(0,0,0,.7);
         padding: 10px;
 
         .row-image {

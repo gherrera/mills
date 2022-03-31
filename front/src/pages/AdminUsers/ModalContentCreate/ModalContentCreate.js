@@ -90,7 +90,8 @@ class ModalContentCreate extends React.Component {
     const { t, currentUser, modalType } = this.props
     let options = []
 
-    if(modalType !== 'create') options.push( <Select.Option value="ADMIN">Administrador</Select.Option>)
+    //if(modalType !== 'create') 
+    options.push( <Select.Option value="ADMIN">Administrador</Select.Option>)
     options.push( <Select.Option value="CONTROLLER">Controlador</Select.Option>)
 
     return options
@@ -169,7 +170,7 @@ class ModalContentCreate extends React.Component {
                     }
                     onChange={(value) => this.handleOnChangeType(value)}
                     value={this.state.type}
-                    disabled={modalType === 'view' || this.state.type === 'ADMIN'}
+                    disabled={modalType === 'view' || (this.state.type === 'ADMIN' && this.state.login === 'admin')}
                   >
                       {
                         this.getOptionsUsers()

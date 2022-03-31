@@ -34,6 +34,12 @@ export default ({ currentPage }) => {
       mode="horizontal"
       >
       { currentPage.startsWith('maintenance') &&
+          <Menu.Item id="dashboard">
+              Dashboard
+              <Link to={ '/maintenance' } />
+          </Menu.Item>
+      }
+      { currentPage.startsWith('maintenance') &&
           <Menu.Item id="setup">
               Setup
               <Link to={ '/maintenance/setup' } />

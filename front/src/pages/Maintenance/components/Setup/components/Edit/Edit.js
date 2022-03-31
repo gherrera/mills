@@ -74,6 +74,7 @@ const Edit = ({molino, action, loadMolinos }) => {
         molinoObj.type = fa.type
         molinoObj.name = fa.name
         molinoObj.hours = fa.hours
+        molinoObj.exHours = fa.exHours
       }
     }
     if(personal) {

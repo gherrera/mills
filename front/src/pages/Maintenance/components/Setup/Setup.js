@@ -145,7 +145,7 @@ const Setup = ({currentUser, action, history}) => {
     }else if(action === 'STARTED' || action === 'PENDING' || action === 'FINISHED') {
       columns.push(
         { 
-            title: "Planificacion",
+            title: "Planificación",
             dataIndex: "hours",
             sorter: (a, b) => {
               if(a.hours < b.hours) return -1
@@ -236,7 +236,7 @@ const Setup = ({currentUser, action, history}) => {
 
   const saveFaena = (p) => {
     setPersonal(p)
-    let faenaObj = { name: faena.name, type: faena.type, ordenTrabajo: faena.ordenTrabajo, hours: faena.hours, faena: {id: faena.id, name: faena.faena, client} }
+    let faenaObj = { name: faena.name, type: faena.type, ordenTrabajo: faena.ordenTrabajo, hours: faena.hours, exHours: faena.exHours, faena: {id: faena.id, name: faena.faena, client} }
 
     faenaObj.parts = piezas
     let uniqTurnos = [...new Set(p.map(item => item.turno))];
