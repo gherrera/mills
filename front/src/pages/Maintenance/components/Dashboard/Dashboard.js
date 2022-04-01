@@ -67,8 +67,6 @@ const Dashboard = () => {
 
         let giros = 0
         let turnos = {}
-        let tasks = []
-        let movimientos = 0
         pMolino.stages && pMolino.stages.map(s => {
             s.stage === 'EXECUTION' && s.tasks && s.tasks.map(task => {
                 if(task.task === 'GIRO' || task.task === 'BOTADO' || task.task === 'MONTAJE') {
@@ -77,23 +75,30 @@ const Dashboard = () => {
                         if(fec.isBefore(pFecha)) giros++
                     }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
                         task.parts && task.parts.map(part => {
-                            let fec = moment(part.creationDate)
-                            if(fec.isBefore(pFecha)) movimientos += part.qty
+                            let fecParte = moment(part.creationDate)
 
+                            let fec
+                            let fecIni = part.turno.creationDate
+                            if(fecIni < s.creationDate) fecIni = s.creationDate
+
+                            let fecFin = f.getTime()
                             if(part.turno.closedDate) {
-                                let fec = moment(part.turno.closedDate)
-                                if(fec.isBefore(pFecha)) {
-                                    if(!turnos[part.turno.id]) turnos[part.turno.id] = {qty : 0, duration: (part.turno.closedDate - part.turno.creationDate)/1000}
-                                    turnos[part.turno.id].qty = turnos[part.turno.id].qty + part.qty
+                                fec = moment(part.turno.closedDate)
+                                fecFin = part.turno.closedDate
+                                if(!fec.isBefore(pFecha)) {
+                                    fec = moment(part.turno.creationDate)
+                                    if(fec.isBefore(pFecha)) {
+                                        fecFin = f.getTime()
+                                    }
                                 }
+                            }else {
+                                fec = moment(part.turno.creationDate)
+                            }
+                            if(fec.isBefore(pFecha)) {
+                                if(!turnos[part.turno.id]) turnos[part.turno.id] = {qty : 0, duration: (fecFin - fecIni)/1000}
+                                if(fecParte.isBefore(pFecha)) turnos[part.turno.id].qty = turnos[part.turno.id].qty + part.qty
                             }
                         })
-                    }
-                    if(task.finishDate) {
-                        let fec = moment(task.finishDate)
-                        if(fec.isBefore(pFecha)) {
-                            tasks.push(task)
-                        }
                     }
                 }
             })
@@ -107,25 +112,16 @@ const Dashboard = () => {
             return accumulator + current[1].duration
         }, 0)
         const nTurnos = Object.entries(turnos).length
-        const duration = tasks.reduce((accumulator, current) => {
-            return accumulator + current.duration
-        }, 0)
-        let piezas = 0
-        tasks.map(t => {
-            t.parts.map(p => {
-                piezas += p.qty
-            })
-        })
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movs/nTurnos)
-        avObj.promMinPieza = tasks.length === 0 || piezas === 0 ? 'N/A' : (duration / 60 / (piezas / 2)).toFixed(1)
-        avObj.avance = Math.round(movimientos / (pMolino.piezas * 2) * 100) + '%'
+        avObj.promMinPieza = (durationTurnos / 60 / (movs / 2)).toFixed(1)
+        avObj.avance = Math.round(movs / (pMolino.piezas * 2) * 100) + '%'
 
         const tpo = durationTurnos / (pMolino.exHours * 3600)
         const segPiezaMeta = pMolino.exHours * 3600 / (pMolino.piezas * 2)
         const segPiezaReal = durationTurnos / movs
         avObj.inTime = segPiezaReal <= segPiezaMeta
 
-        avObj.movimientosReal = movimientos
+        avObj.movimientosReal = movs
         avObj.movimientosProg = Math.round(tpo * pMolino.piezas * 2)
         setAvances(avObj)
     }
