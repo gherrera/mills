@@ -9,6 +9,17 @@
       div.module {
         height: 170px;
         padding: 10px;
+
+        .anticon {
+          position: absolute;
+          left: 0px;
+          right: 0px;
+          line-height: 40px;
+          height: 0px;
+          font-size: 30px;
+          padding-top: 15px;
+          color: white;
+        }
   
         div.submodule {
           padding-right: 10px;

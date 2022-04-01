@@ -113,13 +113,13 @@ const Dashboard = () => {
         }, 0)
         const nTurnos = Object.entries(turnos).length
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movs/nTurnos)
-        avObj.promMinPieza = (durationTurnos / 60 / (movs / 2)).toFixed(1)
+        avObj.promMinPieza = movs === 0 ? 'N/A' : (durationTurnos / 60 / (movs / 2)).toFixed(1)
         avObj.avance = Math.round(movs / (pMolino.piezas * 2) * 100) + '%'
 
         const tpo = durationTurnos / (pMolino.exHours * 3600)
         const segPiezaMeta = pMolino.exHours * 3600 / (pMolino.piezas * 2)
         const segPiezaReal = durationTurnos / movs
-        avObj.inTime = segPiezaReal <= segPiezaMeta
+        avObj.inTime = durationTurnos === 0 ? 'N/A' : segPiezaReal <= segPiezaMeta || movs === 0 ? 'No' : 'Sí'
 
         avObj.movimientosReal = movs
         avObj.movimientosProg = Math.round(tpo * pMolino.piezas * 2)
@@ -373,7 +373,7 @@ const Dashboard = () => {
                                                     <Statistic title="Giros" value={avances.giros}/>
                                                 </Col>
                                                 <Col span={6}>
-                                                    <Statistic title="Retraso esperado" value={avances.inTime ? "No" : "Sí"}/>
+                                                    <Statistic title="Retraso esperado" value={avances.inTime}/>
                                                 </Col>
                                             </Row>
                                             <Row style={{marginTop:10, marginBottom:10}}>

@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
-import { Col, Row, Card } from 'antd'
+import { Col, Row, Card, Icon } from 'antd'
 import { Page, PageContent } from '../../layouts/Private/components'
 
 class Home extends Component {
@@ -24,7 +24,8 @@ class Home extends Component {
           <PageContent>
             <Row className="module">
               <Col span={3}>
-                <Link to="/maintenance">
+                <Link to="/maintenance" style={{position:'relative'}}>
+                  <Icon type="tool" theme="filled" />
                   <div className="submodule name">
                       Mantenimiento
                   </div>
@@ -49,9 +50,12 @@ class Home extends Component {
             </Row>
             <Row className="module">
               <Col span={3}>
-                <div className="submodule name">
-                    RRHH
-                </div>
+                <Link style={{position:'relative'}}>
+                  <Icon type="user" />
+                  <div className="submodule name">
+                      RRHH
+                  </div>
+                </Link>
               </Col>
               <Col span={15} className="submodule">
                 <div className="content">
