@@ -261,7 +261,7 @@ public class Molino extends Entity {
 	public Integer getHours() {
 		return hours;
 	}
-
+	
 	public void setHours(Integer hours) {
 		this.hours = hours;
 	}

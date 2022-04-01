@@ -171,37 +171,15 @@ public class Etapa extends Entity {
 			finish = new Timestamp(date.getTime());
 		}
 		long diff = finish.getTime() - getCreationDate().getTime();
-		int min = (int)diff / 1000;
-		return min;
+		int seg = (int)diff / 1000;
+		return seg;
 	}
 	
 	public float getDuration() {
 		float duration = 0;
 		if(tasks != null) {
-			Tarea last = null;
 			for(Tarea t : tasks) {
-				duration += t.getDuration();
-				/*
-				if(last == null) duration += t.getDuration();
-				else if(last.getFinishDate() != null) {
-					int comp = t.getCreationDate().compareTo(last.getFinishDate());
-					if(comp >= 0) {
-						duration += t.getDuration();
-					}else {
-						Timestamp finish = t.getFinishDate();
-						if(finish == null) {
-							Calendar c = Calendar.getInstance(TimeZone.getDefault());
-							Date date = c.getTime();
-							finish = new Timestamp(date.getTime());
-						}
-						long diff = finish.getTime() - last.getFinishDate().getTime();
-						int min = (int)diff / 1000;
-						
-						duration += min;
-					}
-				}
-				last = t;
-				*/
+				if(!t.getTask().equals(Tarea.TareaEnum.LIMPIEZA)) duration += t.getDuration();
 			}
 		}
 		return duration;
