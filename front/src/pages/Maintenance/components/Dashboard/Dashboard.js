@@ -67,41 +67,48 @@ const Dashboard = () => {
 
         let giros = 0
         let turnos = {}
+        let hasFihishExec = false
         pMolino.stages && pMolino.stages.map(s => {
-            s.stage === 'EXECUTION' && s.tasks && s.tasks.map(task => {
-                if(task.task === 'GIRO' || task.task === 'BOTADO' || task.task === 'MONTAJE') {
-                    if(task.task === 'GIRO') {
-                        let fec = moment(task.creationDate)
-                        if(fec.isBefore(pFecha)) giros++
-                    }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
-                        task.parts && task.parts.map(part => {
-                            let fecParte = moment(part.creationDate)
-
-                            let fec
-                            let fecIni = part.turno.creationDate
-                            if(fecIni < s.creationDate) fecIni = s.creationDate
-
-                            let fecFin = f.getTime()
-                            if(part.turno.closedDate) {
-                                fec = moment(part.turno.closedDate)
-                                fecFin = part.turno.closedDate
-                                if(!fec.isBefore(pFecha)) {
-                                    fec = moment(part.turno.creationDate)
-                                    if(fec.isBefore(pFecha)) {
-                                        fecFin = f.getTime()
-                                    }
-                                }
-                            }else {
-                                fec = moment(part.turno.creationDate)
-                            }
-                            if(fec.isBefore(pFecha)) {
-                                if(!turnos[part.turno.id]) turnos[part.turno.id] = {qty : 0, duration: (fecFin - fecIni)/1000}
-                                if(fecParte.isBefore(pFecha)) turnos[part.turno.id].qty = turnos[part.turno.id].qty + part.qty
-                            }
-                        })
-                    }
+            if(s.stage === 'EXECUTION') {
+                if(s.finishDate) {
+                    let fec = moment(s.finishDate)
+                    if(fec.isBefore(pFecha)) hasFihishExec = true
                 }
-            })
+                s.tasks && s.tasks.map(task => {
+                    if(task.task === 'GIRO' || task.task === 'BOTADO' || task.task === 'MONTAJE') {
+                        if(task.task === 'GIRO') {
+                            let fec = moment(task.creationDate)
+                            if(fec.isBefore(pFecha)) giros++
+                        }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
+                            task.parts && task.parts.map(part => {
+                                let fecParte = moment(part.creationDate)
+
+                                let fec
+                                let fecIni = part.turno.creationDate
+                                if(fecIni < s.creationDate) fecIni = s.creationDate
+
+                                let fecFin = f.getTime()
+                                if(part.turno.closedDate) {
+                                    fec = moment(part.turno.closedDate)
+                                    fecFin = part.turno.closedDate
+                                    if(!fec.isBefore(pFecha)) {
+                                        fec = moment(part.turno.creationDate)
+                                        if(fec.isBefore(pFecha)) {
+                                            fecFin = f.getTime()
+                                        }
+                                    }
+                                }else {
+                                    fec = moment(part.turno.creationDate)
+                                }
+                                if(fec.isBefore(pFecha)) {
+                                    if(!turnos[part.turno.id]) turnos[part.turno.id] = {qty : 0, duration: (fecFin - fecIni)/1000}
+                                    if(fecParte.isBefore(pFecha)) turnos[part.turno.id].qty = turnos[part.turno.id].qty + part.qty
+                                }
+                            })
+                        }
+                    }
+                })
+            }
         })
 
         avObj.giros = giros
@@ -123,6 +130,7 @@ const Dashboard = () => {
 
         avObj.movimientosReal = movs
         avObj.movimientosProg = Math.round(tpo * pMolino.piezas * 2)
+        if(hasFihishExec) avObj.movimientosProg = movs
         setAvances(avObj)
     }
 
