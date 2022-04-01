@@ -43,6 +43,65 @@
                 }
             }
         }
+
+        .indicador-porcentaje {
+            margin: auto;
+            margin-top: 5px;
+            text-align: center;
+            height: 95px;
+            width: 95px;
+            padding-top: 25px;
+
+            position: relative;
+
+            .number {
+                color: white;
+                position: absolute;
+                z-index: 10;
+                text-align: center;
+                width: 100%;
+            }
+
+            .octagon{
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                overflow: hidden;
+            }
+            .octagon:before {
+                background-color: rgba(0,0,0,.8);
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                transform: rotate(45deg);
+                content: '';
+            }
+        }
+
+        .indicador-avance {
+            height: 60px;
+
+            .indicador-block {
+                height: 100%;
+
+                .indicador-number {
+                    width: 50px;
+                    height: 100%;
+                    background-color: rgba(0,0,0,.8);
+                    position: absolute;
+                    right: 0px;
+                    top: 0px;
+                    color: white;
+                    padding: 10px;
+                    text-align: center;
+                    line-height: 30px;
+                }
+            }
+        }
     }
     
 }

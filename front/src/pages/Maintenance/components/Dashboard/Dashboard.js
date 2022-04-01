@@ -39,7 +39,10 @@ const Dashboard = () => {
             let f = m.status === 'FINISHED' ? m.finishDate : new Date()
             f = moment(f)
             setFecha(f)
-            setStatsAvances(f, m)
+
+            let d = new Date(f.startOf('day'))
+            d.setDate(d.getDate() + 1);
+            setStatsAvances(moment(d), m)
             setIsLoadingMolino(false)
         })
     }
@@ -64,34 +67,71 @@ const Dashboard = () => {
 
         let giros = 0
         let turnos = {}
+        let tasks = []
+        let movimientos = 0
         pMolino.stages && pMolino.stages.map(s => {
             s.stage === 'EXECUTION' && s.tasks && s.tasks.map(task => {
-                if(task.task === 'GIRO') {
-                    let fec = moment(task.creationDate)
-                    if(fec.isBefore(pFecha)) giros++
-                }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
-                    task.parts && task.parts.map(part => {
-                        let fec = moment(part.creationDate)
+                if(task.task === 'GIRO' || task.task === 'BOTADO' || task.task === 'MONTAJE') {
+                    if(task.task === 'GIRO') {
+                        let fec = moment(task.creationDate)
+                        if(fec.isBefore(pFecha)) giros++
+                    }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
+                        task.parts && task.parts.map(part => {
+                            let fec = moment(part.creationDate)
+                            if(fec.isBefore(pFecha)) movimientos += part.qty
+
+                            if(part.turno.closedDate) {
+                                let fec = moment(part.turno.closedDate)
+                                if(fec.isBefore(pFecha)) {
+                                    if(!turnos[part.turno.id]) turnos[part.turno.id] = {qty : 0, duration: (part.turno.closedDate - part.turno.creationDate)/1000}
+                                    turnos[part.turno.id].qty = turnos[part.turno.id].qty + part.qty
+                                }
+                            }
+                        })
+                    }
+                    if(task.finishDate) {
+                        let fec = moment(task.finishDate)
                         if(fec.isBefore(pFecha)) {
-                            if(!turnos[part.turno.id]) turnos[part.turno.id] = 0
-                            turnos[part.turno.id] = turnos[part.turno.id] + part.qty
+                            tasks.push(task)
                         }
-                    })
+                    }
                 }
             })
         })
 
         avObj.giros = giros
         const movs = Object.entries(turnos).reduce((accumulator, current) => {
-            return accumulator + current[1]
+            return accumulator + current[1].qty
+        }, 0)
+        const durationTurnos = Object.entries(turnos).reduce((accumulator, current) => {
+            return accumulator + current[1].duration
         }, 0)
         const nTurnos = Object.entries(turnos).length
+        const duration = tasks.reduce((accumulator, current) => {
+            return accumulator + current.duration
+        }, 0)
+        let piezas = 0
+        tasks.map(t => {
+            t.parts.map(p => {
+                piezas += p.qty
+            })
+        })
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movs/nTurnos)
+        avObj.promMinPieza = tasks.length === 0 || piezas === 0 ? 'N/A' : (duration / 60 / (piezas / 2)).toFixed(1)
+        avObj.avance = Math.round(movimientos / (pMolino.piezas * 2) * 100) + '%'
+
+        const tpo = durationTurnos / (pMolino.exHours * 3600)
+        const segPiezaMeta = pMolino.exHours * 3600 / (pMolino.piezas * 2)
+        const segPiezaReal = durationTurnos / movs
+        avObj.inTime = segPiezaReal <= segPiezaMeta
+
+        avObj.movimientosReal = movimientos
+        avObj.movimientosProg = Math.round(tpo * pMolino.piezas * 2)
         setAvances(avObj)
     }
 
     const handleChangeAvance = (value) => {
-        let f = new Date(value)
+        let f = new Date(value.startOf('day'))
         f.setDate(f.getDate() + 1);
         setStatsAvances(moment(f), molino)
     }
@@ -331,13 +371,66 @@ const Dashboard = () => {
                                                     <Statistic title="Prom Mov/Turno" value={avances.promMovTurno}/>
                                                 </Col>
                                                 <Col span={6}>
-                                                    <Statistic title="Prom Mov/Pieza" value={"N/A"}/>
+                                                    <Statistic title="Prom Min/Pieza" value={avances.promMinPieza}/>
                                                 </Col>
                                                 <Col span={6}>
                                                     <Statistic title="Giros" value={avances.giros}/>
                                                 </Col>
                                                 <Col span={6}>
-                                                    <Statistic title="Retraso esperado" value={"N/A"}/>
+                                                    <Statistic title="Retraso esperado" value={avances.inTime ? "No" : "Sí"}/>
+                                                </Col>
+                                            </Row>
+                                            <Row style={{marginTop:10, marginBottom:10}}>
+                                                <Col span={18}>
+                                                    <Row type="flex" gutter={[12,12]}>
+                                                        <Col span={10} className="indicador-avance">
+                                                            <Col className="indicador-block">
+                                                                Movimientos<br/>
+                                                                programados
+                                                                <div className="indicador-number">
+                                                                    {avances.movimientosProg}
+                                                                </div>
+                                                            </Col>
+                                                        </Col>
+                                                        <Col offset={4} span={10} className="indicador-avance">
+                                                            <Col className="indicador-block">
+                                                                Piezas<br/>
+                                                                programadas
+                                                                <div className="indicador-number">
+                                                                    {Math.floor(avances.movimientosProg/2)}
+                                                                </div>
+                                                            </Col>
+                                                        </Col>
+                                                        <Col span={10} className="indicador-avance">
+                                                            <Col className="indicador-block">
+                                                                Movimientos<br/>
+                                                                reales
+                                                                <div className="indicador-number">
+                                                                    {avances.movimientosReal}
+                                                                </div>
+                                                            </Col>
+                                                        </Col>
+                                                        <Col offset={4} span={10} className="indicador-avance">
+                                                            <Col className="indicador-block">
+                                                                Piezas<br/>
+                                                                cambiadas
+                                                                <div className="indicador-number">
+                                                                    {Math.floor(avances.movimientosReal/2)}
+                                                                </div>
+                                                            </Col>
+                                                        </Col>
+                                                    </Row>
+                                                </Col>
+                                                <Col span={6}>
+                                                    <div className="indicador-porcentaje">
+                                                        <div className="number">
+                                                            {avances.avance}
+                                                            <br/>
+                                                            avance
+                                                        </div>
+                                                        <div className="octagon">
+                                                        </div>
+                                                    </div>
                                                 </Col>
                                             </Row>
                                         </Row>
