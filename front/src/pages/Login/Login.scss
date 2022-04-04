@@ -1,6 +1,19 @@
 body {
     padding: 0px !important;
 }
+
+@media (max-width: 800px) {
+    .login-page {
+        padding-top: 60px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .login-page {
+        padding-top: 20px !important;
+    }
+}
+
 .login-page {
     padding-top: 120px;
     height: 100vh;
@@ -37,7 +50,8 @@ body {
     .cajaIngreso {
         align-self: center;
         margin: auto;
-        width: 600px;
+        width: 90%;
+        max-width: 600px;
         border-radius: 5px;
         //background-color:rgba(0,0,0,.7);
         padding: 10px;

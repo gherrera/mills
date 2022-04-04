@@ -112,7 +112,7 @@ class Login extends Component {
 
 {/* III.- TERCER BLOQUE - INICIO DE SESIÓN */  }
         <Row className="tercerBloque" id="iniciaS">
-          <Col>
+          <Col span={12} offset={6} xs={{span: 24, offset: 0}} sm={{span: 20, offset: 2}} md={{span: 16, offset: 4}} lg={{span: 12, offset: 6}}>
             <Form onSubmit={ isRestore ? this.handleRestorePassword.bind(this) : this.handleSubmit.bind(this) } className="login-form">
               <Row className="cajaIngreso">
                 <Row className="row-image">
