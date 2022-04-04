@@ -5,11 +5,14 @@
                 padding-top: 10px;
                 border-radius: 3px;
 
-                .indicators {
+                .indicators-ex {
                     padding-top: 2px;
                     .indicator {
-                        height: 30px;
-                        width: 33.33%;
+                        //height: 30px;
+                        width: 100%;
+                        background-color: rgba(254, 244, 60, .3);
+                        color: rgba(0,0,0,.7);
+                        padding: 3px 10px;
                     }
                 }
 

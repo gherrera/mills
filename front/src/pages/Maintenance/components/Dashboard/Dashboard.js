@@ -163,47 +163,47 @@ const Dashboard = () => {
                             Resumen total de Proyectos
                         </Row>
                         <Row className="indicators" gutter={[8,8]} type="flex">
-                            <Col span={4}>
+                            <Col span={4} xs={12} md={4}>
                                 <Row className="indicator">
                                     <Col span={8} className="number">
                                         { clientes.length }
                                     </Col>
-                                    <Col span={16}>
+                                    <Col span={16} style={{paddingLeft: 5}}>
                                         Clientes
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col span={4}>
+                            <Col span={4} xs={12} md={4}>
                                 <Row className="indicator">
                                     <Col span={8} className="number">
                                         {molinos.filter(m => m.status === 'FINISHED').length}
                                     </Col>
-                                    <Col span={16}>
+                                    <Col span={16} style={{paddingLeft: 5}}>
                                         Faenas<br/>realizadas
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col span={4}>
+                            <Col span={4} xs={12} md={4}>
                                 <Row className="indicator">
                                     <Col span={8} className="number">
                                         {molinos.filter(m => m.status === 'STARTED').length}
                                     </Col>
-                                    <Col span={16}>
+                                    <Col span={16} style={{paddingLeft: 5}}>
                                         Faenas<br/>en curso
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col span={4}>
+                            <Col span={4} xs={12} md={4}>
                                 <Row className="indicator">
                                     <Col span={8} className="number">
                                         {molinos.filter(m => m.status === 'STARTED').reduce((accumulator, current) => accumulator + current.piezas, 0)}
                                     </Col>
-                                    <Col span={16}>
+                                    <Col span={16} style={{paddingLeft: 5}}>
                                         Piezas<br/>en movimiento
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col span={8}>
+                            <Col span={8} xs={24} md={8}>
                                 <Row className="indicator">
                                     <Col span={12}>
                                         <div>Ultimo cliente:</div>
@@ -221,19 +221,19 @@ const Dashboard = () => {
                     <Row className="block">
                         <Row>
                             <Row gutter={[16,16]}>
-                                <Col span={12}>
+                                <Col span={12} xs={24} md={12}>
                                     <Row className="title">
                                         Principales indicadores por Proyecto
                                     </Row>
                                 </Col>
-                                <Col span={6}>
+                                <Col span={6} xs={12} md={6}>
                                     <Select style={{width:'100%'}} placeholder="Cliente" onChange={(value) => setCliente(value)} allowClear>
                                         { clientes.map(c => 
                                             <Select.Option value={c.id}>{c.name}</Select.Option>
                                         )}
                                     </Select>
                                 </Col>
-                                <Col span={6}>
+                                <Col span={6} xs={12} md={6}>
                                     <Select style={{width:'100%'}} placeholder="Orden de Trabajo" onChange={handleChangeMolino}>
                                         { molinos.map(m => 
                                             (!cliente || cliente === m.faena.client.id) && m.status &&
@@ -251,7 +251,7 @@ const Dashboard = () => {
                                         Faena
                                     </Row>
                                     <Row style={{padding: 10}}>
-                                        <Col span={8} style={{textAlign:'center'}}>
+                                        <Col span={8} xs={24} sm={12} md={8} style={{textAlign:'center'}}>
                                             <div>
                                                 Tipo de Equipo
                                                 <span style={{backgroundColor: 'rgba(0,0,0,.08)', marginLeft:15, padding:'2px 10px'}}>
@@ -259,7 +259,7 @@ const Dashboard = () => {
                                                 </span>
                                             </div>
                                         </Col>
-                                        <Col span={8} style={{textAlign:'center'}}>
+                                        <Col span={8} xs={24} sm={12} md={8} style={{textAlign:'center'}}>
                                             <div>
                                                 Nombre de Equipo
                                                 <span style={{backgroundColor: 'rgba(0,0,0,.08)', marginLeft:15, padding:'2px 10px'}}>
@@ -267,7 +267,7 @@ const Dashboard = () => {
                                                 </span>
                                             </div>
                                         </Col>
-                                        <Col span={8} style={{textAlign:'center'}}>
+                                        <Col span={8} xs={24} sm={12} md={8} style={{textAlign:'center'}}>
                                             <div>
                                                 Contacto Cliente
                                                 <span style={{backgroundColor: 'rgba(0,0,0,.08)', marginLeft:15, padding:'2px 10px'}}>
@@ -278,7 +278,7 @@ const Dashboard = () => {
                                     </Row>
                                 </Row>
                                 <Row style={{marginTop: 4}} gutter={[8,8]} type="flex">
-                                    <Col span={18}>
+                                    <Col span={18} xs={24} md={18}>
                                         <div style={{backgroundColor:'rgba(255,255,255,.9)', padding: 5, height: '100%'}}>
                                             <Row gutter={[6,6]}>
                                                 <Col span={3}>
@@ -334,7 +334,7 @@ const Dashboard = () => {
                                             </Row>
                                         </div>
                                     </Col>
-                                    <Col span={6}>
+                                    <Col span={6} xs={24} md={6}>
                                         <div style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             <Row style={{padding: 3}}>
                                                 <Col span={20}>Nro. piezas a montar</Col>
@@ -360,7 +360,7 @@ const Dashboard = () => {
                                     </Col>
                                 </Row>
                                 <Row style={{marginTop: 4}} gutter={[8,8]} type="flex">
-                                    <Col span={12}>
+                                    <Col span={12} xs={24} md={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
                                                 <Col span={12}>
@@ -371,23 +371,23 @@ const Dashboard = () => {
                                                 </Col>
                                             </Row>
                                             <Row style={{padding:10}}>
-                                                <Col span={6}>
+                                                <Col span={6} xs={12} lg={6}>
                                                     <Statistic title="Prom Mov/Turno" value={avances.promMovTurno}/>
                                                 </Col>
-                                                <Col span={6}>
+                                                <Col span={6} xs={12} lg={6}>
                                                     <Statistic title="Prom Min/Pieza" value={avances.promMinPieza}/>
                                                 </Col>
-                                                <Col span={6}>
+                                                <Col span={6} xs={12} lg={6}>
                                                     <Statistic title="Giros" value={avances.giros}/>
                                                 </Col>
-                                                <Col span={6}>
+                                                <Col span={6} xs={12} lg={6}>
                                                     <Statistic title="Retraso esperado" value={avances.inTime}/>
                                                 </Col>
                                             </Row>
                                             <Row style={{marginTop:10, marginBottom:10}}>
                                                 <Col span={18}>
                                                     <Row type="flex" gutter={[12,12]}>
-                                                        <Col span={10} className="indicador-avance">
+                                                        <Col span={10} xs={12} md={11} lg={10} className="indicador-avance">
                                                             <Col className="indicador-block">
                                                                 Movimientos<br/>
                                                                 programados
@@ -396,7 +396,7 @@ const Dashboard = () => {
                                                                 </div>
                                                             </Col>
                                                         </Col>
-                                                        <Col offset={4} span={10} className="indicador-avance">
+                                                        <Col span={10} xs={12} md={{span:11, offset:1}} lg={{span: 10, offset:4}} className="indicador-avance">
                                                             <Col className="indicador-block">
                                                                 Piezas<br/>
                                                                 programadas
@@ -405,7 +405,7 @@ const Dashboard = () => {
                                                                 </div>
                                                             </Col>
                                                         </Col>
-                                                        <Col span={10} className="indicador-avance">
+                                                        <Col span={10} xs={12} md={11} lg={10} className="indicador-avance">
                                                             <Col className="indicador-block">
                                                                 Movimientos<br/>
                                                                 reales
@@ -414,7 +414,7 @@ const Dashboard = () => {
                                                                 </div>
                                                             </Col>
                                                         </Col>
-                                                        <Col offset={4} span={10} className="indicador-avance">
+                                                        <Col span={10} xs={12} md={{span:11, offset:1}} lg={{span: 10, offset:4}} className="indicador-avance">
                                                             <Col className="indicador-block">
                                                                 Piezas<br/>
                                                                 cambiadas
@@ -425,7 +425,7 @@ const Dashboard = () => {
                                                         </Col>
                                                     </Row>
                                                 </Col>
-                                                <Col span={6}>
+                                                <Col span={6} style={{padding: 5}}>
                                                     <div className="indicador-porcentaje">
                                                         <div className="number">
                                                             {avances.avance}
@@ -439,7 +439,7 @@ const Dashboard = () => {
                                             </Row>
                                         </Row>
                                     </Col>
-                                    <Col span={12}>
+                                    <Col span={12} xs={24} md={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             
                                         </Row>

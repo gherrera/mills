@@ -1,19 +1,34 @@
 import './AvanceFase.scss'
 import React, { useEffect, useState } from 'react'
-import { Row, Col, Switch, Table, Modal, Button, Spin } from 'antd'
+import { Row, Col, Switch, Table, Modal, Button, Spin, Tabs } from 'antd'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoon, faSun } from '@fortawesome/free-regular-svg-icons'
 
+const { TabPane } = Tabs;
+
 const AvanceFase = ({molino, stage}) => {
     const { t } = useTranslation()
     const [checked, setChecked] = useState(stage.stage !== 'DELIVERY')
-    const [ detailParts, setDetailParts ] = useState(null)
+    const [ recordSelected, setRecordSelected ] = useState(null)
+    const [ isVisibleDetailsExecution, setIsVisibleDetailsExecution ] = useState(false)
+    const [ detailsExecution, setDetailsExecution ] = useState(null)
 
   useEffect(() => {
-    
-  }, [])
+    if(stage.stage === 'EXECUTION') {
+      let details = []
+      stage.tasks.map(t => {
+        t.parts && t.parts.map(p => {
+            p.task = t
+            details.push(p)
+        })
+      })
+      if(details.length) {
+        setDetailsExecution(details)
+      }
+    }
+  }, [stage])
 
   function zeroPad(num, places) {
     var zero = places - num.toString().length + 1;
@@ -36,6 +51,11 @@ const AvanceFase = ({molino, stage}) => {
     setChecked(chk)
   }
 
+  const getIconTurno = (turno) => {
+    if(turno === 'DAY') return <FontAwesomeIcon icon={faSun} />
+    else return <FontAwesomeIcon icon={faMoon} />
+  }
+
   const getColumnsStage = () => {
     let columns = [
       {
@@ -55,7 +75,7 @@ const AvanceFase = ({molino, stage}) => {
             parts ?
               record.task !== 'GIRO' && 
               <a onClick={() => {
-                setDetailParts(record.partsByType)
+                setRecordSelected(record)
               }}>{parts.length}</a>
             :
             <Spin size="small" />
@@ -86,10 +106,9 @@ const AvanceFase = ({molino, stage}) => {
         dataIndex: 'turnoStart',
         width: '10%',
         render: (text, record) => {
-          let turno = record.turnoStart.turno.name
-          if(record.turnoFinish) turno = record.turnoFinish.turno.name
-          if(turno === 'DAY') return <FontAwesomeIcon icon={faSun} />
-          else return <FontAwesomeIcon icon={faMoon} />
+          let turno = record.turnoStart.turno
+          if(record.turnoFinish) turno = record.turnoFinish.turno
+          return getIconTurno(turno.name)
         }
       },
       {
@@ -121,8 +140,64 @@ const AvanceFase = ({molino, stage}) => {
     }
   ]
 
+  const getColumnsPartsDetail = (task) => {
+    let columns = [
+      { 
+        title: 'Nro',
+        with: '5%',
+        render: (text, record, index) => index+1
+      },
+      { 
+        title: 'Fecha',
+        dataIndex: 'creationDate',
+        with: '15%',
+        render: (fec) => moment(fec).format("DD/MM/YYYY HH:mm")
+      },
+      { 
+        title: 'Turno',
+        dataIndex: 'turno',
+        with: '10%',
+        render: (turno) => getIconTurno(turno.turno.name)
+      }
+    ]
+    if(!task) {
+      columns.push(
+        { 
+          title: 'Tarea',
+          dataIndex: 'task',
+          with: '15%',
+          render: (task) => t('messages.mills.task.'+task.task)
+        }
+      )
+    }
+    columns.push(
+      { 
+        title: 'Sección',
+        dataIndex: 'part',
+        with: task ? '25%' : '20%',
+        render: (part) => part.type
+      },
+      { 
+        title: 'Pieza',
+        dataIndex: 'part',
+        with: task ? '45%' : '35%',
+        render: (part) => part.name
+      }
+    )
+    debugger
+    return columns
+  }
+
   const onCancelModal = () => {
-    setDetailParts(null)
+    setRecordSelected(null)
+  }
+
+  const openDetailsExecution = () => {
+    setIsVisibleDetailsExecution(true)
+  }
+
+  const onCancelModalDetails = () => {
+    setIsVisibleDetailsExecution(false)
   }
 
   return (
@@ -160,22 +235,31 @@ const AvanceFase = ({molino, stage}) => {
           }
         </Row>
         { stage.stage === 'EXECUTION' &&
-          <Row className="indicators">
-            <div className="indicator">
-              <div className="content-indicator">
-                Piezas botadas: {molino.totalBotadas}
+          <Row className="indicators-ex" gutter={[12,18]}>
+            <Col span={8}>
+              <div className="indicator">
+                <div className="content-indicator">
+                  Piezas botadas: {molino.totalBotadas}
+                </div>
               </div>
-            </div>
-            <div className="indicator">
-              <div className="content-indicator">
-                Piezas montadas: {molino.totalMontadas}
+            </Col>
+            <Col span={7}>
+              <div className="indicator">
+                <div className="content-indicator">
+                  Piezas montadas: {molino.totalMontadas}
+                </div>
               </div>
-            </div>
-            <div className="indicator">
-              <div className="content-indicator">
-                Giros: {molino.giros}
+            </Col>
+            <Col span={7}>
+              <div className="indicator">
+                <div className="content-indicator">
+                  Giros: {molino.giros}
+                </div>
               </div>
-            </div>
+            </Col>
+            <Col span={2}>
+              <Button size="small" icon="database" style={{float:'right'}} disabled={detailsExecution === null} onClick={openDetailsExecution}>Detalle</Button>
+            </Col>
           </Row>
         }
         { checked &&
@@ -184,20 +268,44 @@ const AvanceFase = ({molino, stage}) => {
           </Row>
         }
 
-        { detailParts &&
+        { recordSelected &&
           <Modal
             title="Detalle de piezas"
             visible={true}
-            width={700}
+            width={800}
             onCancel={onCancelModal}
+            style={{ top: 20 }}
             footer={ [
               <Button onClick={onCancelModal}>
                 Cerrar
               </Button>
             ]}
           >
-              <Table dataSource={detailParts} columns={columnsParts} size="small" pagination={false}/>
+            <Tabs defaultActiveKey="1" >
+              <TabPane tab="Resumen" key="1">
+                <Table dataSource={recordSelected.partsByType} columns={columnsParts} size="small" pagination={false}/>
+              </TabPane>
+              <TabPane tab="Detalle" key="2">
+                <Table dataSource={recordSelected.parts} columns={getColumnsPartsDetail(recordSelected)} size="small" pagination={false}/>
+              </TabPane>
+            </Tabs>
 
+          </Modal>
+        }
+        {isVisibleDetailsExecution && 
+          <Modal
+            title="Detalle de piezas"
+            visible={true}
+            width={800}
+            onCancel={onCancelModalDetails}
+            style={{ top: 10 }}
+            footer={ [
+              <Button onClick={onCancelModalDetails}>
+                Cerrar
+              </Button>
+            ]}
+          >
+            <Table dataSource={detailsExecution} columns={getColumnsPartsDetail()} size="small" pagination={false}/>
           </Modal>
         }
     </div>
