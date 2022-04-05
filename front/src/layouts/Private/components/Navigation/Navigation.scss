@@ -2,9 +2,9 @@
   background: transparent;
   //float: right;
 
-  .ant-menu-item {
+  .ant-menu-item, .ant-menu-submenu-title {
     height: 50px !important;
-    color: #fff;
+    color: #fff !important;
   }
 
   .ant-btn {
