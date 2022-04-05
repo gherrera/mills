@@ -226,14 +226,14 @@ const Dashboard = () => {
                                         Principales indicadores por Proyecto
                                     </Row>
                                 </Col>
-                                <Col span={6} xs={12} md={6}>
+                                <Col span={6} xs={14} md={6}>
                                     <Select style={{width:'100%'}} placeholder="Cliente" onChange={(value) => setCliente(value)} allowClear>
                                         { clientes.map(c => 
                                             <Select.Option value={c.id}>{c.name}</Select.Option>
                                         )}
                                     </Select>
                                 </Col>
-                                <Col span={6} xs={12} md={6}>
+                                <Col span={6} xs={10} md={6}>
                                     <Select style={{width:'100%'}} placeholder="Orden de Trabajo" onChange={handleChangeMolino}>
                                         { molinos.map(m => 
                                             (!cliente || cliente === m.faena.client.id) && m.status &&
@@ -360,7 +360,7 @@ const Dashboard = () => {
                                     </Col>
                                 </Row>
                                 <Row style={{marginTop: 4}} gutter={[8,8]} type="flex">
-                                    <Col span={12} xs={24} md={12}>
+                                    <Col xs={24} lg={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
                                                 <Col span={12}>
@@ -385,7 +385,7 @@ const Dashboard = () => {
                                                 </Col>
                                             </Row>
                                             <Row style={{marginTop:10, marginBottom:10}}>
-                                                <Col span={18}>
+                                                <Col span={18} xs={24} sm={18}>
                                                     <Row type="flex" gutter={[12,12]}>
                                                         <Col span={10} xs={12} md={11} lg={10} className="indicador-avance">
                                                             <Col className="indicador-block">
@@ -425,7 +425,7 @@ const Dashboard = () => {
                                                         </Col>
                                                     </Row>
                                                 </Col>
-                                                <Col span={6} style={{padding: 5}}>
+                                                <Col span={6} style={{padding: 15}} xs={24} sm={6}>
                                                     <div className="indicador-porcentaje">
                                                         <div className="number">
                                                             {avances.avance}
@@ -439,7 +439,7 @@ const Dashboard = () => {
                                             </Row>
                                         </Row>
                                     </Col>
-                                    <Col span={12} xs={24} md={12}>
+                                    <Col xs={24} lg={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             
                                         </Row>
