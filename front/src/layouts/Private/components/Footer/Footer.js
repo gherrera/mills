@@ -56,12 +56,8 @@ export default ({ currentUser }) => {
   return (
     <div id="footer">
       <Row className="footer-inner">
-        <Col span={ 12 }>
-          <div className="powered">
-            <span>
-              Copyright &copy; - HTG Soluciones - Todos los derechos reservados
-            </span>
-          </div>
+        <Col>
+          Copyright &copy; - HTG Soluciones - Todos los derechos reservados
         </Col>
       </Row>
     </div>
