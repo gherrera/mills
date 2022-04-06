@@ -599,6 +599,11 @@ const Dashboard = () => {
                                                             tickmode: 'array',
                                                             showgrid: true,
                                                             gridcolor: 'rgb(187 187 187)',
+                                                        },
+                                                        legend: {
+                                                            x: 0,
+                                                            y: 1.1,
+                                                            orientation: "h"
                                                         }
                                                     }
                                                 }
