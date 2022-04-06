@@ -2,9 +2,10 @@ import './Dashboard.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
-import { Statistic, DatePicker, Row, Col, Spin, Skeleton, Modal, Select } from 'antd'
+import { Statistic, DatePicker, Row, Col, Spin, Skeleton, Select } from 'antd'
 import { getMolinosPromise, getMolinoPromise } from '../../promises'
 import moment from "moment";
+import Plot from "react-plotly.js";
 
 const Dashboard = () => {
     const [molinos, setMolinos] = useState([])
@@ -15,6 +16,8 @@ const Dashboard = () => {
     const [isLoadingMolino, setIsLoadingMolino] = useState(false)
     const [fecha, setFecha] = useState(null)
     const [avances, setAvances] = useState({})
+    const [ days, setDays ] = useState([])
+    const [ dataGraph, setDataGraph ] = useState([])
 
     useEffect(() => {
         setIsLoading(true)
@@ -36,8 +39,13 @@ const Dashboard = () => {
         setIsLoadingMolino(true)
         getMolinoPromise(id).then(m => {
             setMolino(m)
-            let f = m.status === 'FINISHED' ? m.finishDate : new Date()
-            f = moment(f)
+            let f = moment()
+            m.stages && m.stages.map(s => {
+                if(s.stage === 'EXECUTION' && s.finishDate) {
+                    f = moment(s.finishDate)
+                }
+            })
+
             setFecha(f)
 
             let d = new Date(f.startOf('day'))
@@ -61,7 +69,7 @@ const Dashboard = () => {
         return parts
     }
 
-    const setStatsAvances = (pFecha, pMolino) => {
+    const getStatsAvancesByFecha = (pFecha, pMolino) => {
         let avObj = {...avances}
         const f = new Date(pFecha.format())
 
@@ -121,22 +129,75 @@ const Dashboard = () => {
         const nTurnos = Object.entries(turnos).length
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movs/nTurnos)
         avObj.promMinPieza = movs === 0 ? 'N/A' : (durationTurnos / 60 / (movs / 2)).toFixed(1)
-        avObj.avance = Math.round(movs / (pMolino.piezas * 2) * 100) + '%'
+        avObj.avance = Math.round(movs / (pMolino.piezas * 2) * 100)
 
-        const tpo = durationTurnos / (pMolino.exHours * 3600)
         const segPiezaMeta = pMolino.exHours * 3600 / (pMolino.piezas * 2)
         const segPiezaReal = durationTurnos / movs
-        avObj.inTime = durationTurnos === 0 ? 'N/A' : segPiezaReal <= segPiezaMeta || movs === 0 ? 'No' : 'Sí'
+        avObj.hasRetraso = durationTurnos === 0 ? 'N/A' : segPiezaReal > segPiezaMeta ? 'Sí' : 'No'
 
         avObj.movimientosReal = movs
+        let tpo = durationTurnos / (pMolino.exHours * 3600)
+        if(tpo > 1) tpo = 1
         avObj.movimientosProg = Math.round(tpo * pMolino.piezas * 2)
         if(hasFihishExec) avObj.movimientosProg = movs
+        avObj.avanceProg = Math.round(avObj.movimientosProg / (pMolino.piezas * 2) * 100)
+
+        return avObj
+    }
+
+    const setStatsAvances = (pFecha, pMolino) => {
+        let fecIni=null
+        pMolino.stages && pMolino.stages.map(s => {
+            if(s.stage === 'EXECUTION') {
+                fecIni = moment(s.creationDate)
+            }
+        })
+        let vDays = []
+        let vGraph = []
+        if(fecIni) {
+            const date2 = new Date(pFecha.startOf('day')).getTime()
+            const date1 = new Date(fecIni.startOf('day')).getTime()
+            const d = Math.floor((date2-date1)/(1000*60*60*24));
+            
+            for(let i=0;i<d;i++) {
+                let f = new Date(fecIni.startOf('day'))
+                f.setDate(f.getDate() + i)
+                let vFec = moment(f).startOf('day')
+                
+                let fecha = vFec.format("DD-MM-YYYY")
+
+                f.setDate(f.getDate() + 1)
+                vFec = moment(f).startOf('day')
+                let avObj = getStatsAvancesByFecha(vFec, pMolino)
+                avObj.fecha = fecha
+                
+                vGraph.push(avObj)
+                vDays.push(vFec.format("DD-MM-YYYY"))
+            }
+        }
+
+        setDataGraph(vGraph)
+        setDays(vDays)
+        
+        let avObj = getStatsAvancesByFecha(pFecha, pMolino)
         setAvances(avObj)
     }
 
     const handleChangeAvance = (value) => {
+        if(value === null) value = moment()
         let f = new Date(value.startOf('day'))
+        let hoy = new Date(moment().startOf('day'))
+        if(hoy.getTime() < f.getTime()) f = hoy
+
+        molino.stages && molino.stages.map(s => {
+            if(s.stage === 'EXECUTION' && s.finishDate) {
+                let finish = new Date(moment(s.finishDate).startOf('day'))
+                if(finish.getTime() < f.getTime()) f = finish
+            }
+        })
+
         f.setDate(f.getDate() + 1);
+
         setStatsAvances(moment(f), molino)
     }
 
@@ -367,7 +428,7 @@ const Dashboard = () => {
                                                     Avances al
                                                 </Col>
                                                 <Col span={12} style={{textAlign:'right'}}>
-                                                    <DatePicker size="small" defaultValue={fecha} format="DD/MM/YYYY" onChange={handleChangeAvance} />
+                                                    <DatePicker size="small" defaultValue={fecha} format="DD/MM/YYYY" onChange={handleChangeAvance} allowClear={false} />
                                                 </Col>
                                             </Row>
                                             <Row style={{padding:10}}>
@@ -381,7 +442,7 @@ const Dashboard = () => {
                                                     <Statistic title="Giros" value={avances.giros}/>
                                                 </Col>
                                                 <Col span={6} xs={12} lg={6}>
-                                                    <Statistic title="Retraso esperado" value={avances.inTime}/>
+                                                    <Statistic title="Retraso esperado" value={avances.hasRetraso}/>
                                                 </Col>
                                             </Row>
                                             <Row style={{marginTop:10, marginBottom:10}}>
@@ -428,7 +489,7 @@ const Dashboard = () => {
                                                 <Col span={6} style={{padding: 15}} xs={24} sm={6}>
                                                     <div className="indicador-porcentaje">
                                                         <div className="number">
-                                                            {avances.avance}
+                                                            {avances.avance}%
                                                             <br/>
                                                             avance
                                                         </div>
@@ -441,7 +502,112 @@ const Dashboard = () => {
                                     </Col>
                                     <Col xs={24} lg={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
-                                            
+                                            <Plot
+                                                useResizeHandler={true}
+                                                style={{width: "100%", height: "100%"}}
+                                                data={
+                                                    [
+                                                        // Avance real
+                                                        {
+                                                            x: dataGraph.map(d => d.fecha),
+                                                            y: dataGraph.map(d => d.avance),
+                                                            type: 'scatter',
+                                                            mode: 'lines+markers',
+                                                            line: {
+                                                                shape: 'spline',
+                                                                smoothing: '1.1',
+                                                                //width: 3,
+                                                                //color: 'rgb(138 187 249)',
+                                                            },
+                                                            /*
+                                                            marker: {
+                                                                color: 'rgb(217 231 251)',
+                                                                size: 6,
+                                                                line: {
+                                                                    color: 'rgb(138 187 249)',
+                                                                    width: 1
+                                                                }
+                                                            },
+                                                            */
+                                                            name: 'Avance real'
+                                                        },
+                                                        // Avance estimado
+                                                        {
+                                                            x: dataGraph.map(d => d.fecha),
+                                                            y: dataGraph.map(d => d.avanceProg),
+                                                            type: 'scatter',
+                                                            mode: 'lines+markers',
+                                                            line: {
+                                                                shape: 'spline',
+                                                                smoothing: '1.1',
+                                                                //width: 3,
+                                                                //color: 'rgb(138 187 249)',
+                                                            },
+                                                            /*
+                                                            marker: {
+                                                                color: 'rgb(217 231 251)',
+                                                                size: 6,
+                                                                line: {
+                                                                    color: 'rgb(138 187 249)',
+                                                                    width: 1
+                                                                }
+                                                            },
+                                                            */
+                                                            name: 'Avance programado'
+                                                        }
+                                                    ]
+                                                }
+                                                layout=
+                                                {
+                                                    {
+                                                        hovermode: 'closest',
+                                                        showlegend: true,
+                                                        margin: {
+                                                            l: 30,
+                                                            r: 20,
+                                                            b: 20,
+                                                            t: 20,
+                                                        },
+                                                        //title: 'Tramos de Venta',
+                                                        paper_bgcolor: 'rgba(0,0,0,0)',
+                                                        plot_bgcolor: 'rgba(0,0,0,0)',
+                                                        autoscale: true,
+                                                        xaxis: {
+                                                            showgrid: false,
+                                                            showticklabels: true,
+                                                            tickfont: {
+                                                                family: 'Arial, sans-serif',
+                                                                size: 10,
+                                                                color: 'rgb(103 103 103)'
+                                                            },
+                                                            dtick: 1
+                                                        },
+                                                        yaxis: {
+                                                            title: 'Avance',
+                                                            titlefont: {
+                                                                family: 'Arial, sans-serif',
+                                                                size: 10,
+                                                                color: 'rgb(103 103 103)'
+                                                            },
+                                                            showticklabels: true,
+                                                            tickfont: {
+                                                                family: 'Arial, sans-serif',
+                                                                size: 10,
+                                                                color: 'rgb(103 103 103)'
+                                                            },
+                                                            range: [0, 110],
+                                                            tickmode: 'array',
+                                                            showgrid: true,
+                                                            gridcolor: 'rgb(187 187 187)',
+                                                        }
+                                                    }
+                                                }
+
+                                                config={{
+                                                    displayModeBar: false, // this is the line that hides the bar.
+                                                }}
+                                            >
+                                            </Plot>
                                         </Row>
                                     </Col>
                                 </Row>

@@ -6,8 +6,7 @@ import { useTranslation } from 'react-i18next'
 import AvanceFase from './AvanceFase'
 
 const Avance = ({molino, action }) => {
-    const [piezas, setPiezas] = useState(molino.parts)
-    const { t } = useTranslation()
+    //const { t } = useTranslation()
 
   useEffect(() => {
     
@@ -22,11 +21,13 @@ const Avance = ({molino, action }) => {
     d = Number(d);
     var h = Math.floor(d / 3600);
     var m = Math.floor(d % 3600 / 60);
+    /*
     var s = Math.floor(d % 3600 % 60);
 
     var hDisplay = h > 0 ? h + (":") : "";
     var mDisplay = m > 0 ? m + (":") : "";
-    var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
+    var sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
+    */
     return zeroPad(h,2)+":"+zeroPad(m,2); 
   }
 
