@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input, AutoComplete, Select, Row, Col, Form, Icon } from 'antd'
 import { validateRutHelper } from '../../../../../../helpers'
+import { getTiposEquipoPromise } from '../../../../promises'
 
 const { Option } = AutoComplete;
 
@@ -11,6 +12,7 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
   const [faenas, setFaenas] = useState([])
   const [faenasSel, setFaenasSel] = useState([])
   const [faenaId, setFaenaId] = useState(faena.id)
+  const [tiposEquipo, setTiposEquipo] = useState([])
 
   useEffect(() => {
     const uniqueFaenas = [];
@@ -24,6 +26,10 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
     }
     setFaenas(uniqueFaenas)
     setFaenasSel(uniqueFaenas)
+
+    getTiposEquipoPromise().then(r => {
+      setTiposEquipo(r)
+    })
   }, [])
 
   const { t } = useTranslation()
@@ -147,8 +153,9 @@ const Step2 = ({form, client, faena, prevStep, nextStep, molinos }) => {
                             }]
                         })(
                             <Select placeholder="Tipo de equipo">
-                              <Select.Option value="Molino SAG">Molino SAG</Select.Option>
-                              <Select.Option value="Molino Bolas">Molino Bolas</Select.Option>
+                              { tiposEquipo.map(t =>
+                                <Select.Option value={t.tipo}>{t.tipo}</Select.Option>  
+                              )}
                             </Select>
                         )}
                     </Form.Item>

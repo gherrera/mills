@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input, Button, Row, Col, Form, Icon, Table, Select, notification} from 'antd'
 import { validateRutHelper } from '../../../../../../helpers'
+import { getTiposPiezaPromise } from '../../../../promises'
 
 const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
   const { getFieldDecorator, validateFields, setFieldsValue } = form;
@@ -13,20 +14,10 @@ const Step3 = ({form, pieces, prevStep, nextStep, notifPiezas, mode }) => {
 
   useEffect(() => {
     if(pieces) setPiezas(pieces)
-    
-    let tPiezas = [
-      {
-        type: 'Tapa Alimentación',
-        pieces: ['Monoblock DEFG']
-      }, {
-        type: 'Cilindro',
-        pieces: ['Placa Alimentación', 'Lifter  Alimentación 30° y 35°', 'Placa Descarga', 'Lifter Descarga 30° y 35°']
-      }, {
-        type: 'Tapa Descarga',
-        pieces: ['Parrilla I', 'Parrilla JK']
-      }
-    ]
-    setTipoPiezas(tPiezas)
+
+    getTiposPiezaPromise().then(t => {
+      setTipoPiezas(t)
+    })
   }, [])
 
   const { t } = useTranslation()

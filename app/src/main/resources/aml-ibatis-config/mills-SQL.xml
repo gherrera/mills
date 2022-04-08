@@ -537,7 +537,7 @@
 	</update>
 
 	<select id="getTiposEquipo" resultClass="java.util.HashMap">
-		select tipo_equipo, fecha
+		select tipo_equipo tipo, fecha
 		from tipos_equipo
 		order by tipo_equipo
 	</select>

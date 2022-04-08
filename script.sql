@@ -170,3 +170,9 @@ tipo VARCHAR(100),
 pieza VARCHAR(100),
 fecha TIMESTAMP
 );
+
+CREATE TABLE personas(
+rut VARCHAR(20),
+nombre VARCHAR(200),
+fecha TIMESTAMP
+);

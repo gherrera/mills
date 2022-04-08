@@ -1,19 +1,27 @@
 import './Step4.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Select, Input, Button, Row, Col, Form, Icon, Table, notification} from 'antd'
-import { validateRutHelper } from '../../../../../../helpers'
+import { Select, Input, Button, Row, Col, Form, Icon, Table, notification, AutoComplete } from 'antd'
+import { getPersonasPromise } from '../../../../promises'
+
+const { Option } = AutoComplete;
 
 const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mode }) => {
   const { getFieldDecorator, validateFields, setFieldsValue } = form;
   const [personas, setPersonas] = useState([])
   const [cargo, setCargo] = useState(null)
+  const [listaPersonas, setListaPersonas] = useState([])
+  const [listaPersonasSel, setListaPersonasSel] = useState([])
+  const [rut, setRut] = useState(null)
 
   useEffect(() => {
     if(personal) setPersonas(personal)
-  }, [])
 
-  const { t } = useTranslation()
+    getPersonasPromise().then(p => {
+      setListaPersonas(p)
+      setListaPersonasSel(p)
+    })
+  }, [])
 
   const prevStepLocal = () => {
     prevStep(personas)
@@ -137,6 +145,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
             return <Button type="primary" size="small" icon="close" onClick={() => {
               let p = personas.filter((item, i) => index !==i)
               setPersonas(p)
+              setListaPersonasSel(listaPersonas)
               if(notifPersonal) notifPersonal(p)
             }} />
           }
@@ -149,7 +158,22 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
 
   const changeCargo = (value) => {
     setCargo(value)
-    setFieldsValue({name: null})
+    setFieldsValue({name: null, rut: null})
+    setListaPersonasSel(listaPersonas)
+  }
+
+  const onSelect = (value, obj) => {
+    setFieldsValue({name: value, rut: obj.key})
+    setRut(obj.key)
+  }
+
+  const onSearch = (value) => {
+      let lp = listaPersonas.filter(p => p.nombre.toLowerCase().includes(value.toLowerCase()) || p.rut.toLowerCase().includes(value.toLowerCase()))
+      setListaPersonasSel(lp)
+      if(rut) {
+        setFieldsValue({name: undefined, rut: undefined})
+        setRut(null)
+      }
   }
 
   return (
@@ -208,7 +232,17 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
                                   )}
                                 </Select>
                               :
-                                <Input placeholder="Nombre de la Persona"/>
+                              <AutoComplete
+                                  dataSource={listaPersonasSel.map(p => 
+                                    <AutoComplete.Option key={p.rut} value={p.nombre}>
+                                      {p.nombre}
+                                    </AutoComplete.Option>
+                                  )}
+                                  //style={{ width: 200 }}
+                                  onSelect={onSelect}
+                                  onSearch={onSearch}
+                                  placeholder="Persona"
+                              />
                           )}
                       </Form.Item>
                   </Col>
@@ -220,7 +254,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
                                   message: 'Ingrese rut de la Persona'
                               }]
                           })(
-                            <Input placeholder="Rut de la Persona"/>
+                            <Input placeholder="Rut de la Persona" disabled={cargo !== 'CONTROLLER'}/>
                           )}
                       </Form.Item>
                   </Col>
