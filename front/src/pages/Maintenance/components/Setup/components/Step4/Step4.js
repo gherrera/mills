@@ -238,7 +238,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
                                       {p.nombre}
                                     </AutoComplete.Option>
                                   )}
-                                  //style={{ width: 200 }}
+                                  disabled={!cargo}
                                   onSelect={onSelect}
                                   onSearch={onSearch}
                                   placeholder="Persona"
@@ -254,7 +254,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
                                   message: 'Ingrese rut de la Persona'
                               }]
                           })(
-                            <Input placeholder="Rut de la Persona" disabled={cargo !== 'CONTROLLER'}/>
+                            <Input placeholder="Rut de la Persona" disabled={!cargo || (cargo !== 'CONTROLLER' && rut)}/>
                           )}
                       </Form.Item>
                   </Col>
