@@ -344,4 +344,22 @@ public class MillsController {
 		return app.finishInterruption(currentUser.getUser(), params.get("id"));
 	}
 	
+	@PostMapping("getTiposEquipo")
+    @ResponseBody
+	public List<Map<String, Object>> getTiposEquipo() {
+		return app.getTiposEquipo();
+	}
+	
+	@PostMapping("getTiposPieza")
+    @ResponseBody
+	public List<Map<String, Object>> getTiposPieza() {
+		return app.getTiposPieza();
+	}
+	
+	@PostMapping("getPersonas")
+    @ResponseBody
+	public List<Map<String, String>> getPersonas() {
+		return app.getPersonas();
+	}
+	
 }

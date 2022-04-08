@@ -159,3 +159,14 @@ FOREIGN KEY(parte_id) REFERENCES molino_partes(id),
 FOREIGN KEY(turno_id) REFERENCES turno_historial(id),
 PRIMARY KEY(id)
 );
+
+CREATE TABLE tipos_equipo(
+tipo_equipo VARCHAR(100),
+fecha TIMESTAMP
+);
+
+CREATE TABLE tipos_piezas(
+tipo VARCHAR(100),
+pieza VARCHAR(100),
+fecha TIMESTAMP
+);

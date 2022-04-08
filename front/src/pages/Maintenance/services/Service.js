@@ -26,5 +26,23 @@ export default {
       method: 'post',
       body: molino
     })
+  },
+  getTiposEquipo: () => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/getTiposEquipo',
+      method: 'post'
+    })
+  },
+  getTiposPieza: () => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/getTiposPieza',
+      method: 'post'
+    })
+  },
+  getPersonas: () => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/getPersonas',
+      method: 'post'
+    })
   }
 }

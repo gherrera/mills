@@ -536,5 +536,22 @@
 		where id = #id#
 	</update>
 
+	<select id="getTiposEquipo" resultClass="java.util.HashMap">
+		select tipo_equipo, fecha
+		from tipos_equipo
+		order by tipo_equipo
+	</select>
+	
+	<select id="getTiposPieza" resultClass="java.util.HashMap">
+		select tipo, pieza
+		from tipos_piezas
+		order by tipo
+	</select>
 
+	<select id="getPersonas" resultClass="java.util.HashMap">
+		select rut, nombre
+		from personas
+		order by nombre
+	</select>
+	
 </sqlMap>

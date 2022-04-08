@@ -800,5 +800,35 @@ public class Dao {
 			}
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<Map<String, Object>> getTiposEquipo() {
+		try {
+			return (List<Map<String, Object>>)sqlMap.queryForList("getTiposEquipo");
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
 	
+	@SuppressWarnings("unchecked")
+	public List<Map<String, String>> getTiposPieza() {
+		try {
+			return (List<Map<String, String>>)sqlMap.queryForList("getTiposPieza");
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Map<String, String>> getPersonas() {
+		try {
+			return (List<Map<String, String>>)sqlMap.queryForList("getPersonas");
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+
 }

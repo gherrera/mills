@@ -11,8 +11,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -684,6 +686,39 @@ public class App {
 		long lEndTime = System.currentTimeMillis();
 		log.debug("finishInterruption: "+(lEndTime-lStartTime)+"ms");
 		return turno;
+	}
+	
+	public List<Map<String, Object>> getTiposEquipo() {
+		return dao.getTiposEquipo();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Map<String, Object>> getTiposPieza() {
+		List<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
+		List<Map<String, String>> tipos = dao.getTiposPieza();
+		if(tipos != null) {
+			for(Map<String, String> tipo : tipos) {
+				List<String> pieces = null;
+				for(Map<String, Object> t : ret) {
+					if(t.get("type").equals(tipo.get("tipo"))) {
+						pieces = (List<String>)t.get("pieces");
+					}
+				}
+				if(pieces == null) {
+					pieces = new ArrayList<String>();
+					Map<String, Object> rec = new HashMap<String, Object>();
+					rec.put("type", tipo.get("tipo"));
+					rec.put("pieces", pieces);
+					ret.add(rec);
+				}
+				pieces.add(tipo.get("pieza"));
+			}
+		}
+		return ret;
+	}
+	
+	public List<Map<String, String>> getPersonas() {
+		return dao.getPersonas();
 	}
 	
 }
