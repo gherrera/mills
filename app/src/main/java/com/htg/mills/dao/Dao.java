@@ -830,5 +830,56 @@ public class Dao {
 			return null;
 		}
 	}
+	
+	public void saveConfigTiposEquipo(Usuario user, List<String> tiposEquipo) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+			
+			sqlMap.delete("deleteTiposEquipo");
+			for(String te : tiposEquipo) {
+				sqlMap.insert("insertTiposEquipo", te);
+			}
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}
+	}
+	
+	public void saveConfigTiposPieza(Usuario user, List<Map<String, String>> tiposPieza) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+			
+			sqlMap.delete("deleteTiposPieza");
+			for(Map<String, String> tp : tiposPieza) {
+				sqlMap.insert("insertTiposPieza", tp);
+			}
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}
+	}
+	
+	public void saveConfigPersonal(Usuario user, List<Map<String, String>> personal) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+			
+			sqlMap.delete("deletePersonal");
+			for(Map<String, String> persona : personal) {
+				sqlMap.insert("insertPersonal", persona);
+			}
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}
+	}
 
 }

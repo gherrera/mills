@@ -554,4 +554,31 @@
 		order by nombre
 	</select>
 	
+	<delete id="deleteTiposEquipo">
+		delete from tipos_equipo
+	</delete>
+	
+	<insert id="insertTiposEquipo">
+		insert into tipos_equipo(tipo_equipo)
+			values(#value#)
+	</insert>
+	
+	<delete id="deleteTiposPieza">
+		delete from tipos_piezas
+	</delete>
+	
+	<insert id="insertTiposPieza">
+		insert into tipos_piezas(tipo, pieza)
+			values(#type#, #piece#)
+	</insert>
+	
+	<delete id="deletePersonal">
+		delete from personas
+	</delete>
+	
+	<insert id="insertPersonal">
+		insert into personas(rut, nombre)
+			values(#rut#, #name#)
+	</insert>
+	
 </sqlMap>

@@ -1,5 +1,6 @@
 package com.htg.mills.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -29,8 +30,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.htg.mills.app.ApiApp;
 import com.htg.mills.app.App;
@@ -73,6 +77,9 @@ public class MillsController {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
+	@Autowired
+	private ExcelController excelController;
+	
 	@PostMapping("authenticate")
 	public ResponseEntity<?> createAuthenticationToken(HttpServletRequest request, @RequestBody JwtRequest authenticationRequest) throws Exception {
 		try {
@@ -349,17 +356,101 @@ public class MillsController {
 	public List<Map<String, Object>> getTiposEquipo() {
 		return app.getTiposEquipo();
 	}
-	
+
+	@PostMapping("reportTiposEquipo")
+	public ModelAndView reportTiposEquipo() {
+		List<Map<String, Object>> tiposEquipo = app.getTiposEquipo();
+		return new ModelAndView(excelController, "tiposEquipo", tiposEquipo);
+	}
+
 	@PostMapping("getTiposPieza")
     @ResponseBody
 	public List<Map<String, Object>> getTiposPieza() {
 		return app.getTiposPieza();
+	}
+
+	@PostMapping("reportTiposPieza")
+	public ModelAndView reportTiposPieza() {
+		List<Map<String, Object>> tiposPieza = app.getTiposPieza();
+		return new ModelAndView(excelController, "tiposPieza", tiposPieza);
 	}
 	
 	@PostMapping("getPersonas")
     @ResponseBody
 	public List<Map<String, String>> getPersonas() {
 		return app.getPersonas();
+	}
+	
+	@PostMapping("reportPersonal")
+	public ModelAndView reportPersonal() {
+		List<Map<String, String>> personal = app.getPersonas();
+		return new ModelAndView(excelController, "personal", personal);
+	}
+	
+	@PostMapping("uploadConfigTiposEquipo")
+	@ResponseBody
+	public String uploadConfigTiposEquipo(@RequestParam("file") MultipartFile file) {
+		String status="OK";
+		if(file == null || file.isEmpty()) {
+			status = "ERROR: Debe seleccionar un archivo";
+		}else {
+			CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1).toLowerCase();
+			File tmp;
+			try {
+				tmp = File.createTempFile("tiposEquipo", "." + ext);
+				file.transferTo(tmp);
+				app.uploadConfigTiposEquipo(currentUser.getUser(), tmp);
+				tmp.delete();
+			} catch (IOException e) {
+				status = "ERROR: "+e.getMessage();
+			}
+		}
+		return status;
+	}
+	
+	@PostMapping("uploadConfigTiposPieza")
+	@ResponseBody
+	public String uploadConfigTiposPieza(@RequestParam("file") MultipartFile file) {
+		String status="OK";
+		if(file == null || file.isEmpty()) {
+			status = "ERROR: Debe seleccionar un archivo";
+		}else {
+			CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1).toLowerCase();
+			File tmp;
+			try {
+				tmp = File.createTempFile("tiposPieza", "." + ext);
+				file.transferTo(tmp);
+				app.uploadConfigTiposPieza(currentUser.getUser(), tmp);
+				tmp.delete();
+			} catch (IOException e) {
+				status = "ERROR: "+e.getMessage();
+			}
+		}
+		return status;
+	}
+	
+	@PostMapping("uploadConfigPersonal")
+	@ResponseBody
+	public String uploadConfigPersonal(@RequestParam("file") MultipartFile file) {
+		String status="OK";
+		if(file == null || file.isEmpty()) {
+			status = "ERROR: Debe seleccionar un archivo";
+		}else {
+			CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1).toLowerCase();
+			File tmp;
+			try {
+				tmp = File.createTempFile("personal", "." + ext);
+				file.transferTo(tmp);
+				app.uploadConfigPersonal(currentUser.getUser(), tmp);
+				tmp.delete();
+			} catch (IOException e) {
+				status = "ERROR: "+e.getMessage();
+			}
+		}
+		return status;
 	}
 	
 }

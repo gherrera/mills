@@ -41,6 +41,8 @@ import com.htg.mills.entities.maintenance.Persona;
 import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
+import com.htg.mills.reader.ExcelReader;
+import com.htg.mills.reader.IReader;
 import com.htg.mills.utils.EmailUtil;
 import com.htg.mills.utils.Security;
 import com.itextpdf.html2pdf.ConverterProperties;
@@ -719,6 +721,75 @@ public class App {
 	
 	public List<Map<String, String>> getPersonas() {
 		return dao.getPersonas();
+	}
+	
+	public void uploadConfigTiposEquipo(Usuario user, File file) {
+		try {
+			IReader reader = new ExcelReader(file);
+			
+			String line;
+			reader.getLine(0);
+			List<String> tiposEquipo = new ArrayList<String>();
+			while((line = reader.getLine(0)) != null) {
+				String[] data = line.split("\\t");
+				if(data.length>0) {
+					tiposEquipo.add(data[0]);
+				}
+			}
+			reader.close();
+			dao.saveConfigTiposEquipo(user, tiposEquipo);
+		} catch (Exception e) {
+			log.error("Error a procesar archivo", e);
+			throw new HTGException("Error a procesar archivo", e);
+		}
+	}
+	
+	public void uploadConfigTiposPieza(Usuario user, File file) {
+		try {
+			IReader reader = new ExcelReader(file);
+			
+			String line;
+			reader.getLine(0);
+			List<Map<String, String>> tiposPieza = new ArrayList<Map<String, String>>();
+			while((line = reader.getLine(0)) != null) {
+				String[] data = line.split("\\t");
+				if(data.length>1) {
+					Map<String, String> tp = new HashMap<String, String>();
+					tp.put("type", data[0]);
+					tp.put("piece", data[1]);
+					tiposPieza.add(tp);
+				}
+			}
+			reader.close();
+			dao.saveConfigTiposPieza(user, tiposPieza);
+		} catch (Exception e) {
+			log.error("Error a procesar archivo", e);
+			throw new HTGException("Error a procesar archivo", e);
+		}
+	}
+	
+	public void uploadConfigPersonal(Usuario user, File file) {
+		try {
+			IReader reader = new ExcelReader(file);
+			
+			String line;
+			reader.getLine(0);
+			List<Map<String, String>> personal = new ArrayList<Map<String, String>>();
+			while((line = reader.getLine(0)) != null) {
+				String[] data = line.split("\\t");
+				if(data.length>1) {
+					Map<String, String> persona = new HashMap<String, String>();
+					persona.put("rut", data[0]);
+					persona.put("name", data[1]);
+					personal.add(persona);
+				}
+			}
+			reader.close();
+			dao.saveConfigPersonal(user, personal);
+		} catch (Exception e) {
+			log.error("Error a procesar archivo", e);
+			throw new HTGException("Error a procesar archivo", e);
+		}
 	}
 	
 }
