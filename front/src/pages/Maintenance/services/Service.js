@@ -44,5 +44,35 @@ export default {
       url: apiConfig.url + '/getPersonas',
       method: 'post'
     })
+  },
+  uploadConfigTiposEquipo: (formData) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/uploadConfigTiposEquipo',
+      method: 'post',
+      body: formData,
+      headers: {
+          'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+  uploadConfigTiposPieza: (formData) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/uploadConfigTiposPieza',
+      method: 'post',
+      body: formData,
+      headers: {
+          'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+  uploadConfigPersonal: (formData) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/uploadConfigPersonal',
+      method: 'post',
+      body: formData,
+      headers: {
+          'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }

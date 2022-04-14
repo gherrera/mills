@@ -2,17 +2,19 @@ import './Setup.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
-import { Button, Table, Row, Col, Spin, Steps, Modal, notification } from 'antd'
-import { getMolinosPromise, saveMolinoPromise } from '../../promises'
+import { Button, Table, Row, Col, Spin, Steps, Modal, notification, Icon, Badge, Upload } from 'antd'
+import { getMolinosPromise, saveMolinoPromise, uploadConfigTiposEquipoPromise, uploadConfigTiposPiezaPromise, uploadConfigPersonalPromise } from '../../promises'
 import moment from "moment";
 import { Step1, Step2, Step3, Step4, Edit } from './components'
 import { getUsersByClientPromise } from '../../../../promises'
+import { ReportService } from '../../../../services'
 
 const { confirm } = Modal;
 
 const Setup = ({currentUser, action, history}) => {
   const [molinos, setMolinos] = useState([])
   const [isModalVisibleNew, setIsModalVisibleNew] = useState(false)
+  const [isModalVisibleConfig, setIsModalVisibleConfig] = useState(false)
   const [isModalVisibleEdit, setIsModalVisibleEdit] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [client, setClient] = useState({})
@@ -21,6 +23,7 @@ const Setup = ({currentUser, action, history}) => {
   const [personal, setPersonal] = useState([])
   const [currentStep, setCurrentStep] = useState(0)
   const [usuarios, setUsuarios] = useState([])
+  const [fileList, setFileList] = useState([])
   const [faenaSel, setFaenaSel] = useState(null)
 
   useEffect(() => {
@@ -280,6 +283,59 @@ const Setup = ({currentUser, action, history}) => {
     setIsModalVisibleNew(true)
   }
 
+  const openSettings = () => {
+    setIsModalVisibleConfig(true)
+  }
+
+  const onCancelModalConfig = () => {
+    setIsModalVisibleConfig(false)
+  }
+
+  const donwloadTipoEquipo = () => {
+    ReportService.read('/reportTiposEquipo', null, null, 'tipoEquipos.xlsx')
+  }
+
+  const donwloadTipoPieza = () => {
+    ReportService.read('/reportTiposPieza', null, null, 'tipoPiezas.xlsx')
+  }
+
+  const donwloadPersonal = () => {
+    ReportService.read('/reportPersonal', null, null, 'personal.xlsx')
+  }
+
+  const getPropsUpload = (type) => {
+    return {
+      accept: ".xlsx",
+      onRemove: file => {
+        
+      },
+      beforeUpload: async (file) => {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        let resp
+        if(type === 'tiposEquipo') resp = await uploadConfigTiposEquipoPromise(formData)
+        else if(type === 'tiposPieza') resp = await uploadConfigTiposPiezaPromise(formData)
+        else if(type === 'personal') resp = await uploadConfigPersonalPromise(formData)
+
+        if(resp === 'OK') {
+          notification.success({
+            message: 'Configuración',
+            description: 'Datos guardados exitosamente'
+          })
+        }else {
+          notification.error({
+            message: 'Error',
+            description: 'Ocurrió un error al grabar los datos'
+          })
+        }
+        return false
+      },
+      multiple: false,
+      fileList
+    }
+  }
+
   return (
     <div className='setup'>
       {isModalVisibleNew ? 
@@ -303,20 +359,21 @@ const Setup = ({currentUser, action, history}) => {
                 </Row>
             </Row>
         </Row>
-       : isModalVisibleEdit ?
-        <Row className="edit-faena">
-          <div className="tools-area">
-              <span className="title">Faena Nro. {faenaSel.nro}</span>
-              <span className="createAt">Creada en Fecha: {moment(faenaSel.creationDate).format('DD/MM/YYYY')}</span>
-              <Button icon="close" onClick={() => setIsModalVisibleEdit(false)} size="small"/>
-          </div>
-          <Edit molino={faenaSel} action={action} loadMolinos={loadMolinos} />
-        </Row>
-       :
+      : isModalVisibleEdit ?
+          <Row className="edit-faena">
+            <div className="tools-area">
+                <span className="title">Faena Nro. {faenaSel.nro}</span>
+                <span className="createAt">Creada en Fecha: {moment(faenaSel.creationDate).format('DD/MM/YYYY')}</span>
+                <Button icon="close" onClick={() => setIsModalVisibleEdit(false)} size="small"/>
+            </div>
+            <Edit molino={faenaSel} action={action} loadMolinos={loadMolinos} />
+          </Row>
+      :
         <>
             { (action === 'new' || action === 'setup') &&
               <div className="tools-area">
-                  <Button id="create-faena" type="primary" icon="plus" onClick={nuevaFaena}>Nueva faena</Button>
+                  <Button type="primary" icon="setting" onClick={openSettings}>Configuración</Button>
+                  <Button type="primary" icon="plus" onClick={nuevaFaena}>Nueva faena</Button>
               </div>
             }
             <div className="table-wrapper">
@@ -327,6 +384,161 @@ const Setup = ({currentUser, action, history}) => {
                 <Table columns={ getTableColumns() } dataSource={ molinos } size="small"/>
             }
             </div>
+
+            { isModalVisibleConfig &&
+              <Modal
+                wrapClassName="modal-config"
+                title="Configuración"
+                visible={true}
+                width={750}
+                onCancel={onCancelModalConfig}
+                footer={ [
+                  <Button onClick={onCancelModalConfig}>
+                    Cerrar
+                  </Button>
+                ]}
+              >
+                <Row gutter={[0,12]} type="flex">
+                  <Col span={6}>
+                    <div className="content-config" style={{fontWeight:'bold'}}>
+                      Tipo de Equipo
+                    </div>
+                  </Col>
+                  <Col span={10}>
+                    <div className="content-config">
+                      <Col span={7}>
+                        <Badge
+                          count={1}
+                          style={{ backgroundColor: '#fff', color: '#999', boxShadow: 'rgba(0,0,0,.7) 0px 0px 0px 1px inset' }}
+                        />
+                        <Badge count={<Icon type="arrow-down" style={{ backgroundColor: 'rgba(0,128,0,.8)', color:'white', bottom:-10, right:6, top:'unset', borderRadius: 5}} />}>
+                          <a onClick={donwloadTipoEquipo}>
+                            <Icon type="file-excel" style={{ fontSize: '250%', marginLeft: 10, color:'rgba(0,128,0,.8)'}} />
+                          </a>
+                        </Badge>
+                      </Col>
+                      <Col span={17} style={{paddingLeft:15}}>
+                        Descargue la plantilla de tipos de equipos contenida en el sistema
+                      </Col>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div className="content-config">
+                      <Col span={8}>
+                        <Badge
+                          count={2}
+                          style={{ backgroundColor: '#fff', color: '#999', boxShadow: 'rgba(0,0,0,.7) 0px 0px 0px 1px inset' }}
+                        />
+                        <Upload {...getPropsUpload('tiposEquipo')}>
+                          <a>
+                            <Icon type="upload" style={{ fontSize: '250%', marginLeft: 10, fontWeight:'bold', color:'rgba(0,0,0,.8)'}} />
+                          </a>
+                        </Upload>
+                      </Col>
+                      <Col span={16} style={{paddingLeft:15}}>
+                        Cargue la nueva plantilla
+                      </Col>
+                    </div>
+                  </Col>
+                </Row>
+
+                <Row gutter={[0,12]} type="flex">
+                  <Col span={6}>
+                    <div className="content-config" style={{fontWeight:'bold'}}>
+                      Tipo de piezas
+                    </div>
+                  </Col>
+                  <Col span={10}>
+                    <div className="content-config">
+                      <Col span={7}>
+                        <Badge
+                          count={1}
+                          style={{ backgroundColor: '#fff', color: '#999', boxShadow: 'rgba(0,0,0,.7) 0px 0px 0px 1px inset' }}
+                        />
+                        <Badge count={<Icon type="arrow-down" style={{ backgroundColor: 'rgba(0,128,0,.8)', color:'white', bottom:-10, right:6, top:'unset', borderRadius: 5}} />}>
+                          <a onClick={donwloadTipoPieza}>
+                            <Icon type="file-excel" style={{ fontSize: '250%', marginLeft: 10, color:'rgba(0,128,0,.8)'}} />
+                          </a>
+                        </Badge>
+                      </Col>
+                      <Col span={17} style={{paddingLeft:15}}>
+                        Descargue la plantilla de tipos de equipos contenida en el sistema
+                      </Col>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div className="content-config">
+                      <Col span={8}>
+                        <Badge
+                          count={2}
+                          style={{ backgroundColor: '#fff', color: '#999', boxShadow: 'rgba(0,0,0,.7) 0px 0px 0px 1px inset' }}
+                        />
+                        <Upload {...getPropsUpload('tiposPieza')}>
+                          <a>
+                            <Icon type="upload" style={{ fontSize: '250%', marginLeft: 10, fontWeight:'bold', color:'rgba(0,0,0,.8)'}} />
+                          </a>
+                        </Upload>
+                      </Col>
+                      <Col span={16} style={{paddingLeft:15}}>
+                        Cargue la nueva plantilla
+                      </Col>
+                    </div>
+                  </Col>
+                </Row>
+
+                <Row gutter={[0,12]} type="flex">
+                  <Col span={6}>
+                    <div className="content-config" style={{fontWeight:'bold'}}>
+                      Personal
+                    </div>
+                  </Col>
+                  <Col span={10}>
+                    <div className="content-config">
+                      <Col span={7}>
+                        <Badge
+                          count={1}
+                          style={{ backgroundColor: '#fff', color: '#999', boxShadow: 'rgba(0,0,0,.7) 0px 0px 0px 1px inset' }}
+                        />
+                        <Badge count={<Icon type="arrow-down" style={{ backgroundColor: 'rgba(0,128,0,.8)', color:'white', bottom:-10, right:6, top:'unset', borderRadius: 5}} />}>
+                          <a onClick={donwloadPersonal}>
+                            <Icon type="file-excel" style={{ fontSize: '250%', marginLeft: 10, color:'rgba(0,128,0,.8)'}} />
+                          </a>
+                        </Badge>
+                      </Col>
+                      <Col span={17} style={{paddingLeft:15}}>
+                        Descargue la plantilla de tipos de equipos contenida en el sistema
+                      </Col>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div className="content-config">
+                      <Col span={8}>
+                        <Badge
+                          count={2}
+                          style={{ backgroundColor: '#fff', color: '#999', boxShadow: 'rgba(0,0,0,.7) 0px 0px 0px 1px inset' }}
+                        />
+                        <Upload {...getPropsUpload('personal')}>
+                          <a>
+                            <Icon type="upload" style={{ fontSize: '250%', marginLeft: 10, fontWeight:'bold', color:'rgba(0,0,0,.8)'}} />
+                          </a>
+                        </Upload>
+                      </Col>
+                      <Col span={16} style={{paddingLeft:15}}>
+                        Cargue la nueva plantilla
+                      </Col>
+                    </div>
+                  </Col>
+                </Row>
+
+                <Row gutter={[0,24]}>
+                  <Col>
+                    <div style={{fontStyle:'italic', fontSize:'1.1em'}} className="content-config">
+                      <Icon type="warning" />&nbsp;Los datos cargados reemplazarán a los existentes en el sistema
+                    </div>
+                  </Col>
+                </Row>
+              </Modal>
+            }
         </>
       }
     </div>
