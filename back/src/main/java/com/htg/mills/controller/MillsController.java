@@ -41,6 +41,7 @@ import com.htg.mills.app.App;
 import com.htg.mills.entities.CurrentUser;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Tarea;
@@ -238,6 +239,12 @@ public class MillsController {
 	public Results users() {
 		//CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return app.getUsers();
+	}
+	
+	@PostMapping("clients")
+    @ResponseBody
+	public List<Cliente> clients() {
+		return app.getClientes();
 	}
 	
 	@PostMapping("deleteUser")

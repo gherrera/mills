@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 public class Evento {
 
 	public enum Type {
-		INTERRUPTION
+		INTERRUPTION, COMMENT
 	}
 	
 	private Integer id;

@@ -170,6 +170,7 @@ public class Dao {
 	
 	public void saveUser(Usuario user, String mode, Usuario usuario) throws SQLException {
 		if(mode.equals("I")) {
+			if(usuario.getClient() == null) usuario.setClient(new Cliente());
 			sqlMap.insert("insertUser", usuario);
 		}else {
 			sqlMap.update("updateUser", usuario);
@@ -182,6 +183,16 @@ public class Dao {
 			return (List<Usuario>)sqlMap.queryForList("getUsers");
 		} catch (SQLException e) {
 			log.error("Error al leer usuarios", e);
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Cliente> getClientes() {
+		try {
+			return (List<Cliente>)sqlMap.queryForList("getClientes");
+		} catch (SQLException e) {
+			log.error("Error al leer clientes", e);
 			return null;
 		}
 	}

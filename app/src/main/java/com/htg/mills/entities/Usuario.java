@@ -11,12 +11,13 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.htg.mills.entities.maintenance.Cliente;
 
 public class Usuario extends Entity {
 
 	private static final long serialVersionUID = 3252267236423407518L;
 	public enum Type {
-		ADMIN, CONTROLLER;
+		ADMIN, CONTROLLER, DASHBOARD;
 	};
 	private static Pattern pattern = Pattern.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
@@ -29,6 +30,7 @@ public class Usuario extends Entity {
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
 	private Timestamp feActivacion;
+	private Cliente client;
 	
 	public String getLogin() {return login;}
 	public String getName() {return name;}
@@ -101,6 +103,12 @@ public class Usuario extends Entity {
 	}
 	public void setFeActivacion(Timestamp feActivacion) {
 		this.feActivacion = feActivacion;
+	}
+	public Cliente getClient() {
+		return client;
+	}
+	public void setClient(Cliente client) {
+		this.client = client;
 	}
 	
 }

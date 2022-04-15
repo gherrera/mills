@@ -24,5 +24,12 @@ export default {
       method: 'post',
       body: user
     })
+  },
+
+  getClients: () => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/clients',
+      method: 'post'
+    })
   }
 }

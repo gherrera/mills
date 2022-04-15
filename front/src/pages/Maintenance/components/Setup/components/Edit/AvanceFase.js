@@ -14,6 +14,7 @@ const AvanceFase = ({molino, stage}) => {
     const [ recordSelected, setRecordSelected ] = useState(null)
     const [ isVisibleDetailsExecution, setIsVisibleDetailsExecution ] = useState(false)
     const [ detailsExecution, setDetailsExecution ] = useState(null)
+    const [ interruptions, setInterruptions ] = useState(null)
 
   useEffect(() => {
     if(stage.stage === 'EXECUTION') {
@@ -200,6 +201,44 @@ const AvanceFase = ({molino, stage}) => {
     setIsVisibleDetailsExecution(false)
   }
 
+  const openInterruptions = (int) => {
+    setInterruptions(int)
+  }
+
+  const onCancelModalInterruptions = () => {
+    setInterruptions(null)
+  }
+  
+  const interruptionsColumns = [
+    {
+      title: 'Tipo',
+      dataIndex: 'type',
+      width: '15%',
+      render: (type) => {
+          if(type === 'INTERRUPTION') return 'Interrupción'
+          else if(type === 'COMMENT') return 'Comentario'
+        }
+    },
+    {
+      title: 'Fecha Inicio',
+      dataIndex: 'startDate',
+      width: '15%',
+      render: (startDate) => moment(startDate).format('DD/MM/YYYY HH:mm')
+    },
+    {
+      title: 'Fecha Término',
+      dataIndex: 'finishDate',
+      width: '15%',
+      render: (finishDate) => finishDate && moment(finishDate).format('DD/MM/YYYY HH:mm')
+    },
+    {
+      title: 'Observaciones',
+      dataIndex: 'comments',
+      width: '55%',
+      render: (text) => <pre>{text}</pre>
+    }
+  ]
+
   return (
     <div className="stage">
         <Row className="title-stage">
@@ -226,7 +265,12 @@ const AvanceFase = ({molino, stage}) => {
               <span className="info duration">{secondsToHms(stage.duration)}</span>
 
               <label>Interrupciones</label>
-              <span className="info interruption">{stage.events.length}</span>
+              <span className="info interruption">
+                {stage.events.length === 0 ? 0
+                :
+                  <a onClick={() => openInterruptions(stage.events)}>{stage.events.length}</a>
+                }
+              </span>
 
               { stage.stage !== 'DELIVERY' &&
                 <Switch size="small" defaultChecked={checked} onChange={onChangeSwitch}/>
@@ -306,6 +350,22 @@ const AvanceFase = ({molino, stage}) => {
             ]}
           >
             <Table dataSource={detailsExecution} columns={getColumnsPartsDetail()} size="small" pagination={false}/>
+          </Modal>
+        }
+        { interruptions &&
+          <Modal
+            title="Eventos"
+            visible={true}
+            width={900}
+            wrapClassName="modalInterruptions"
+            onCancel={onCancelModalInterruptions}
+            footer={ [
+              <Button onClick={onCancelModalInterruptions}>
+                Cerrar
+              </Button>
+            ]}
+          >
+            <Table dataSource={interruptions} columns={interruptionsColumns} size="small" pagination={false}/>
           </Modal>
         }
     </div>

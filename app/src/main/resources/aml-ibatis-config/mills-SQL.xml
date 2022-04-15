@@ -15,6 +15,7 @@
 		<result property="modulesStr" column="user_modulos"/>
 		<result property="status" column="user_estado"/>
 		<result property="feActivacion" column="fe_activacion"/>
+		<result property="client" column="cliente_id" select="getClienteById" />
 	</resultMap>
 
 	<resultMap id="Usuario" class="com.htg.mills.entities.Usuario" extends="UsuarioCore">
@@ -176,7 +177,7 @@
 	</delete>
 	
 	<select id="getUserById" resultMap="Usuario">
-		select id user_id, creation_date, nombre, login, _password, email, tipo tipo_user, modulos user_modulos, estado user_estado, fe_activacion
+		select id user_id, creation_date, nombre, login, _password, email, tipo tipo_user, modulos user_modulos, estado user_estado, fe_activacion, cliente_id
 		from users
 		WHERE id = #value#
 	</select>
@@ -191,7 +192,7 @@
 	</select>
 		
 	<select id="getUserByLogin" resultMap="Usuario">
-		select a.id user_id, a.creation_date, a.nombre, a.login, a._password, a.email, a.tipo tipo_user, a.modulos user_modulos, a.estado user_estado, a.fe_activacion
+		select a.id user_id, a.creation_date, a.nombre, a.login, a._password, a.email, a.tipo tipo_user, a.modulos user_modulos, a.estado user_estado, a.fe_activacion, a.cliente_id
 		FROM users a
 		WHERE a.login = #login#
 	</select>
@@ -204,8 +205,8 @@
 	</update>
 	
 	<insert id="insertUser">
-		insert into users(id, creation_date, nombre, tipo, email, login, _password, modulos, estado)
-			values(#id#, #creationDate#, #name#, #type#, #email#, #login#, #password#, #modulesStr#, #status#)
+		insert into users(id, creation_date, nombre, tipo, email, login, _password, modulos, estado, cliente_id)
+			values(#id#, #creationDate#, #name#, #type#, #email#, #login#, #password#, #modulesStr#, #status#, #client.id#)
 	</insert>
 	
 	<update id="updateUser">
@@ -222,6 +223,7 @@
 				<isNotNull property="password">
 				, _password = #password#
 				</isNotNull>
+				, cliente_id = #client.id#
 		where id = #id#
 	</update>
 
@@ -236,7 +238,7 @@
 	</delete>
 
 	<select id="getUsers" resultMap="UsuarioCore">
-		select id user_id, creation_date, nombre, login, _password, email, tipo tipo_user, modulos user_modulos, estado user_estado, fe_activacion
+		select id user_id, creation_date, nombre, login, _password, email, tipo tipo_user, modulos user_modulos, estado user_estado, fe_activacion, cliente_id
 		from users
 		order by tipo, nombre
 	</select>
@@ -359,6 +361,12 @@
 		select id, fec_creacion, nombre, rut, direccion, contact_name, contact_phone, email
 		from clientes
 		where id = #value#	
+	</select>
+	
+	<select id="getClientes" resultMap="Cliente">
+		select id, fec_creacion, nombre, rut, direccion, contact_name, contact_phone, email
+		from clientes
+		order by nombre	
 	</select>
 	
 	<update id="updateStatusTurno">

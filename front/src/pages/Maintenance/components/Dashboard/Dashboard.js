@@ -7,7 +7,7 @@ import { getMolinosPromise, getMolinoPromise } from '../../promises'
 import moment from "moment";
 import Plot from "react-plotly.js";
 
-const Dashboard = () => {
+const Dashboard = ({currentUser}) => {
     const [molinos, setMolinos] = useState([])
     const [clientes, setClientes] = useState([])
     const [cliente, setCliente] = useState(null)
@@ -33,6 +33,9 @@ const Dashboard = () => {
 
             setIsLoading(false)
         })
+        if(currentUser.type === 'DASHBOARD' && currentUser.client) {
+            setCliente(currentUser.client.id)
+        }
     }, [])
 
     const handleChangeMolino = (id) => {
@@ -219,66 +222,68 @@ const Dashboard = () => {
                 <Spin size="large" />
                 :
                 <>
-                    <Row className="block">
-                        <Row className="title">
-                            Resumen total de Proyectos
+                    { currentUser.type !== 'DASHBOARD' &&
+                        <Row className="block">
+                            <Row className="title">
+                                Resumen total de Proyectos
+                            </Row>
+                            <Row className="indicators" gutter={[8,8]} type="flex">
+                                <Col span={4} xs={12} md={4}>
+                                    <Row className="indicator">
+                                        <Col span={8} className="number">
+                                            { clientes.length }
+                                        </Col>
+                                        <Col span={16} style={{paddingLeft: 10}}>
+                                            Clientes
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col span={4} xs={12} md={4}>
+                                    <Row className="indicator">
+                                        <Col span={8} className="number">
+                                            {molinos.filter(m => m.status === 'FINISHED').length}
+                                        </Col>
+                                        <Col span={16} style={{paddingLeft: 10}}>
+                                            Faenas<br/>realizadas
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col span={4} xs={12} md={4}>
+                                    <Row className="indicator">
+                                        <Col span={8} className="number">
+                                            {molinos.filter(m => m.status === 'STARTED').length}
+                                        </Col>
+                                        <Col span={16} style={{paddingLeft: 10}}>
+                                            Faenas<br/>en curso
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col span={4} xs={12} md={4}>
+                                    <Row className="indicator">
+                                        <Col span={8} className="number">
+                                            {molinos.filter(m => m.status === 'STARTED').reduce((accumulator, current) => accumulator + current.piezas, 0)}
+                                        </Col>
+                                        <Col span={16} style={{paddingLeft: 10}}>
+                                            Piezas<br/>en movimiento
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col span={8} xs={24} md={8}>
+                                    <Row className="indicator">
+                                        <Col span={12}>
+                                            <div>Ultimo cliente:</div>
+                                        </Col>
+                                        <Col span={12} style={{textAlign:'right'}}>
+                                            {molinos && molinos.length > 0 ? moment(molinos[0].creationDate).format('MMMM YYYY'): 'N/A'}
+                                        </Col>
+                                        <Col span={24} style={{whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis'}}>
+                                            <div style={{fontWeight:'bold'}}>{molinos && molinos.length > 0 ? molinos[0].faena.client.name: 'N/A'}</div>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            </Row>
                         </Row>
-                        <Row className="indicators" gutter={[8,8]} type="flex">
-                            <Col span={4} xs={12} md={4}>
-                                <Row className="indicator">
-                                    <Col span={8} className="number">
-                                        { clientes.length }
-                                    </Col>
-                                    <Col span={16} style={{paddingLeft: 5}}>
-                                        Clientes
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={4} xs={12} md={4}>
-                                <Row className="indicator">
-                                    <Col span={8} className="number">
-                                        {molinos.filter(m => m.status === 'FINISHED').length}
-                                    </Col>
-                                    <Col span={16} style={{paddingLeft: 5}}>
-                                        Faenas<br/>realizadas
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={4} xs={12} md={4}>
-                                <Row className="indicator">
-                                    <Col span={8} className="number">
-                                        {molinos.filter(m => m.status === 'STARTED').length}
-                                    </Col>
-                                    <Col span={16} style={{paddingLeft: 5}}>
-                                        Faenas<br/>en curso
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={4} xs={12} md={4}>
-                                <Row className="indicator">
-                                    <Col span={8} className="number">
-                                        {molinos.filter(m => m.status === 'STARTED').reduce((accumulator, current) => accumulator + current.piezas, 0)}
-                                    </Col>
-                                    <Col span={16} style={{paddingLeft: 5}}>
-                                        Piezas<br/>en movimiento
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={8} xs={24} md={8}>
-                                <Row className="indicator">
-                                    <Col span={12}>
-                                        <div>Ultimo cliente:</div>
-                                    </Col>
-                                    <Col span={12} style={{textAlign:'right'}}>
-                                        {molinos && molinos.length > 0 ? moment(molinos[0].creationDate).format('MMMM YYYY'): 'N/A'}
-                                    </Col>
-                                    <Col span={24} style={{whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis'}}>
-                                        <div style={{fontWeight:'bold'}}>{molinos && molinos.length > 0 ? molinos[0].faena.client.name: 'N/A'}</div>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    </Row>
+                    }
                     <Row className="block">
                         <Row>
                             <Row gutter={[16,16]}>
@@ -287,13 +292,15 @@ const Dashboard = () => {
                                         Principales indicadores por Proyecto
                                     </Row>
                                 </Col>
-                                <Col span={6} xs={14} md={6}>
-                                    <Select style={{width:'100%'}} placeholder="Cliente" onChange={(value) => setCliente(value)} allowClear>
-                                        { clientes.map(c => 
-                                            <Select.Option value={c.id}>{c.name}</Select.Option>
-                                        )}
-                                    </Select>
-                                </Col>
+                                { currentUser.type !== 'DASHBOARD' || !currentUser.client &&
+                                    <Col span={6} xs={14} md={6}>
+                                        <Select style={{width:'100%'}} placeholder="Cliente" onChange={(value) => setCliente(value)} allowClear>
+                                            { clientes.map(c => 
+                                                <Select.Option value={c.id}>{c.name}</Select.Option>
+                                            )}
+                                        </Select>
+                                    </Col>
+                                }
                                 <Col span={6} xs={10} md={6}>
                                     <Select style={{width:'100%'}} placeholder="Orden de Trabajo" onChange={handleChangeMolino}>
                                         { molinos.map(m => 

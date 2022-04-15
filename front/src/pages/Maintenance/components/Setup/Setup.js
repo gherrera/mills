@@ -6,7 +6,7 @@ import { Button, Table, Row, Col, Spin, Steps, Modal, notification, Icon, Badge,
 import { getMolinosPromise, saveMolinoPromise, uploadConfigTiposEquipoPromise, uploadConfigTiposPiezaPromise, uploadConfigPersonalPromise } from '../../promises'
 import moment from "moment";
 import { Step1, Step2, Step3, Step4, Edit } from './components'
-import { getUsersByClientPromise } from '../../../../promises'
+import { getUsersPromise } from '../../../../promises'
 import { ReportService } from '../../../../services'
 
 const { confirm } = Modal;
@@ -28,7 +28,7 @@ const Setup = ({currentUser, action, history}) => {
 
   useEffect(() => {
     if(action === 'new') setIsModalVisibleNew(true)
-    getUsersByClientPromise().then(users => setUsuarios(users))
+    getUsersPromise().then(users => setUsuarios(users))
     loadMolinos()
   }, [])
 

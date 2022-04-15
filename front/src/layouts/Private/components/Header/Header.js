@@ -11,7 +11,9 @@ export default ({ currentUser, logoutHandler, currentPage }) => (
       <Logo clientId={ currentUser } />
     </Col>
     <Col span={12}>
-      <Navigation currentUser={ currentUser } currentPage={currentPage} />
+      { currentUser.type !== 'DASHBOARD' &&
+        <Navigation currentUser={ currentUser } currentPage={currentPage} />
+      }
     </Col>
     <Col span={6}>
       <CurrentUser

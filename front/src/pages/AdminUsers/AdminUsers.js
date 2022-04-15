@@ -2,8 +2,8 @@ import './AdminUsers.scss'
 import React from 'react'
 import { withTranslation } from 'react-i18next'
 import { UsersService } from '../../services'
-import { getUsersByClientPromise } from '../../promises'
-import { Button, Icon, Modal, notification, Popconfirm, Table, Tooltip, Spin } from 'antd'
+import { getUsersPromise, getClientsPromise } from '../../promises'
+import { Button, Icon, Modal, notification, Table, Tooltip, Spin } from 'antd'
 import { Page, PageContent,  PageHeader } from '../../layouts/Private/components'
 import ModalCreateContent from './ModalContentCreate'
 import { generatePasswordHelper } from '../../helpers'
@@ -19,7 +19,8 @@ class AdminUsers extends React.Component {
     isLoading: true,
     isLoadingReport: false,
     isModalVisible: false,
-    modal: ''
+    modal: '',
+    clients: []
 	}
 
   getBreadcrumbs() {
@@ -35,10 +36,11 @@ class AdminUsers extends React.Component {
   }
 
   async loadUsers() {
-    const data = await getUsersByClientPromise()
-
+    const data = await getUsersPromise()
+    const clients = await getClientsPromise()
     await this.setState({
       data,
+      clients,
       isLoading: false
     })
   }
@@ -99,7 +101,7 @@ class AdminUsers extends React.Component {
       await UsersService.saveUser('I', user)
         .then(async response => {
           if(response.data === 'success') {
-            const data = await getUsersByClientPromise()
+            const data = await getUsersPromise()
             this.setState({ data, isModalVisible: false })
 
             notification['success']({
@@ -119,7 +121,7 @@ class AdminUsers extends React.Component {
       await UsersService.saveUser("U", user)
         .then(async response => {
           if(response.data === 'success') {
-            const data = await getUsersByClientPromise()
+            const data = await getUsersPromise()
             this.setState({ data, isModalVisible: false })
 
             notification['success']({
@@ -146,7 +148,7 @@ class AdminUsers extends React.Component {
       content = {
         title: [ <Icon type="user-add" />, ' ', 'Nuevo usuario' ],
         className: 'modal-user-create',
-        content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } currentUser={ user } password={ generatePasswordHelper() } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="create" />
+        content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } clients={this.state.clients} currentUser={ user } password={ generatePasswordHelper() } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="create" />
       }
     }
 
@@ -154,7 +156,7 @@ class AdminUsers extends React.Component {
       content = {
         title: [ <Icon type="eye" />, ' ', 'Información' ],
         className: 'modal-user-create',
-        content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } currentUser={ currentUser } user={ user } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="view" />
+        content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } clients={this.state.clients} currentUser={ currentUser } user={ user } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="view" />
       }
     }
 
@@ -162,7 +164,7 @@ class AdminUsers extends React.Component {
       content = {
         title: [ <Icon type="edit" />, ' ', 'Editar usuario' ],
         className: 'modal-user-create',
-        content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } user={ user }  password={ generatePasswordHelper() } currentUser={ currentUser } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="edit" />
+        content: <ModalCreateContent key={ Math.floor((Math.random() * 100) + 1) } clients={this.state.clients} user={ user }  password={ generatePasswordHelper() } currentUser={ currentUser } onOk={ this.handleModalOk.bind(this) } onCancel={ this.handleModalCancel.bind(this) } modalType="edit" />
       }
     }
 
@@ -183,7 +185,9 @@ class AdminUsers extends React.Component {
             return 'Administrador'
           case 'CONTROLLER':
             return 'Controlador'
-          default:
+          case 'DASHBOARD':
+            return 'Dashboard'
+            default:
             return text
         }
       })
@@ -197,6 +201,11 @@ class AdminUsers extends React.Component {
         render: (text => 
           moment(text).format('DD/MM/YYYY HH:mm')
         ) 
+      },
+      { 
+        title: 'Cliente', 
+        dataIndex: 'client',
+        render: (client, record) => record.type === 'DASHBOARD' && client && client.name
       },
       { title: "Estado", dataIndex: 'status', render: (text => {
           return t('messages.mills.status.' + text)

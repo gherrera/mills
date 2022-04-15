@@ -2,7 +2,7 @@ import './Personal.scss'
 import React, { useEffect, useState } from 'react'
 import { Row, Col } from 'antd'
 import { Step4 } from '..'
-import { getUsersByClientPromise } from '../../../../../../promises'
+import { getUsersPromise } from '../../../../../../promises'
 
 const Personal = ({molino, action, readOnly, mode, handleChangePersonal }) => {
     const [personal, setPersonal] = useState(null)
@@ -17,7 +17,7 @@ const Personal = ({molino, action, readOnly, mode, handleChangePersonal }) => {
         })
     })
     setPersonal(personas)
-    getUsersByClientPromise().then(users => setUsuarios(users))
+    getUsersPromise().then(users => setUsuarios(users))
   }, [])
 
   const handleNotifPersonal = (p) => {

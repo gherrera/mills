@@ -35,6 +35,7 @@ import com.htg.mills.dao.Dao;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Persona;
@@ -250,6 +251,10 @@ public class App {
 			log.error("Error al grabar usuario", e);
 			throw new HTGException("Error al grabar usuario", e);
 		}
+	}
+	
+	public List<Cliente> getClientes() {
+		return dao.getClientes();
 	}
 	
 	public boolean changePwd(Usuario usuario, Usuario user, String newPwd) {

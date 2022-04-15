@@ -40,5 +40,6 @@
   "messages.mills.errors.passwordMustHaveUpperCaseLetter": "Error: Password must have at least one upper case letter",
   "messages.mills.errors.passwordsDontMatch": "Error: New password and the confirmation password don't match",
   "messages.mills.errors.passwordIsWrong": "Error: Wrong password",
-  "messages.mills.errors.unknownError": "Error: Unknown error ocurred"
+  "messages.mills.errors.unknownError": "Error: Unknown error ocurred",
+  "messages.mills.success.passwordSuccesfullyUpdated": "Contraseña actualizada exitosamente"
 }

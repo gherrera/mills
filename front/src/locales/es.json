@@ -40,5 +40,6 @@
    "messages.mills.errors.passwordMustHaveUpperCaseLetter": "Error: La clave debe contener al menos una letra mayúscula",
    "messages.mills.errors.passwordsDontMatch": "Error: La nueva contraseña y su confirmación no coinciden",
    "messages.mills.errors.passwordIsWrong": "Error: La contraseña ingresada es errónea",
-   "messages.mills.errors.unknownError": "Error: Un error desconocido ha ocurrido"
+   "messages.mills.errors.unknownError": "Error: Un error desconocido ha ocurrido",
+   "messages.mills.success.passwordSuccesfullyUpdated": "Contraseña actualizada exitosamente"
 }

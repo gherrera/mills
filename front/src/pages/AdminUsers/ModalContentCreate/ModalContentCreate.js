@@ -1,7 +1,7 @@
 import React from 'react'
 import { withTranslation } from 'react-i18next'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Button, Col, Form, Icon, Input, notification, Row, Select, Switch, Tabs, Tooltip } from 'antd'
+import { Button, Col, Form, Icon, Input, notification, Row, Select, Tooltip } from 'antd'
 import { resetPasswordPromise } from '../../Login/promises'
 
 class ModalContentCreate extends React.Component {
@@ -18,11 +18,13 @@ class ModalContentCreate extends React.Component {
       token: null,
       status: 'ACTIVE',
       modules: [],
-      isPasswordReset: false
+      isPasswordReset: false,
+      client: {}
     }
   }
 
   async componentDidMount() {
+    debugger
     if (this.props.modalType === 'edit' || this.props.modalType === 'view') {
       const { form } = this.props
       this.setState({
@@ -33,7 +35,8 @@ class ModalContentCreate extends React.Component {
         login: this.props.user.login,
         status: this.props.user.status,
         token: this.props.user.ticket,
-        modules: this.props.user.modules !== null ? this.props.user.modules : []
+        modules: this.props.user.modules !== null ? this.props.user.modules : [],
+        //client: this.props.user.client
       })
 
       form.setFieldsValue({
@@ -42,7 +45,8 @@ class ModalContentCreate extends React.Component {
         type: this.props.user.type,
         status: this.props.user.status,
         login: this.props.user.login,
-        token: this.props.user.ticket
+        token: this.props.user.ticket,
+        client: this.props.user.client && this.props.user.client.id
       })
     }
   }
@@ -57,6 +61,10 @@ class ModalContentCreate extends React.Component {
 
   handleOnChangeStatus = (value) => {
     this.setState({ status: value })
+  }
+
+  handleOnChangeClient = (value) => {
+    this.setState({ client: value ? {id: value }: {} })
   }
 
   handleUsernameOnKeyDown = (e) => {
@@ -93,6 +101,7 @@ class ModalContentCreate extends React.Component {
     //if(modalType !== 'create') 
     options.push( <Select.Option value="ADMIN">Administrador</Select.Option>)
     options.push( <Select.Option value="CONTROLLER">Controlador</Select.Option>)
+    options.push( <Select.Option value="DASHBOARD">Dashboard</Select.Option>)
 
     return options
 
@@ -143,8 +152,7 @@ class ModalContentCreate extends React.Component {
 
   render() {
     const { getFieldDecorator } = this.props.form
-    const { modalType } = this.props
-    const { t } = this.props
+    const { modalType, t, clients } = this.props
 
     return (
       <div>
@@ -303,11 +311,31 @@ class ModalContentCreate extends React.Component {
                   <Select
                       placeholder="Estado"
                       onChange={ (value) => this.handleOnChangeStatus(value) }
-                      value={ this.state.status }
                       disabled={modalType === 'view' }
                     >
                       <Select.Option value="ACTIVE">{ t('messages.mills.status.ACTIVE') }</Select.Option>
                       <Select.Option value="INACTIVE">{ t('messages.mills.status.INACTIVE') }</Select.Option>
+                    </Select>
+                )}
+                  </Form.Item>
+              </Col>
+            }
+
+            { this.state.type === 'DASHBOARD' &&
+              <Col span={ 24 }>
+                <Form.Item label="Cliente">
+                { getFieldDecorator('client', {
+                  initialValue: this.props.user && this.props.user.client && this.props.user.client.id
+                })(
+                  <Select
+                      placeholder="Cliente"
+                      onChange={ (value) => this.handleOnChangeClient(value) }
+                      disabled={modalType === 'view' }
+                      allowClear
+                    >
+                      { clients.map(c => 
+                        <Select.Option value={c.id}>{ c.name }</Select.Option>
+                      )}
                     </Select>
                 )}
                   </Form.Item>

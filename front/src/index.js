@@ -125,14 +125,16 @@ class App extends Component {
   renderComponent(CurrentPage, protectedContent) {
     const { isLoggedIn, currentUser } = this.state
 
-    if (protectedContent && currentUser !== {} && currentUser.cliente !== undefined) {
-      /*
+    if (protectedContent && currentUser !== {} && currentUser !== undefined) {
       switch(protectedContent) {
-        case 'service1':
-          CurrentPage = (currentUser.tipoServicio !== null && currentUser.tipoServicio.includes('SERVICIO1')) ? CurrentPage : NotAuthorizedPage
+        case 'home':
+          CurrentPage = currentUser.type === 'DASHBOARD' ? MaintenancePage : CurrentPage
           break
+        case 'maintenance':
+          CurrentPage = currentUser.type === 'DASHBOARD' ? NotAuthorizedPage : CurrentPage
+        case 'adminusers':
+          CurrentPage = currentUser.type === 'DASHBOARD' ? NotAuthorizedPage : CurrentPage
       }
-      */
     }
 
     return isLoggedIn ? <CurrentPage key={Math.random()} currentUser={ currentUser } service={protectedContent} /> : <LoginPage successHandler={ this.handleLogin.bind(this) } />
@@ -151,9 +153,9 @@ class App extends Component {
             <Router>
               <Layout currentUser={ currentUser } logoutHandler={ this.handleLogout.bind(this) }>
                 <Switch>
-                  <Route path="/" exact render={ () => this.renderComponent(HomePage) } />
-                  <Route path="/maintenance/:action?" exact render={ () => this.renderComponent(MaintenancePage) } />
-                  <Route path="/accounts" exact render={ () => this.renderComponent(AdminUsersPage) } />
+                  <Route path="/" exact render={ () => this.renderComponent(HomePage, 'home') } />
+                  <Route path="/maintenance/:action?" exact render={ () => this.renderComponent(MaintenancePage, 'maintenance') } />
+                  <Route path="/accounts" exact render={ () => this.renderComponent(AdminUsersPage, 'adminusers') } />
                   
 
                   <Route render={ () => <NotFoundPage /> } />
