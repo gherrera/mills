@@ -52,7 +52,7 @@ class Home extends Component {
                       <Spin/>
                       :
                       molinos.map(molino =>
-                        <Row>
+                        <Row style={{marginBottom: 10}}>
                           La Faena de <strong>{molino.faena.client.name}</strong> con OT <strong>{molino.ordenTrabajo}</strong> con fecha de inicio {moment(molino.startDate).format('DD/MM/YYYY')} se encuentra en curso, con un avance del <strong>{Math.round(molino.percentage*100)}%</strong>.
                         </Row>  
                       )}
