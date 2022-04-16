@@ -36,7 +36,7 @@ class Home extends Component {
       <div className="home">
         <Page>
           <PageContent>
-            <Row className="module">
+            <Row className="module" type="flex">
               <Col xs={9} sm={7} lg={3}>
                 <Link to="/maintenance" style={{position:'relative'}}>
                   <Icon type="tool" theme="filled" />
@@ -45,17 +45,20 @@ class Home extends Component {
                   </div>
                 </Link>
               </Col>
-              <Col xs={15} sm={17} lg={15} className="submodule" style={{marginBottom: 10}}>
+              <Col xs={15} sm={17} lg={15} className="submodule">
                 <div className="content">
                   <Card title="Notificaciones" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', padding: '2px 6px'}}>
                     { molinos === null ?
                       <Spin/>
                       :
-                      molinos.map(molino =>
-                        <Row style={{marginBottom: 10}}>
+                      <ul>
+                      { molinos.map(molino =>
+                        <li style={{marginBottom: 10}}>
                           La Faena de <strong>{molino.faena.client.name}</strong> con OT <strong>{molino.ordenTrabajo}</strong> con fecha de inicio {moment(molino.startDate).format('DD/MM/YYYY')} se encuentra en curso, con un avance del <strong>{Math.round(molino.percentage*100)}%</strong>.
-                        </Row>  
+                        </li>  
                       )}
+                      </ul>
+                    }
                   </Card>
                 </div>
               </Col>

@@ -24,11 +24,16 @@
 
         div.submodule {
           padding-right: 10px;
-          height: 170px;
+          //height: 100%;
         
           .content {
             height: 100%;
             background-color: rgba(0,0,0,.02);
+          }
+
+          ul {
+            margin: 0px;
+            padding-inline-start: 20px;
           }
 
           &.name {

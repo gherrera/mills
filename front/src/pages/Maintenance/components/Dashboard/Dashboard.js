@@ -292,7 +292,7 @@ const Dashboard = ({currentUser}) => {
                                         Principales indicadores por Proyecto
                                     </Row>
                                 </Col>
-                                { currentUser.type !== 'DASHBOARD' || !currentUser.client &&
+                                { (currentUser.type !== 'DASHBOARD' || !currentUser.client) &&
                                     <Col span={6} xs={14} md={6}>
                                         <Select style={{width:'100%'}} placeholder="Cliente" onChange={(value) => setCliente(value)} allowClear>
                                             { clientes.map(c => 
