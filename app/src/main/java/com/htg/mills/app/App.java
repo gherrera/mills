@@ -641,7 +641,7 @@ public class App {
 		return turno;
 	}
 	
-	public Turno startInterruption(Usuario user, String id, String desc) {
+	public Turno startInterruption(Usuario user, String id, boolean stopFaena, String comments) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -655,7 +655,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.startInterruption(user, turno, desc);
+						dao.startInterruption(user, turno, stopFaena, comments);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar interrupcion", e);

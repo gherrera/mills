@@ -773,7 +773,7 @@ public class Dao {
 		}
 	}
 	
-	public void startInterruption(Usuario user, Turno turno, String desc) throws SQLException {
+	public void startInterruption(Usuario user, Turno turno, boolean stopFaena, String comments) throws SQLException {
 		Molino molino = turno.getMolino();
 
 		Etapa current = molino.getCurrentStage();
@@ -785,9 +785,14 @@ public class Dao {
 	
 			Evento evt = new Evento();
 			evt.setStartDate(new Timestamp(date.getTime()));
-			evt.setType(Evento.Type.INTERRUPTION);
-			evt.setComments(desc);
+			evt.setType(stopFaena ? Evento.Type.INTERRUPTION : Evento.Type.COMMENT);
+			evt.setComments(comments);
 			evt.setUserStart(user.getLogin());
+			if(!stopFaena) {
+				evt.setFinishDate(evt.getStartDate());
+				evt.setUserFinish(user.getLogin());
+				
+			}
 			params.put("evt", evt);
 			params.put("stage", current);
 	

@@ -347,9 +347,9 @@ public class MillsController {
 	}
 	
 	@PostMapping("startInterruption")
-    @ResponseBody Turno startInterruption(@RequestBody Map<String, String> params) {
+    @ResponseBody Turno startInterruption(@RequestBody Map<String, Object> params) {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.startInterruption(currentUser.getUser(), params.get("id"), params.get("desc"));
+		return app.startInterruption(currentUser.getUser(), (String)params.get("id"), (Boolean)params.get("stopFaena"), (String)params.get("comments"));
 	}
 	
 	@PostMapping("finishInterruption")

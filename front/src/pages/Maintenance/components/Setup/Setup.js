@@ -174,7 +174,7 @@ const Setup = ({currentUser, action, history}) => {
             title: "Avance",
             dataIndex: "percentage",
             render: (text) => {
-                return text*100 + '%'
+                return Math.round(text*100) + '%'
             }
           },
           { 

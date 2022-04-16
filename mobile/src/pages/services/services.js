@@ -84,13 +84,14 @@ export default {
       }
     })
   },
-  startInterruption: (id, desc) => {
+  startInterruption: (id, stopFaena, comments) => {
     return apiRequestorHelper({
       url: apiConfig.url + '/startInterruption',
       method: 'post',
       body: {
         id,
-        desc
+        stopFaena,
+        comments
       }
     })
   },

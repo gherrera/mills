@@ -10,7 +10,7 @@ import {
     Modal,
     TextInput,
 } from 'react-native';
-import { Button, Tab, TabView } from 'react-native-elements';
+import { Button, Tab, TabView, CheckBox } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
 import { inicioTurnoPromise, finTurnoPromise, getTurnoPromise, startInterruptionPromise, finishInterruptionPromise } from './promises';
@@ -56,6 +56,7 @@ export default class Turno extends Component {
         tabIndex: 0,
         isVisibleInterruption: false,
         comments: null,
+        stopFaena: true,
         isLoadingInterruption: false
     }
 
@@ -161,14 +162,16 @@ export default class Turno extends Component {
     }
 
     handleStartInterruption() {
-        const { turno, comments } = this.state
+        const { turno, comments, stopFaena } = this.state
         this.setState({isLoadingInterruption:true})
-        startInterruptionPromise(turno.id, comments).then(t => {
+        startInterruptionPromise(turno.id, stopFaena, comments).then(t => {
             t.open = true
             this.setTurno(t)
             this.setState({
                 comments: null,
-                isLoadingInterruption: false
+                stopFaena: true,
+                isLoadingInterruption: false,
+                isVisibleInterruption: stopFaena
             })
         })
     }
@@ -221,7 +224,7 @@ export default class Turno extends Component {
 
     render() {
         const { currentUser } = this.props
-        const { tabIndex, turno, isVisibleInterruption, isLoadingInterruption } = this.state
+        const { tabIndex, turno, isVisibleInterruption, isLoadingInterruption, stopFaena } = this.state
         const {t, i18n} = this.props.screenProps; 
 
         return (
@@ -279,8 +282,13 @@ export default class Turno extends Component {
                                         onChangeText={(val) => this.setState({ comments: val })}
                                         style={{borderColor:StylesGlobal.colorGray, borderWidth:1, borderRadius:5, padding: 5, textAlignVertical: 'top', marginBottom:30}}
                                     />
+                                    <CheckBox
+                                        title='Detener faena'
+                                        checked={stopFaena}
+                                        onPress={() => this.setState({stopFaena: !this.state.stopFaena})}
+                                        />
                                     <Button
-                                        title="Iniciar interrupción"
+                                        title={stopFaena ? "Iniciar interrupción" : "Agregar comentario" }
                                         titleStyle={{fontSize:20, textAlign:'center'}}
                                         loading={isLoadingInterruption}
                                         buttonStyle={{backgroundColor:'rgba(0,0,0,0.9)', width:'70%', textAlign: 'center',alignSelf:'center',marginTop:20, borderRadius:10, borderColor: StylesGlobal.colorGray, borderWidth:2 }}

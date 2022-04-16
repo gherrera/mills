@@ -472,8 +472,8 @@
 	</update>
 	
 	<insert id="insertInterruption">
-		insert into etapa_eventos(tipo, comentarios, fecha_inicio, user_inicio, etapa_id)
-			values(#evt.type#, #evt.comments#, #evt.startDate#, #evt.userStart#, #stage.id#)
+		insert into etapa_eventos(tipo, comentarios, fecha_inicio, fecha_termino, user_inicio, user_termino, etapa_id)
+			values(#evt.type#, #evt.comments#, #evt.startDate#, #evt.finishDate#, #evt.userStart#, #evt.userFinish#, #stage.id#)
 	</insert>
 	
 	<update id="finishInterruption">
