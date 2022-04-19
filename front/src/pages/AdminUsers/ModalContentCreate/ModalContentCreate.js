@@ -2,7 +2,6 @@ import React from 'react'
 import { withTranslation } from 'react-i18next'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Button, Col, Form, Icon, Input, notification, Row, Select, Tooltip } from 'antd'
-import { resetPasswordPromise } from '../../Login/promises'
 
 class ModalContentCreate extends React.Component {
   constructor(props) {
@@ -24,9 +23,8 @@ class ModalContentCreate extends React.Component {
   }
 
   async componentDidMount() {
-    debugger
+    const { form } = this.props
     if (this.props.modalType === 'edit' || this.props.modalType === 'view') {
-      const { form } = this.props
       this.setState({
         id: this.props.user.id,
         name: this.props.user.name,
@@ -48,19 +46,19 @@ class ModalContentCreate extends React.Component {
         token: this.props.user.ticket,
         client: this.props.user.client && this.props.user.client.id
       })
+    }else { //create
+      this.setState({
+        password: this.props.password
+      })
+      form.setFieldsValue({
+        password: this.props.password
+      })
     }
+
   }
 
-  handleOnChange = async (key, value) => {
-    await this.setState({ [key]: value })
-  }
-
-  handleOnChangeType = (value) => {
-    this.setState({ type: value })
-  }
-
-  handleOnChangeStatus = (value) => {
-    this.setState({ status: value })
+  handleOnChange = (key, value) => {
+    this.setState({ [key]: value })
   }
 
   handleOnChangeClient = (value) => {
@@ -176,7 +174,7 @@ class ModalContentCreate extends React.Component {
                     filterOption={(input, option) =>
                       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     }
-                    onChange={(value) => this.handleOnChangeType(value)}
+                    onChange={(value) => this.handleOnChange('type', value)}
                     value={this.state.type}
                     disabled={modalType === 'view' || (this.state.type === 'ADMIN' && this.state.login === 'admin')}
                   >
@@ -250,7 +248,14 @@ class ModalContentCreate extends React.Component {
             {(modalType === 'edit' || modalType === 'create') &&
               <Col xs={24}>
                 <Form.Item label="Contraseña">
-                  {getFieldDecorator('password')(
+                  {getFieldDecorator('password', { 
+                    rules: [
+                      {
+                        required: modalType === 'create',
+                        message: t('messages.mills.mandatory'),
+                      }
+                    ]
+                  })(
                     modalType === 'create' ?
                     <>
                       <Col span={17}>
@@ -310,7 +315,7 @@ class ModalContentCreate extends React.Component {
                 })(
                   <Select
                       placeholder="Estado"
-                      onChange={ (value) => this.handleOnChangeStatus(value) }
+                      onChange={ (value) => this.handleOnChange('status', value) }
                       disabled={modalType === 'view' }
                     >
                       <Select.Option value="ACTIVE">{ t('messages.mills.status.ACTIVE') }</Select.Option>
