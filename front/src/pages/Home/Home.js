@@ -36,72 +36,80 @@ class Home extends Component {
       <div className="home">
         <Page>
           <PageContent>
-            <Row className="module" type="flex">
-              <Col xs={9} sm={7} lg={3}>
-                <Link to="/maintenance" style={{position:'relative'}}>
-                  <Icon type="tool" theme="filled" />
-                  <div className="submodule name">
-                      <span>Mantenimiento</span>
-                  </div>
-                </Link>
+            <Row className="title-mills">
+              <Col span={16}>
+                <div>MILLS OPERATIONAL SYSTEM</div>
               </Col>
-              <Col xs={15} sm={17} lg={15} className="submodule">
-                <div className="content">
-                  <Card title="Notificaciones" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', padding: '2px 6px'}}>
-                    { molinos === null ?
-                      <Spin/>
-                      :
-                      <ul>
-                      { molinos.map(molino =>
-                        <li style={{marginBottom: 10}}>
-                          La Faena de <strong>{molino.faena.client.name}</strong> con OT <strong>{molino.ordenTrabajo}</strong> con fecha de inicio {moment(molino.startDate).format('DD/MM/YYYY')} se encuentra en curso, con un avance del <strong>{Math.round(molino.percentage*100)}%</strong>.
-                        </li>  
-                      )}
-                      </ul>
-                    }
-                  </Card>
-                </div>
-              </Col>
-              <Col xs={24} sm={24} lg={6} className="submodule">
-                <div className="content">
-                  <Card title="Acciones rápidas" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', padding: '2px 6px'}}>
-                    <Row>
-                      <Link to="/maintenance/new">
-                        Ingrese nueva faena
-                      </Link>
-                    </Row>
-                    <Row>
-                      <Link to="/maintenance/STARTED">
-                        Faenas en curso
-                      </Link>
-                    </Row>
-                  </Card>
-                </div>
+              <Col span={8}>
+                <img src="/logo.png" alt=""/>
               </Col>
             </Row>
             <Row className="module">
-              <Col xs={9} sm={7} lg={3}>
+              <Row className="title">
+                <Link to="/maintenance" style={{position:'relative'}}>
+                  <Icon type="tool" theme="filled" />
+                  <div>Mantenimiento</div>
+                </Link>
+              </Row>
+              <Row type="flex" gutter={[12,0]}>
+                <Col xs={24} md={16} lg={18} className="submodule">
+                  <div className="content">
+                    <Card title="Notificaciones" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', padding: '2px 6px'}}>
+                      { molinos === null ?
+                        <Spin/>
+                        :
+                        <ul>
+                        { molinos.map((molino, index) => index < 2 &&
+                          <li style={{marginBottom: 5, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', listStylePosition:'inside'}}>
+                            La Faena de <strong>{molino.faena.client.name}</strong> con OT <strong>{molino.ordenTrabajo}</strong> con fecha de inicio {moment(molino.startDate).format('DD/MM/YYYY')} se encuentra en curso, con un avance del <strong>{Math.round(molino.percentage*100)}%</strong>.
+                          </li>  
+                        )}
+                        </ul>
+                      }
+                    </Card>
+                  </div>
+                </Col>
+                <Col xs={24} md={8} lg={6} className="submodule">
+                  <div className="content">
+                    <Card title="Acciones rápidas" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', padding: '2px 6px'}}>
+                      <Row style={{paddingBottom:5, fontSize:'1.1em'}}>
+                        <Link to="/maintenance/new">
+                          Ingrese nueva faena
+                        </Link>
+                      </Row>
+                      <Row style={{fontSize:'1.1em'}}>
+                        <Link to="/maintenance/STARTED">
+                          Faenas en curso
+                        </Link>
+                      </Row>
+                    </Card>
+                  </div>
+                </Col>
+              </Row>
+            </Row>
+            <Row className="module">
+              <Row className="title">
                 <Link style={{position:'relative'}}>
                   <Icon type="user" />
-                  <div className="submodule name">
-                    <span>RRHH</span>
-                  </div>
+                  <div>RRHH</div>
                 </Link>
-              </Col>
-              <Col xs={15} sm={17} lg={15} className="submodule" style={{marginBottom: 10}}>
-                <div className="content">
-                  <Card title="Notificaciones" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', minHeight: 22, padding: '2px 6px'}}>
-
-                  </Card>
-                </div>
-              </Col>
-              <Col span={6} xs={24} sm={24} lg={6} className="submodule">
-                <div className="content">
-                  <Card title="Acciones rápidas" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', minHeight: 22, padding: '2px 6px'}}>
-
-                  </Card>
-                </div>
-              </Col>
+              </Row>
+              <Row type="flex" gutter={[12,0]}>
+                <Col xs={24} md={16} lg={18} className="submodule">
+                  <div className="content">
+                    <Card title="Notificaciones" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', padding: '2px 6px'}}>
+                      
+                    </Card>
+                  </div>
+                </Col>
+                <Col xs={24} md={8} lg={6} className="submodule">
+                  <div className="content">
+                    <Card title="Acciones rápidas" bordered={false} headStyle={{color:'rgba(0,0,0,.55)', padding: '2px 6px'}}>
+                      
+                    </Card>
+                  </div>
+                </Col>
+              </Row>
             </Row>
           </PageContent>
         </Page>

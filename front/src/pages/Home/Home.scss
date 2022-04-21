@@ -1,39 +1,87 @@
+
 #inicio {
 
   .home {
-    //min-height: 450px;
+    background-color: rgba(0,0,0,.1);
+    min-height: 583px;
+
+    @media (max-width: 700px) {
+      .title-mills {
+        height: 45px;
+        padding-left: 10px !important;
+
+        div>div {
+          font-size:small !important;
+          margin: 11px 0px !important;
+        }
+        img {
+          height: 40px !important;
+          margin-top: 3px;
+        }
+      }
+
+      div.module {
+        .title {
+          padding-left: 10px !important;
+        }
+      }
+    }
+
+    .title-mills {
+      background-color: rgba(0, 0, 0, 0.85);
+      max-height: 55px;
+      padding: 0px 14px 0px 20px;
+      margin-bottom: 10px;
+
+      color: rgba(255, 255, 255, 0.9);
+      div>div {
+        vertical-align: middle;
+        margin: 14px 0px;
+        font-size: large;
+      }
+      
+      img {
+        height: 55px;
+        float: right;
+      }
+    }
 
     .page-content {
       padding: 20px;
 
       div.module {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
   
-        .anticon {
-          position: absolute;
-          left: 0px;
-          right: 0px;
-          line-height: 40px;
-          height: 0px;
-          font-size: 30px;
-          padding-top: 15px;
-          color: white;
-          z-index: 10;
-          width: 95%;
+        .title {
+          padding: 6px 12px;
+          background-color: rgba(0, 0, 0, 0.83);
+          margin-bottom: 10px;
+
+          a {
+            color: rgba(255, 255, 255, 0.9);
+          }
+          .anticon {
+            font-size: 30px;
+          }
+          div {
+            position: absolute;
+            top: 0px;
+            font-size: 1.4em;
+            margin: -11px 40px;
+          }
         }
 
         div.submodule {
-          padding-right: 10px;
-          //height: 100%;
-        
+          margin-bottom: 5px;
           .content {
             height: 100%;
-            background-color: rgba(0,0,0,.02);
+            min-height: 100px;
+            background-color: rgba(255,255,255,.9);
           }
 
           ul {
             margin: 0px;
-            padding-inline-start: 20px;
+            padding-inline-start: 10px;
           }
 
           &.name {
