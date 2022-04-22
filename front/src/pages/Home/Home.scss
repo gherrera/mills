@@ -5,18 +5,20 @@
     background-color: rgba(0,0,0,.1);
     min-height: 583px;
 
-    @media (max-width: 700px) {
+    @media (max-width: 600px) {
       .title-mills {
-        height: 45px;
         padding-left: 10px !important;
+        padding-right: 10px !important;
 
         div>div {
-          font-size:small !important;
-          margin: 11px 0px !important;
+          font-size: 1.3em !important;
+          line-height: 40px !important;
         }
+
         img {
-          height: 40px !important;
-          margin-top: 3px;
+          display: none;
+          height: 20px !important;
+          top: 12px !important;
         }
       }
 
@@ -30,19 +32,21 @@
     .title-mills {
       background-color: rgba(0, 0, 0, 0.85);
       max-height: 55px;
-      padding: 0px 14px 0px 20px;
+      padding: 0px 14px 0px 16px;
       margin-bottom: 10px;
+      border-radius: 3px;
 
       color: rgba(255, 255, 255, 0.9);
       div>div {
-        vertical-align: middle;
-        margin: 14px 0px;
-        font-size: large;
+        line-height: 44px;
+        font-size: 1.4em;
       }
       
       img {
         height: 55px;
-        float: right;
+        position: absolute;
+        top: -3px;
+        right: 0px;
       }
     }
 
@@ -55,7 +59,8 @@
         .title {
           padding: 6px 12px;
           background-color: rgba(0, 0, 0, 0.83);
-          margin-bottom: 10px;
+          margin-bottom: 8px;
+          border-radius: 3px;
 
           a {
             color: rgba(255, 255, 255, 0.9);
@@ -67,7 +72,7 @@
             position: absolute;
             top: 0px;
             font-size: 1.4em;
-            margin: -11px 40px;
+            margin: -11px 42px;
           }
         }
 
@@ -77,6 +82,10 @@
             height: 100%;
             min-height: 100px;
             background-color: rgba(255,255,255,.9);
+
+            box-shadow: 10px 10px 40px -25px rgba(0,0,0,0.5);
+            -webkit-box-shadow: 10px 10px 40px -25px rgba(0,0,0,0.5);
+            -moz-box-shadow: 10px 10px 40px -25px rgba(0,0,0,0.5);
           }
 
           ul {

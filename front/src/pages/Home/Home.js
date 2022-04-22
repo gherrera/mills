@@ -37,10 +37,8 @@ class Home extends Component {
         <Page>
           <PageContent>
             <Row className="title-mills">
-              <Col span={16}>
+              <Col>
                 <div>MILLS OPERATIONAL SYSTEM</div>
-              </Col>
-              <Col span={8}>
                 <img src="/logo.png" alt=""/>
               </Col>
             </Row>
@@ -60,7 +58,7 @@ class Home extends Component {
                         :
                         <ul>
                         { molinos.map((molino, index) => index < 2 &&
-                          <li style={{marginBottom: 5, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', listStylePosition:'inside'}}>
+                          <li style={{marginBottom: 5}}>
                             La Faena de <strong>{molino.faena.client.name}</strong> con OT <strong>{molino.ordenTrabajo}</strong> con fecha de inicio {moment(molino.startDate).format('DD/MM/YYYY')} se encuentra en curso, con un avance del <strong>{Math.round(molino.percentage*100)}%</strong>.
                           </li>  
                         )}

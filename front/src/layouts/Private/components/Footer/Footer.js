@@ -57,7 +57,7 @@ export default ({ currentUser }) => {
     <div id="footer">
       <Row className="footer-inner">
         <Col>
-          Copyright &copy; - HTG Soluciones - Todos los derechos reservados
+          Copyright &copy; - Mills - Todos los derechos reservados - Powered by HTG Soluciones
         </Col>
       </Row>
     </div>
