@@ -222,6 +222,12 @@ const Dashboard = ({currentUser}) => {
                 <Spin size="large" />
                 :
                 <>
+                    <Row className="title-mills">
+                        <Col>
+                            <div>MILLS OPERATIONAL SYSTEM</div>
+                            <img src="/logo.png" alt=""/>
+                        </Col>
+                    </Row>
                     { currentUser.type !== 'DASHBOARD' &&
                         <Row className="block">
                             <Row className="title">
