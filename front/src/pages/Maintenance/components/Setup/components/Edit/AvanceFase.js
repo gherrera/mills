@@ -124,17 +124,17 @@ const AvanceFase = ({molino, stage}) => {
   }
 
   const columnsParts = [
-    { 
+    {
       title: 'Sección',
       dataIndex: 'type',
       with: '25%'
     },
-    { 
+    {
       title: 'Pieza',
       dataIndex: 'name',
       with: '55%'
     },
-    { 
+    {
       title: 'Cantidad',
       dataIndex: 'qty',
       with: '20%'
@@ -143,18 +143,18 @@ const AvanceFase = ({molino, stage}) => {
 
   const getColumnsPartsDetail = (task) => {
     let columns = [
-      { 
+      {
         title: 'Nro',
         with: '5%',
         render: (text, record, index) => index+1
       },
-      { 
+      {
         title: 'Fecha',
         dataIndex: 'creationDate',
         with: '15%',
         render: (fec) => moment(fec).format("DD/MM/YYYY HH:mm")
       },
-      { 
+      {
         title: 'Turno',
         dataIndex: 'turno',
         with: '10%',
@@ -163,7 +163,7 @@ const AvanceFase = ({molino, stage}) => {
     ]
     if(!task) {
       columns.push(
-        { 
+        {
           title: 'Tarea',
           dataIndex: 'task',
           with: '15%',
@@ -172,13 +172,13 @@ const AvanceFase = ({molino, stage}) => {
       )
     }
     columns.push(
-      { 
+      {
         title: 'Sección',
         dataIndex: 'part',
         with: task ? '25%' : '20%',
         render: (part) => part.type
       },
-      { 
+      {
         title: 'Pieza',
         dataIndex: 'part',
         with: task ? '45%' : '35%',
@@ -208,7 +208,7 @@ const AvanceFase = ({molino, stage}) => {
   const onCancelModalInterruptions = () => {
     setInterruptions(null)
   }
-  
+
   const interruptionsColumns = [
     {
       title: 'Tipo',

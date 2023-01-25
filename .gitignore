@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 logs/
 node_modules/
+front/package-lock.json
 
 ### STS ###
 .apt_generated

@@ -9,7 +9,7 @@ const Avance = ({molino, action }) => {
     //const { t } = useTranslation()
 
   useEffect(() => {
-    
+
   }, [])
 
   function zeroPad(num, places) {
@@ -35,8 +35,9 @@ const Avance = ({molino, action }) => {
   return (
     <div className='avance'>
         <Row className="title">
-            <Col span={6}>Registro de avance</Col>
-            <Col span={18} className="indicadores">
+            <Col span={5}>Registro de avance</Col>
+            <Col span={7}>Fecha de actualización: <b>{moment().format('DD/MM/YYYY HH:mm')}</b></Col>
+            <Col span={12} className="indicadores">
               <label>Inicio</label>
               <span>{moment(molino.startDate).format('DD/MM/YYYY HH:mm')}</span>
 

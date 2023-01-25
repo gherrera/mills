@@ -2,7 +2,7 @@ import './Dashboard.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
-import { Statistic, DatePicker, Row, Col, Spin, Skeleton, Select } from 'antd'
+import { Statistic, DatePicker, Row, Col, Spin, Skeleton, Select, Button, Tooltip } from 'antd'
 import { getMolinosPromise, getMolinoPromise } from '../../promises'
 import moment from "moment";
 import Plot from "react-plotly.js";
@@ -13,6 +13,7 @@ const Dashboard = ({currentUser}) => {
     const [cliente, setCliente] = useState(null)
     const [molino, setMolino] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [isLoadingMolinos, setIsLoadingMolinos] = useState(false)
     const [isLoadingMolino, setIsLoadingMolino] = useState(false)
     const [fecha, setFecha] = useState(null)
     const [avances, setAvances] = useState({})
@@ -20,23 +21,43 @@ const Dashboard = ({currentUser}) => {
     const [ dataGraph, setDataGraph ] = useState([])
 
     useEffect(() => {
-        setIsLoading(true)
-        getMolinosPromise(null).then(m => {
-            setMolinos(m)
-
-            const uniqueClientes = [];
-            m.map((item) => {
-                var findItem = uniqueClientes.find((x) => x.id === item.faena.client.id);
-                if (!findItem) uniqueClientes.push(item.faena.client);
-            });
-            setClientes(uniqueClientes)
-
-            setIsLoading(false)
-        })
+        init()
         if(currentUser.type === 'DASHBOARD' && currentUser.client) {
             setCliente(currentUser.client.id)
         }
     }, [])
+
+    const loadMolinos = async () => {
+        setIsLoadingMolinos(true)
+        return getMolinosPromise(null).then(m => {
+            setMolinos(m)
+
+            const uniqueClientes = [];
+            m.map(item => {
+                var findItem = uniqueClientes.find((x) => x.id === item.faena.client.id);
+                if (!findItem) uniqueClientes.push(item.faena.client);
+            });
+            setClientes(uniqueClientes)
+            setIsLoadingMolinos(false)
+        })
+    }
+
+    const init = async () => {
+        setIsLoading(true)
+        await loadMolinos()
+        setIsLoading(false)
+    }
+
+    const handleRefreshMolino = () => {
+        if(molino) {
+            handleChangeMolino(molino.id)
+        }
+    }
+
+    const changeCliente = (value) => {
+        setCliente(value)
+        setMolino(null)
+    }
 
     const handleChangeMolino = (id) => {
         setIsLoadingMolino(true)
@@ -92,7 +113,7 @@ const Dashboard = ({currentUser}) => {
                             if(fec.isBefore(pFecha)) giros++
                         }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
                             task.parts && task.parts.map(part => {
-                                let fecParte = moment(part.creationDate)
+                                const fecParte = moment(part.creationDate)
 
                                 let fec
                                 let fecIni = part.turno.creationDate
@@ -112,8 +133,13 @@ const Dashboard = ({currentUser}) => {
                                     fec = moment(part.turno.creationDate)
                                 }
                                 if(fec.isBefore(pFecha)) {
-                                    if(!turnos[part.turno.id]) turnos[part.turno.id] = {qty : 0, duration: (fecFin - fecIni)/1000}
-                                    if(fecParte.isBefore(pFecha)) turnos[part.turno.id].qty = turnos[part.turno.id].qty + part.qty
+                                    if(!turnos[part.turno.id]) turnos[part.turno.id] = {qty : 0, montadas: 0, duration: (fecFin - fecIni)/1000}
+                                    if(fecParte.isBefore(pFecha)) {
+                                        turnos[part.turno.id].qty = turnos[part.turno.id].qty + part.qty
+                                        if(task.task === 'MONTAJE') {
+                                            turnos[part.turno.id].montadas = turnos[part.turno.id].montadas + part.qty
+                                        }
+                                    }
                                 }
                             })
                         }
@@ -125,6 +151,9 @@ const Dashboard = ({currentUser}) => {
         avObj.giros = giros
         const movs = Object.entries(turnos).reduce((accumulator, current) => {
             return accumulator + current[1].qty
+        }, 0)
+        const montadas = Object.entries(turnos).reduce((accumulator, current) => {
+            return accumulator + current[1].montadas
         }, 0)
         const durationTurnos = Object.entries(turnos).reduce((accumulator, current) => {
             return accumulator + current[1].duration
@@ -139,6 +168,7 @@ const Dashboard = ({currentUser}) => {
         avObj.hasRetraso = durationTurnos === 0 ? 'N/A' : segPiezaReal > segPiezaMeta ? 'Sí' : 'No'
 
         avObj.movimientosReal = movs
+        avObj.montadas = montadas
         let tpo = durationTurnos / (pMolino.exHours * 3600)
         if(tpo > 1) tpo = 1
         avObj.movimientosProg = Math.round(tpo * pMolino.piezas * 2)
@@ -161,19 +191,19 @@ const Dashboard = ({currentUser}) => {
             const date2 = new Date(pFecha.startOf('day')).getTime()
             const date1 = new Date(fecIni.startOf('day')).getTime()
             const d = Math.floor((date2-date1)/(1000*60*60*24));
-            
+
             for(let i=0;i<d;i++) {
                 let f = new Date(fecIni.startOf('day'))
                 f.setDate(f.getDate() + i)
                 let vFec = moment(f).startOf('day')
-                
+
                 let fecha = vFec.format("DD-MM-YYYY")
 
                 f.setDate(f.getDate() + 1)
                 vFec = moment(f).startOf('day')
                 let avObj = getStatsAvancesByFecha(vFec, pMolino)
                 avObj.fecha = fecha
-                
+
                 vGraph.push(avObj)
                 vDays.push(vFec.format("DD-MM-YYYY"))
             }
@@ -181,7 +211,7 @@ const Dashboard = ({currentUser}) => {
 
         setDataGraph(vGraph)
         setDays(vDays)
-        
+
         let avObj = getStatsAvancesByFecha(pFecha, pMolino)
         setAvances(avObj)
     }
@@ -218,8 +248,7 @@ const Dashboard = ({currentUser}) => {
 
     return (
         <div className='dashboard'>
-            {isLoading ?
-                <Spin size="large" />
+            {isLoading ? <Skeleton active />
                 :
                 <>
                     <Row className="title-mills">
@@ -231,63 +260,73 @@ const Dashboard = ({currentUser}) => {
                     { currentUser.type !== 'DASHBOARD' &&
                         <Row className="block">
                             <Row className="title">
-                                Resumen total de Proyectos
-                            </Row>
-                            <Row className="indicators" gutter={[8,8]} type="flex">
-                                <Col span={4} xs={12} md={4}>
-                                    <Row className="indicator">
-                                        <Col span={8} className="number">
-                                            { clientes.length }
-                                        </Col>
-                                        <Col span={16} style={{paddingLeft: 10}}>
-                                            Clientes
-                                        </Col>
-                                    </Row>
+                                <Col span={20}>
+                                    Resumen total de Proyectos
                                 </Col>
-                                <Col span={4} xs={12} md={4}>
-                                    <Row className="indicator">
-                                        <Col span={8} className="number">
-                                            {molinos.filter(m => m.status === 'FINISHED').length}
-                                        </Col>
-                                        <Col span={16} style={{paddingLeft: 10}}>
-                                            Faenas<br/>realizadas
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                <Col span={4} xs={12} md={4}>
-                                    <Row className="indicator">
-                                        <Col span={8} className="number">
-                                            {molinos.filter(m => m.status === 'STARTED').length}
-                                        </Col>
-                                        <Col span={16} style={{paddingLeft: 10}}>
-                                            Faenas<br/>en curso
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                <Col span={4} xs={12} md={4}>
-                                    <Row className="indicator">
-                                        <Col span={8} className="number">
-                                            {molinos.filter(m => m.status === 'STARTED').reduce((accumulator, current) => accumulator + current.piezas, 0)}
-                                        </Col>
-                                        <Col span={16} style={{paddingLeft: 10}}>
-                                            Piezas<br/>en movimiento
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                <Col span={8} xs={24} md={8}>
-                                    <Row className="indicator">
-                                        <Col span={12}>
-                                            <div>Ultimo cliente:</div>
-                                        </Col>
-                                        <Col span={12} style={{textAlign:'right'}}>
-                                            {molinos && molinos.length > 0 ? moment(molinos[0].creationDate).format('MMMM YYYY'): 'N/A'}
-                                        </Col>
-                                        <Col span={24} style={{whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis'}}>
-                                            <div style={{fontWeight:'bold'}}>{molinos && molinos.length > 0 ? molinos[0].faena.client.name: 'N/A'}</div>
-                                        </Col>
-                                    </Row>
+                                <Col span={4} style={{textAlign:'right'}}>
+                                    <Tooltip title="Recargar">
+                                        <Button icon="reload" onClick={loadMolinos} />
+                                    </Tooltip>
                                 </Col>
                             </Row>
+                            { isLoadingMolinos ? <Row style={{textAlign:'center', paddingTop: 10}}><Spin/></Row>
+                            :
+                                <Row className="indicators" gutter={[8,8]} type="flex">
+                                    <Col span={4} xs={12} md={4}>
+                                        <Row className="indicator">
+                                            <Col span={8} className="number">
+                                                { clientes.length }
+                                            </Col>
+                                            <Col span={16} style={{paddingLeft: 10}}>
+                                                Clientes
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={4} xs={12} md={4}>
+                                        <Row className="indicator">
+                                            <Col span={8} className="number">
+                                                {molinos.filter(m => m.status === 'FINISHED').length}
+                                            </Col>
+                                            <Col span={16} style={{paddingLeft: 10}}>
+                                                Faenas<br/>realizadas
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={4} xs={12} md={4}>
+                                        <Row className="indicator">
+                                            <Col span={8} className="number">
+                                                {molinos.filter(m => m.status === 'STARTED').length}
+                                            </Col>
+                                            <Col span={16} style={{paddingLeft: 10}}>
+                                                Faenas<br/>en curso
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={4} xs={12} md={4}>
+                                        <Row className="indicator">
+                                            <Col span={8} className="number">
+                                                {molinos.filter(m => m.status === 'STARTED').reduce((accumulator, current) => accumulator + current.piezas, 0)}
+                                            </Col>
+                                            <Col span={16} style={{paddingLeft: 10}}>
+                                                Piezas<br/>en movimiento
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={8} xs={24} md={8}>
+                                        <Row className="indicator">
+                                            <Col span={12}>
+                                                <div>Ultimo cliente:</div>
+                                            </Col>
+                                            <Col span={12} style={{textAlign:'right'}}>
+                                                {molinos && molinos.length > 0 ? moment(molinos[0].creationDate).format('MMMM YYYY'): 'N/A'}
+                                            </Col>
+                                            <Col span={24} style={{whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis'}}>
+                                                <div style={{fontWeight:'bold'}}>{molinos && molinos.length > 0 ? molinos[0].faena.client.name: 'N/A'}</div>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
+                            }
                         </Row>
                     }
                     <Row className="block">
@@ -300,7 +339,7 @@ const Dashboard = ({currentUser}) => {
                                 </Col>
                                 { (currentUser.type !== 'DASHBOARD' || !currentUser.client) &&
                                     <Col span={6} xs={14} md={6}>
-                                        <Select style={{width:'100%'}} placeholder="Cliente" onChange={(value) => setCliente(value)} allowClear>
+                                        <Select style={{width:'100%'}} placeholder="Cliente" value={cliente} onChange={changeCliente} allowClear>
                                             { clientes.map(c => 
                                                 <Select.Option value={c.id}>{c.name}</Select.Option>
                                             )}
@@ -308,7 +347,7 @@ const Dashboard = ({currentUser}) => {
                                     </Col>
                                 }
                                 <Col span={6} xs={10} md={6}>
-                                    <Select style={{width:'100%'}} placeholder="Orden de Trabajo" onChange={handleChangeMolino}>
+                                    <Select style={{width:'100%'}} placeholder="Orden de Trabajo" value={molino && molino.id} onChange={handleChangeMolino}>
                                         { molinos.map(m => 
                                             (!cliente || cliente === m.faena.client.id) && m.status &&
                                             <Select.Option value={m.id}>{m.ordenTrabajo}</Select.Option>
@@ -322,7 +361,13 @@ const Dashboard = ({currentUser}) => {
                             <>
                                 <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, marginTop: 5}}>
                                     <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
-                                        Faena
+                                        <Col span={4}>Faena</Col>
+                                        <Col span={16}>Fecha de actualización: <b>{moment().format('DD/MM/YYYY HH:mm')}</b></Col>
+                                        <Col span={4} style={{textAlign:'right'}}>
+                                            <Tooltip title="Recargar">
+                                                <Button icon="reload" type="primary" onClick={handleRefreshMolino} />
+                                            </Tooltip>
+                                        </Col>
                                     </Row>
                                     <Row style={{padding: 10}}>
                                         <Col span={8} xs={24} sm={12} md={8} style={{textAlign:'center'}}>
@@ -493,7 +538,7 @@ const Dashboard = ({currentUser}) => {
                                                                 Piezas<br/>
                                                                 cambiadas
                                                                 <div className="indicador-number">
-                                                                    {Math.floor(avances.movimientosReal/2)}
+                                                                    {Math.floor(avances.montadas)}
                                                                 </div>
                                                             </Col>
                                                         </Col>

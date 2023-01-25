@@ -2,8 +2,8 @@ import './Setup.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
-import { Button, Table, Row, Col, Spin, Steps, Modal, notification, Icon, Badge, Upload } from 'antd'
-import { getMolinosPromise, saveMolinoPromise, uploadConfigTiposEquipoPromise, uploadConfigTiposPiezaPromise, uploadConfigPersonalPromise } from '../../promises'
+import { Button, Table, Row, Col, Spin, Steps, Modal, notification, Icon, Badge, Upload, Tooltip } from 'antd'
+import { getMolinosPromise, getMolinoPromise, saveMolinoPromise, uploadConfigTiposEquipoPromise, uploadConfigTiposPiezaPromise, uploadConfigPersonalPromise } from '../../promises'
 import moment from "moment";
 import { Step1, Step2, Step3, Step4, Edit } from './components'
 import { getUsersPromise } from '../../../../promises'
@@ -15,8 +15,8 @@ const Setup = ({currentUser, action, history}) => {
   const [molinos, setMolinos] = useState([])
   const [isModalVisibleNew, setIsModalVisibleNew] = useState(false)
   const [isModalVisibleConfig, setIsModalVisibleConfig] = useState(false)
-  const [isModalVisibleEdit, setIsModalVisibleEdit] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingFaena, setIsLoadingFaena] = useState(false)
   const [client, setClient] = useState({})
   const [faena, setFaena] = useState({})
   const [piezas, setPiezas] = useState([])
@@ -55,9 +55,18 @@ const Setup = ({currentUser, action, history}) => {
     else if(stage === 'DELIVERY') return 'Entrega'
   }
 
+  const refreshFaena = () => {
+    if(faenaSel) {
+      setIsLoadingFaena(true)
+      getMolinoPromise(faenaSel.id).then(response => {
+        onClickFaena(response)
+        setIsLoadingFaena(false)
+      })
+    }
+  }
+
   const onClickFaena = (f) => {
     setFaenaSel(f)
-    setIsModalVisibleEdit(true)
   }
 
   const getTableColumns = () => {
@@ -307,7 +316,6 @@ const Setup = ({currentUser, action, history}) => {
     return {
       accept: ".xlsx",
       onRemove: file => {
-        
       },
       beforeUpload: async (file) => {
         const formData = new FormData()
@@ -359,14 +367,24 @@ const Setup = ({currentUser, action, history}) => {
                 </Row>
             </Row>
         </Row>
-      : isModalVisibleEdit ?
+      : faenaSel ?
           <Row className="edit-faena">
-            <div className="tools-area">
-                <span className="title">Faena Nro. {faenaSel.nro}</span>
-                <span className="createAt">Creada en Fecha: {moment(faenaSel.creationDate).format('DD/MM/YYYY')}</span>
-                <Button icon="close" onClick={() => setIsModalVisibleEdit(false)} size="small"/>
-            </div>
-            <Edit molino={faenaSel} action={action} loadMolinos={loadMolinos} />
+            <Row className="tools-area">
+                <Col span={12} className="title">Faena Nro. {faenaSel.nro}</Col>
+                <Col span={12} style={{textAlign: 'right'}}>
+                  <span className="createAt">Creada en Fecha: {moment(faenaSel.creationDate).format('DD/MM/YYYY')}</span>
+                  <Tooltip title="Actualizar Faena">
+                    <Button icon="reload" onClick={refreshFaena} size="small"/>
+                  </Tooltip>
+                  <Tooltip title="Cerrar">
+                    <Button icon="close" onClick={() => setFaenaSel(null)} size="small"/>
+                  </Tooltip>
+                </Col>
+            </Row>
+            { isLoadingFaena ? <Row style={{textAlign:'center', padding: 50}}><Spin size="large"/></Row>
+            :
+              <Edit molino={faenaSel} action={action} loadMolinos={loadMolinos} />
+            }
           </Row>
       :
         <>
