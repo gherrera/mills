@@ -1,12 +1,9 @@
 import './Step4.scss'
 import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Select, Input, Button, Row, Col, Form, Icon, Table, notification, AutoComplete } from 'antd'
 import { getPersonasPromise } from '../../../../promises'
 
-const { Option } = AutoComplete;
-
-const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mode }) => {
+const Step4 = ({form, personal, prevStep, nextStep, usuarios, notifPersonal, mode }) => {
   const { getFieldDecorator, validateFields, setFieldsValue } = form;
   const [personas, setPersonas] = useState([])
   const [cargo, setCargo] = useState(null)
@@ -27,34 +24,20 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
     prevStep(personas)
   }
 
-  const getTypeTurno = (t) => {
-    if(t === 'DAY') return 'Día'
-    else if(t === 'NIGHT') return 'Noche'
-  }
-
-  const saveFaenaLocal = () => {
-    if(personas.length === 0) {
+  const nextStepLocal = () => {
+    if(personas.length > 0) {
+      nextStep(personas)
+    }else {
       notification.error({
         message: 'Error',
         description: 'Debe agregar al menos una Persona'
       })
-    }else {
-      const unique = [...new Set(personas.map(item => item.turno))];
-      let errors = false
-      unique.map(t => {
-        const controllers = personas.filter(item => item.turno === t && item.role === 'CONTROLLER')
-        if(controllers.length === 0) {
-          notification.error({
-            message: 'Error',
-            description: 'Debe agregar un Controlador para el turno: ' + getTypeTurno(t)
-          })
-          errors = true
-        }
-      })
-      if(!errors) {
-        saveFaena(personas)
-      }
     }
+  }
+
+  const getTypeTurno = (t) => {
+    if(t === 'DAY') return 'Día'
+    else if(t === 'NIGHT') return 'Noche'
   }
 
   const addPersona = () => {
@@ -271,7 +254,7 @@ const Step4 = ({form, personal, prevStep, saveFaena, usuarios, notifPersonal, mo
         { mode === "new" &&
           <Row className="tools">
               <a onClick={prevStepLocal} className="prev-step"><Icon type="left" /></a>
-              <Button type="primary" onClick={saveFaenaLocal} className="save" icon="save">Grabar nueva Faena</Button>
+              <a onClick={nextStepLocal} className="next-step"><Icon type="right" /></a>
           </Row>
         }
     </div>

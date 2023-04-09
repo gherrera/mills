@@ -19,7 +19,7 @@ public class AppSqlConfig {
 			String resource="aml-ibatis-config/sql-map-config.xml";
 		    Reader reader = Resources.getResourceAsReader(resource);
 		    Properties databaseProperty = new Properties();
-			databaseProperty.put("db_host", System.getenv("MILLS_DB__HOSTNAME"));
+			databaseProperty.put("db_host", System.getenv("MILLS_DB_HOSTNAME"));
 			databaseProperty.put("db_port", System.getenv("MILLS_DB_PORT"));
 			databaseProperty.put("db_name", System.getenv("MILLS_DB_NAME"));
 			databaseProperty.put("db_user", System.getenv("MILLS_DB_USERNAME"));

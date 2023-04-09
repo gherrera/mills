@@ -7,6 +7,7 @@ import getPersonas from './getPersonas'
 import uploadConfigTiposEquipo from './uploadConfigTiposEquipo'
 import uploadConfigTiposPieza from './uploadConfigTiposPieza'
 import uploadConfigPersonal from './uploadConfigPersonal'
+import uploadSchedule from './uploadSchedule'
 
 export const getMolinosPromise = getMolinos
 export const getMolinoPromise = getMolino
@@ -17,3 +18,4 @@ export const getPersonasPromise = getPersonas
 export const uploadConfigTiposEquipoPromise = uploadConfigTiposEquipo
 export const uploadConfigTiposPiezaPromise = uploadConfigTiposPieza
 export const uploadConfigPersonalPromise = uploadConfigPersonal
+export const uploadSchedulePromise = uploadSchedule

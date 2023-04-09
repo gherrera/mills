@@ -7,6 +7,7 @@ import Faena from './Faena'
 import Personal from './Personal'
 import Piezas from './Piezas'
 import Avance from './Avance'
+import Programado from './Programado'
 
 import { saveMolinoPromise, getMolinoPromise } from '../../../../promises'
 
@@ -19,6 +20,7 @@ const Edit = ({molino, action, loadMolinos }) => {
   const [formFaena, setFormFaena] = useState()
   const [personal, setPersonal] = useState(null)
   const [piezas, setPiezas] = useState(null)
+  const [programado, setProgramado] = useState(null)
   const [ molinoVar, setMolinoVar ] = useState(molino)
 
   useEffect(() => {
@@ -90,6 +92,9 @@ const Edit = ({molino, action, loadMolinos }) => {
     if(piezas) {
       molinoObj.parts = piezas
     }
+    if(programado) {
+      molinoObj.scheduled = programado
+    }
 
     confirm({
       title: 'Guardar Datos',
@@ -133,6 +138,10 @@ const Edit = ({molino, action, loadMolinos }) => {
     setPiezas(p)
   }
 
+  const handleChangeProgramado = (p) => {
+    setProgramado(p)
+  }
+
   return (
     <div className='edit'>
         { (action === 'new' || action === 'setup') &&
@@ -152,6 +161,9 @@ const Edit = ({molino, action, loadMolinos }) => {
         </Row>
         <Row className="section">
             <Piezas key={action+"-"+mode} molino={molinoVar} action={action} readOnly={readOnly} mode={mode} handleChangePiezas={handleChangePiezas} />
+        </Row>
+        <Row className="section">
+          <Programado key={action+"-"+mode} molino={molinoVar} action={action} readOnly={readOnly} mode={mode} handleChangeProgramado={handleChangeProgramado} />
         </Row>
 
         { (action === "STARTED" || action === "FINISHED") &&

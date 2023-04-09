@@ -5,7 +5,7 @@ import { withRouter } from 'react-router'
 import { Button, Table, Row, Col, Spin, Steps, Modal, notification, Icon, Badge, Upload, Tooltip } from 'antd'
 import { getMolinosPromise, getMolinoPromise, saveMolinoPromise, uploadConfigTiposEquipoPromise, uploadConfigTiposPiezaPromise, uploadConfigPersonalPromise } from '../../promises'
 import moment from "moment";
-import { Step1, Step2, Step3, Step4, Edit } from './components'
+import { Step1, Step2, Step3, Step4, Step5, Edit } from './components'
 import { getUsersPromise } from '../../../../promises'
 import { ReportService } from '../../../../services'
 
@@ -21,6 +21,7 @@ const Setup = ({currentUser, action, history}) => {
   const [faena, setFaena] = useState({})
   const [piezas, setPiezas] = useState([])
   const [personal, setPersonal] = useState([])
+  const [movimientos, setMovimientos] = useState([])
   const [currentStep, setCurrentStep] = useState(0)
   const [usuarios, setUsuarios] = useState([])
   const [fileList, setFileList] = useState([])
@@ -241,24 +242,35 @@ const Setup = ({currentUser, action, history}) => {
     setCurrentStep(1)
   }
 
+  const nextStep4 = (p) => {
+    setPersonal(p)
+    setCurrentStep(4)
+  }
+
   const prevStep4 = (p) => {
     setPersonal(p)
     setCurrentStep(2)
   }
 
-  const saveFaena = (p) => {
-    setPersonal(p)
+  const prevStep5 = (m) => {
+    setMovimientos(m)
+    setCurrentStep(3)
+  }
+
+  const saveFaena = (m) => {
+    setMovimientos(m)
     let faenaObj = { name: faena.name, type: faena.type, ordenTrabajo: faena.ordenTrabajo, hours: faena.hours, exHours: faena.exHours, faena: {id: faena.id, name: faena.faena, client} }
 
     faenaObj.parts = piezas
-    let uniqTurnos = [...new Set(p.map(item => item.turno))];
+    let uniqTurnos = [...new Set(personal.map(item => item.turno))];
     let turns = []
     uniqTurnos.map(t => {
       let turno = {name: t}
-      turno.personas = p.filter(p => p.turno === t)
+      turno.personas = personal.filter(p => p.turno === t)
       turns.push(turno)
     })
     faenaObj.turns = turns
+    faenaObj.schedules = m
 
     confirm({
       title: 'Grabar Faena',
@@ -358,12 +370,14 @@ const Setup = ({currentUser, action, history}) => {
                     <Steps.Step title="Faena" />
                     <Steps.Step title="Piezas" />
                     <Steps.Step title="Personal" />
+                    <Steps.Step title="Programación" />
                 </Steps>
                 <Row style={{padding:10, backgroundColor: 'rgba(0,0,0,.02)'}}>
                     { currentStep === 0 && <Step1 client={client} nextStep={nextStep1} molinos={molinos} /> }
                     { currentStep === 1 && <Step2 client={client} faena={faena} nextStep={nextStep2} prevStep={prevStep2} molinos={molinos} /> }
                     { currentStep === 2 && <Step3 pieces={piezas} nextStep={nextStep3} prevStep={prevStep3} mode="new" /> }
-                    { currentStep === 3 && <Step4 personal={personal} saveFaena={saveFaena} prevStep={prevStep4} usuarios={usuarios} mode="new" /> }
+                    { currentStep === 3 && <Step4 personal={personal} nextStep={nextStep4} prevStep={prevStep4} usuarios={usuarios} mode="new" /> }
+                    { currentStep === 4 && <Step5 scheduled={movimientos} saveFaena={saveFaena} prevStep={prevStep5} mode="new" /> }
                 </Row>
             </Row>
         </Row>

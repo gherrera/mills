@@ -74,5 +74,15 @@ export default {
           'Content-Type': 'multipart/form-data'
       }
     })
+  },
+  uploadSchedule: (formData) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/uploadSchedule',
+      method: 'post',
+      body: formData,
+      headers: {
+          'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }

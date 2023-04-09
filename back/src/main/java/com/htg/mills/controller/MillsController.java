@@ -40,6 +40,7 @@ import com.htg.mills.app.ApiApp;
 import com.htg.mills.app.App;
 import com.htg.mills.entities.CurrentUser;
 import com.htg.mills.entities.Results;
+import com.htg.mills.entities.ScheduleStatus;
 import com.htg.mills.entities.Usuario;
 import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
@@ -458,6 +459,33 @@ public class MillsController {
 			}
 		}
 		return status;
+	}
+	
+	@PostMapping("uploadSchedule")
+	@ResponseBody
+	public ScheduleStatus uploadSchedule(@RequestParam("file") MultipartFile file) {
+		ScheduleStatus results = new ScheduleStatus();
+		
+		String status="OK";
+		if(file == null || file.isEmpty()) {
+			status = "ERROR";
+			results.setMessage("Debe seleccionar un archivo");
+		}else {
+			String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1).toLowerCase();
+			File tmp;
+			try {
+				tmp = File.createTempFile("schedule", "." + ext);
+				file.transferTo(tmp);
+				results.setSheduled(app.transformFileIntoSchedule(tmp));
+				tmp.delete();
+			} catch (Exception e) {
+				status = "ERROR";
+				results.setMessage(e.getMessage());
+			}
+		}
+		results.setStatus(status);
+		
+		return results;
 	}
 	
 }

@@ -24,6 +24,7 @@ import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Molino.StatusAdmin;
 import com.htg.mills.entities.maintenance.Parte;
 import com.htg.mills.entities.maintenance.Persona;
+import com.htg.mills.entities.maintenance.Programacion;
 import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.TareaParte;
 import com.htg.mills.entities.maintenance.Turno;
@@ -364,6 +365,17 @@ public class Dao {
 								sqlMap.delete("deleteParte", parte.getId());
 							}
 						}
+					}
+					if(molino.getScheduled() != null) {
+						sqlMap.delete("deleteSchedule", molino.getId());
+					}
+				}
+				if(molino.getScheduled() != null) {
+					Map<String, Object> ps = new HashMap<String, Object>();
+					ps.put("molinoId", molino.getId());
+					for(Programacion schedule : molino.getScheduled()) {
+						ps.put("schedule", schedule);
+						sqlMap.insert("insertSchedule", ps);
 					}
 				}
 				

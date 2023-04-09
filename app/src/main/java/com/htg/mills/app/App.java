@@ -39,6 +39,7 @@ import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Persona;
+import com.htg.mills.entities.maintenance.Programacion;
 import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
@@ -794,6 +795,44 @@ public class App {
 		} catch (Exception e) {
 			log.error("Error a procesar archivo", e);
 			throw new HTGException("Error a procesar archivo", e);
+		}
+	}
+	
+	public List<Programacion> transformFileIntoSchedule(File file) {
+		try {
+			List<Programacion> scheduled = new ArrayList<Programacion>();
+			
+			IReader reader = new ExcelReader(file);
+			
+			String line;
+			reader.getLine(0);
+			while((line = reader.getLine(0)) != null) {
+				String[] data = line.split("\\t");
+				if(data.length>5) {
+					Programacion schedule = new Programacion();
+					schedule.setTurn(data[0]);
+					schedule.setCorrHour(Integer.valueOf(data[1]));
+					schedule.setTurnHour(Integer.valueOf(data[2]));
+					if(data[3] != null && !data[3].isEmpty() && !data[3].isBlank()) {
+						schedule.setUnit(Integer.valueOf(data[3]));
+					}
+					if(data[4] != null && !data[4].isEmpty() && !data[4].isBlank()) {
+						schedule.setMovs(Integer.valueOf(data[4]));
+					}
+					schedule.setTotal(Integer.valueOf(data[5]));
+					if(data.length > 6 && data[6] != null && !data[6].isEmpty() && !data[6].isBlank()) {
+						schedule.setMounted(Integer.valueOf(data[6]));
+					}
+					
+					scheduled.add(schedule);
+				}
+			}
+			reader.close();
+			
+			return scheduled;
+		} catch (Exception e) {
+			log.error("Error a procesar archivo", e);
+			throw new HTGException("Error a procesar archivo: " + e.getMessage(), e);
 		}
 	}
 	

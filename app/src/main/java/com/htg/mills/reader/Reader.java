@@ -33,16 +33,6 @@ public class Reader extends BufferedReader {
 		try {
 			AutoDetectReader auto = new AutoDetectReader(is);
 			charset = auto.getCharset();
-			//auto.close();
-			
-			/*
-			String sCharset = new TikaEncodingDetector().guessEncoding(is);
-			if(sCharset.toLowerCase().startsWith("ibm")) {
-				log.debug("Cambia encoding original: "+sCharset + " a utf-8");
-				sCharset = "utf-8";
-			}
-			charset = Charset.forName(sCharset);
-			*/
 		}catch(Exception e) {
 			charset = Charset.forName(new InputStreamReader(is).getEncoding());
 		}
