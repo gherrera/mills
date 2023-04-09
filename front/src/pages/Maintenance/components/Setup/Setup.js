@@ -270,7 +270,7 @@ const Setup = ({currentUser, action, history}) => {
       turns.push(turno)
     })
     faenaObj.turns = turns
-    faenaObj.schedules = m
+    faenaObj.scheduled = m
 
     confirm({
       title: 'Grabar Faena',

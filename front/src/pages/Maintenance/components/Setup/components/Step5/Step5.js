@@ -64,7 +64,6 @@ const Step5 = ({ prevStep, saveFaena, mode, scheduled, notifSchedule }) => {
           beforeUpload: async (file) => {
             const formData = new FormData()
             formData.append('file', file)
-            debugger
     
             let resp = await uploadSchedulePromise(formData)
             if(resp.status === 'OK') {
