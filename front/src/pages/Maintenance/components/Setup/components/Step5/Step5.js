@@ -178,7 +178,7 @@ const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, scheduled, notifSche
         return (
             <Form.Item label={t('messages.mills.task.' + task)}>
                 { getFieldDecorator(task, {
-                    initialValue: (scheduled?.tasks[task])? ('' + scheduled.tasks[task]) : '',
+                    initialValue: (scheduled?.tasks && scheduled?.tasks[task])? ('' + scheduled.tasks[task]) : '',
                     rules: [{
                         required: !readOnly,
                         message: 'Campo requerido'
