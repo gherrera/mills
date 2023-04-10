@@ -21,7 +21,7 @@ const Setup = ({currentUser, action, history}) => {
   const [faena, setFaena] = useState({})
   const [piezas, setPiezas] = useState([])
   const [personal, setPersonal] = useState([])
-  const [movimientos, setMovimientos] = useState([])
+  const [scheduled, setScheduled] = useState()
   const [currentStep, setCurrentStep] = useState(0)
   const [usuarios, setUsuarios] = useState([])
   const [fileList, setFileList] = useState([])
@@ -252,13 +252,13 @@ const Setup = ({currentUser, action, history}) => {
     setCurrentStep(2)
   }
 
-  const prevStep5 = (m) => {
-    setMovimientos(m)
+  const prevStep5 = (s) => {
+    setScheduled(s)
     setCurrentStep(3)
   }
 
-  const saveFaena = (m) => {
-    setMovimientos(m)
+  const saveFaena = (s) => {
+    setScheduled(s)
     let faenaObj = { name: faena.name, type: faena.type, ordenTrabajo: faena.ordenTrabajo, hours: faena.hours, exHours: faena.exHours, faena: {id: faena.id, name: faena.faena, client} }
 
     faenaObj.parts = piezas
@@ -270,7 +270,7 @@ const Setup = ({currentUser, action, history}) => {
       turns.push(turno)
     })
     faenaObj.turns = turns
-    faenaObj.scheduled = m
+    faenaObj.scheduled = s
 
     confirm({
       title: 'Grabar Faena',
@@ -377,7 +377,7 @@ const Setup = ({currentUser, action, history}) => {
                     { currentStep === 1 && <Step2 client={client} faena={faena} nextStep={nextStep2} prevStep={prevStep2} molinos={molinos} /> }
                     { currentStep === 2 && <Step3 pieces={piezas} nextStep={nextStep3} prevStep={prevStep3} mode="new" /> }
                     { currentStep === 3 && <Step4 personal={personal} nextStep={nextStep4} prevStep={prevStep4} usuarios={usuarios} mode="new" /> }
-                    { currentStep === 4 && <Step5 scheduled={movimientos} saveFaena={saveFaena} prevStep={prevStep5} mode="new" /> }
+                    { currentStep === 4 && <Step5 scheduled={scheduled} saveFaena={saveFaena} prevStep={prevStep5} mode="new" /> }
                 </Row>
             </Row>
         </Row>

@@ -18,6 +18,7 @@ const Edit = ({molino, action, loadMolinos }) => {
   const [readOnly, setReadOnly] = useState(true)
   const [formCliente, setFormCliente] = useState(null)
   const [formFaena, setFormFaena] = useState()
+  const [formScheduled, setFormScheduled] = useState()
   const [personal, setPersonal] = useState(null)
   const [piezas, setPiezas] = useState(null)
   const [programado, setProgramado] = useState(null)
@@ -30,8 +31,13 @@ const Edit = ({molino, action, loadMolinos }) => {
   }, [])
 
   const changeEdit = () => {
-    setMode('edit')
-    setReadOnly(false)
+    if(mode === 'view') {
+      setMode('edit')
+      setReadOnly(false)
+    }else {
+      setMode('view')
+      setReadOnly(true)
+    }
   }
 
   const changeView = () => {
@@ -92,8 +98,26 @@ const Edit = ({molino, action, loadMolinos }) => {
     if(piezas) {
       molinoObj.parts = piezas
     }
-    if(programado) {
-      molinoObj.scheduled = programado
+    
+    formScheduled.validateFields(Object.keys(formScheduled.getFieldsValue()))
+    let scheduled = programado
+    if(formScheduled) {
+      if(hasErrors(formScheduled.getFieldsError())) {
+        notification.error({
+          message: 'Error',
+          description: 'Hay errores en sección Programación'
+        })
+        return false
+      }else {
+        const fs = formScheduled.getFieldsValue()
+        if(!scheduled) {
+          scheduled = molinoObj.scheduled
+        }
+        scheduled.tasks = fs
+      }
+    }
+    if(scheduled) {
+      molinoObj.scheduled = scheduled
     }
 
     confirm({
@@ -130,6 +154,10 @@ const Edit = ({molino, action, loadMolinos }) => {
     setFormFaena(f)
   }
 
+  const initFormScheduled = (f) => {
+    setFormScheduled(f)
+  }
+
   const handleChangePersonal = (p) => {
     setPersonal(p)
   }
@@ -146,7 +174,7 @@ const Edit = ({molino, action, loadMolinos }) => {
     <div className='edit'>
         { (action === 'new' || action === 'setup') &&
             <Row className="tools-btn">
-                <Button disabled={mode === 'edit'} onClick={changeEdit} icon="edit">Modificar</Button>
+                <Button onClick={changeEdit} icon="edit">{mode === 'edit' ? 'Cancelar' : 'Modificar'}</Button>
                 <Button disabled={mode === 'view'} onClick={saveFaena} icon="save">Guardar</Button>
             </Row>
         }
@@ -163,7 +191,7 @@ const Edit = ({molino, action, loadMolinos }) => {
             <Piezas key={action+"-"+mode} molino={molinoVar} action={action} readOnly={readOnly} mode={mode} handleChangePiezas={handleChangePiezas} />
         </Row>
         <Row className="section">
-          <Programado key={action+"-"+mode} molino={molinoVar} action={action} readOnly={readOnly} mode={mode} handleChangeProgramado={handleChangeProgramado} />
+          <Programado key={action+"-"+mode} molino={molinoVar} action={action} readOnly={readOnly} mode={mode} handleChangeProgramado={handleChangeProgramado} initForm={initFormScheduled} />
         </Row>
 
         { (action === "STARTED" || action === "FINISHED") &&

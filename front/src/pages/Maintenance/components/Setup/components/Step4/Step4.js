@@ -174,7 +174,7 @@ const Step4 = ({form, personal, prevStep, nextStep, usuarios, notifPersonal, mod
                           { getFieldDecorator('turno', {
                               rules: [{
                                   required: true,
-                                  message: 'Seleccione un Truno'
+                                  message: 'Seleccione un Turno'
                               }]
                           })(
                               <Select placeholder="Turno">

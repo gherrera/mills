@@ -75,7 +75,7 @@
 		<result property="stages" column="id" select="getEtapasByMolino"/>
 		<result property="parts" column="id" select="getPartesByMolino"/>
 		<result property="faena" column="faena_id" select="getFaenaById"/>
-		<result property="scheduled" column="id" select="getProgramacionById"/>
+		<result property="scheduled" resultMap="htg.Scheduled"/>
 	</resultMap>
 
 	<resultMap id="Faena" class="com.htg.mills.entities.maintenance.Faena">
@@ -153,6 +153,11 @@
 		<result property="qty" column="cantidad"/>
 		<result property="part" column="parte_id" select="getParteById"/>
 		<result property="turno" column="turno_id" select="getHistorialTurnoById"/>
+	</resultMap>
+	
+	<resultMap id="Scheduled" class="com.htg.mills.entities.maintenance.Scheduled">
+		<result property="movs" column="id" select="getProgramacionById"/>
+		<result property="tasksStr" column="program_tareas"/>
 	</resultMap>
 	
 	<resultMap id="Programacion" class="com.htg.mills.entities.maintenance.Programacion">
@@ -304,13 +309,13 @@
 	</select>
 	
 	<select id="getMolinoById" resultMap="Molino">
-		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, horas_ejec, orden_trabajo, faena_id, fec_act, user_act, create_user, fecha_termino
+		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, horas_ejec, orden_trabajo, faena_id, fec_act, user_act, create_user, fecha_termino, program_tareas
 		from molinos
 		where id = #value#
 	</select>
 	
 	<select id="getMolinos" resultMap="Molino">
-		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, horas_ejec, orden_trabajo, faena_id, fec_act, user_act, create_user, fecha_termino
+		select id, nro, fec_creacion, nombre, tipo, estado, estado_admin, etapa, horas, horas_ejec, orden_trabajo, faena_id, fec_act, user_act, create_user, fecha_termino, program_tareas
 		from molinos
 		<isNotNull property="status">
 			<isEqual property="status" compareValue="PENDING">
@@ -617,5 +622,11 @@
 		insert into programacion(molino_id, turno, hora_corr, hora_turno, unidad_esfuerzo, movimientos, total, montadas)
 			values(#molinoId#, #schedule.turn#, #schedule.corrHour#, #schedule.turnHour#, #schedule.unit#, #schedule.movs#, #schedule.total#, #schedule.mounted#)
 	</insert>
+	
+	<update id="updateScheduleTask">
+		update molinos
+			set program_tareas = #scheduled.tasksStr#
+		where id = #id#
+	</update>
 	
 </sqlMap>

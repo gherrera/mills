@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Row, Col } from 'antd'
 import { Step5 } from '..'
 
-const Programado = ({molino, action, readOnly, mode, handleChangeProgramado }) => {
+const Programado = ({molino, action, readOnly, mode, handleChangeProgramado, initForm }) => {
     const [ scheduled, setScheduled] = useState(molino.scheduled)
     const [ showAll, setShowAll ] = useState(action !== 'STARTED' && action !== 'FINISHED')
 
@@ -31,7 +31,7 @@ const Programado = ({molino, action, readOnly, mode, handleChangeProgramado }) =
         </Row>
         { showAll &&
         <>
-          <Step5 key={mode} mode={mode} scheduled={scheduled} notifSchedule={handleNotifSchedule} />
+          <Step5 key={mode} mode={mode} readOnly={readOnly} scheduled={scheduled} notifSchedule={handleNotifSchedule} initForm={initForm} />
         </>
         }
     </div>

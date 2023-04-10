@@ -42,7 +42,7 @@ public class Molino extends Entity {
 	private Timestamp updateDate;
 	private String updateUser;
 	private Timestamp finishDate;
-	private List<Programacion> scheduled;
+	private Scheduled scheduled;
 
 	public String getName() {
 		return name;
@@ -374,11 +374,11 @@ public class Molino extends Entity {
 		this.exHours = exHours;
 	}
 
-	public List<Programacion> getScheduled() {
+	public Scheduled getScheduled() {
 		return scheduled;
 	}
 
-	public void setScheduled(List<Programacion> scheduled) {
+	public void setScheduled(Scheduled scheduled) {
 		this.scheduled = scheduled;
 	}
 }

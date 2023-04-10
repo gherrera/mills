@@ -11,4 +11,16 @@
             margin-right: 10px;
         }
     }
+
+    .ant-form-item {
+        margin-bottom: 4px;
+
+        .ant-form-item-label {
+            text-align: left;
+        }
+    }
+    .ant-collapse-header {
+        padding: 6px 10px !important;
+        padding-left: 35px !important;
+    }
 }

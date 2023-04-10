@@ -371,12 +371,15 @@ public class Dao {
 					}
 				}
 				if(molino.getScheduled() != null) {
-					Map<String, Object> ps = new HashMap<String, Object>();
-					ps.put("molinoId", molino.getId());
-					for(Programacion schedule : molino.getScheduled()) {
-						ps.put("schedule", schedule);
-						sqlMap.insert("insertSchedule", ps);
+					if(molino.getScheduled().getMovs() != null) {
+						Map<String, Object> ps = new HashMap<String, Object>();
+						ps.put("molinoId", molino.getId());
+						for(Programacion schedule : molino.getScheduled().getMovs()) {
+							ps.put("schedule", schedule);
+							sqlMap.insert("insertSchedule", ps);
+						}
 					}
+					sqlMap.update("updateScheduleTask", molino);
 				}
 				
 				sqlMap.commitTransaction();

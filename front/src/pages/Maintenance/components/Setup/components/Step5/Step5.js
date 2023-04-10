@@ -1,16 +1,97 @@
 import './Step5.scss'
-import React, { useEffect, useState } from 'react'
-import { Button, Row, Col, Upload, Icon, Table, notification } from 'antd'
+import React, { useState, useEffect } from 'react'
+import { Form, Button, Row, Col, Upload, Icon, Table, notification, Collapse, Input, Tooltip } from 'antd'
 import { uploadSchedulePromise } from '../../../../promises'
 import apiConfig from '../../../../../../config/api'
+import { useTranslation } from 'react-i18next'
 
-const Step5 = ({ prevStep, saveFaena, mode, scheduled, notifSchedule }) => {
-    const [movimientos, setMovimientos] = useState([])
+const { Panel } = Collapse;
+
+function formatNumber(value) {
+    value += '';
+    const list = value.split('.');
+    const prefix = list[0].charAt(0) === '-' ? '-' : '';
+    let num = prefix ? list[0].slice(1) : list[0];
+    let result = '';
+    while (num.length > 3) {
+      result = `,${num.slice(-3)}${result}`;
+      num = num.slice(0, num.length - 3);
+    }
+    if (num) {
+      result = num + result;
+    }
+    return `${prefix}${result}${list[1] ? `.${list[1]}` : ''}`;
+  }
+  
+  class NumericInput extends React.Component {
+    onChange = e => {
+      const { value } = e.target;
+      const reg = /^-?[0-9]*(\.[0-9]*)?$/;
+      if ((!isNaN(value) && reg.test(value)) || value === '' || value === '-') {
+        this.props.onChange(value);
+      }
+    };
+  
+    // '.' at the end or only '-' in the input box.
+    onBlur = () => {
+      const { value, onBlur, onChange } = this.props;
+      let valueTemp = value;
+      if (value.charAt(value.length - 1) === '.' || value === '-') {
+        valueTemp = value.slice(0, -1);
+      }
+      onChange(valueTemp.replace(/0*(\d+)/, '$1'));
+      if (onBlur) {
+        onBlur();
+      }
+    };
+  
+    render() {
+      const { value } = this.props;
+      const title = value ? (
+        <span className="numeric-input-title">{value !== '-' ? formatNumber(value) : '-'}</span>
+      ) : (
+        'Ingrese un número'
+      );
+      return (
+        <Tooltip
+          trigger={['focus']}
+          title={title}
+          placement="topLeft"
+          overlayClassName="numeric-input"
+        >
+          <Input
+            {...this.props}
+            onChange={this.onChange}
+            onBlur={this.onBlur}
+            placeholder="Ingrese un número"
+            maxLength={25}
+          />
+        </Tooltip>
+      );
+    }
+}
+
+const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, scheduled, notifSchedule, initForm }) => {
+    const { getFieldDecorator, validateFields, getFieldsValue } = form;
+    const [programacion, setProgramacion] = useState(scheduled)
+    const [movimientos, setMovimientos] = useState(scheduled?.movs)
     const [fileList, setFileList] = useState([])
+    const { t } = useTranslation()
 
     useEffect(() => {
-        if(scheduled) setMovimientos(scheduled)
+        if(initForm) initForm(form)
     }, [])
+
+    const formItemLayout = {
+        labelCol: {
+          xs: { span: 24 },
+          sm: { span: 6 },
+        },
+        wrapperCol: {
+          xs: { span: 24 },
+          sm: { span: 6 },
+        },
+    };
 
     const getTableColumns = () => {
         let columns = [
@@ -42,18 +123,23 @@ const Step5 = ({ prevStep, saveFaena, mode, scheduled, notifSchedule }) => {
     }
 
     const saveFaenaLocal = () => {
-        if(movimientos.length === 0) {
+        debugger
+        if(!movimientos || movimientos.length === 0) {
           notification.error({
             message: 'Error',
-            description: 'Debe agregar Movimientos Programados'
+            description: 'Agregar Movimientos Programados por Turno'
           })
         }else {
-          saveFaena(movimientos)
+            validateFields(Object.keys(getFieldsValue())).then((p) => {
+                const sche = { ...programacion, tasks: p}
+                setProgramacion(sche)
+                saveFaena(sche)
+            })
         }
     }
 
     const prevStepLocal = () => {
-        prevStep(movimientos)
+        prevStep(programacion)
     }
 
     const getPropsUpload = () => {
@@ -68,7 +154,9 @@ const Step5 = ({ prevStep, saveFaena, mode, scheduled, notifSchedule }) => {
             let resp = await uploadSchedulePromise(formData)
             if(resp.status === 'OK') {
                 setMovimientos(resp.sheduled)
-                if(notifSchedule) notifSchedule(resp.sheduled)
+                const sche = { ...programacion, movs: resp.sheduled}
+                setProgramacion(sche)
+                if(notifSchedule) notifSchedule(sche)
                 notification.success({
                     message: 'Programación',
                     description: 'Datos cargados exitosamente'
@@ -86,30 +174,63 @@ const Step5 = ({ prevStep, saveFaena, mode, scheduled, notifSchedule }) => {
         }
     }
 
+    const renderFieldTask = (task) => {
+        return (
+            <Form.Item label={t('messages.mills.task.' + task)}>
+                { getFieldDecorator(task, {
+                    initialValue: (scheduled?.tasks[task])? ('' + scheduled.tasks[task]) : '',
+                    rules: [{
+                        required: !readOnly,
+                        message: 'Campo requerido'
+                    }]
+                })(
+                    <NumericInput readOnly={readOnly} />
+                )}
+            </Form.Item>
+        )
+    }
+
     return (
         <div className='step5'>
-            { mode === "new" &&
-                <Row>
-                    A continuación ingrese los datos de Movimientos programados
-                </Row>
-            }
-            { (mode === "new" || mode === "edit") &&
-                <Row gutter={[16, 16]} style={{padding: 10}}>
-                    <Col span={4} offset={8} style={{textAlign:'center'}}>
-                        <Upload {...getPropsUpload()}>
-                            <Button size="small">
-                                <Icon type="upload" /> Cargar archivo
-                            </Button>
-                        </Upload>
-                    </Col>
-                    <Col span={4} style={{textAlign:'center'}}>
-                        <Button type="link" href={apiConfig.url + '/../load/Programacion.xlsx'}>Descargar Plantilla</Button>
-                    </Col>
-                </Row>
-            }
-            <Row>
-                <Table columns={ getTableColumns() } dataSource={ movimientos } size="small" pagination={movimientos.length > 10}/>
-            </Row>
+            <Collapse defaultActiveKey={["1", "2"]}>
+                <Panel header="Movimientos por Turno" key="1">
+                    { mode === "new" &&
+                        <Row>
+                            A continuación ingrese los datos de Movimientos programados
+                        </Row>
+                    }
+                    { (mode === "new" || mode === "edit") &&
+                        <Row gutter={[16, 16]} style={{padding: 10}}>
+                            <Col span={4} offset={8} style={{textAlign:'center'}}>
+                                <Upload {...getPropsUpload()}>
+                                    <Button size="small">
+                                        <Icon type="upload" /> Cargar archivo
+                                    </Button>
+                                </Upload>
+                            </Col>
+                            <Col span={4} style={{textAlign:'center'}}>
+                                <Button type="link" href={apiConfig.url + '/../load/Programacion.xlsx'}>Descargar Plantilla</Button>
+                            </Col>
+                        </Row>
+                    }
+                    <Row>
+                        <Table columns={ getTableColumns() } dataSource={ movimientos } size="small" pagination={movimientos && movimientos.length > 10}/>
+                    </Row>
+                </Panel>
+                <Panel header="Movimientos por Tareas" key="2">
+                    <Form {...formItemLayout}>
+                        { renderFieldTask('DET_PLANTA') }
+                        { renderFieldTask('BLOQUEO_PRUEBA_ENERGIA_0') }
+                        { renderFieldTask('RETIRO_CHUTE') }
+                        { renderFieldTask('ING_LAINERA') }
+                        { renderFieldTask('GIRO') }
+                        { renderFieldTask('RET_LAINERA') }
+                        { renderFieldTask('INST_CHUTE') }
+                        { renderFieldTask('DESBLOQUEO') }
+                    </Form>
+                </Panel>
+            </Collapse>
+            
             { mode === "new" &&
                 <Row className="tools">
                     <a onClick={prevStepLocal} className="prev-step"><Icon type="left" /></a>
@@ -120,4 +241,4 @@ const Step5 = ({ prevStep, saveFaena, mode, scheduled, notifSchedule }) => {
     )
 }
 
-export default Step5;
+export default Form.create()(Step5);
