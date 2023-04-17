@@ -41,6 +41,7 @@ import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Persona;
 import com.htg.mills.entities.maintenance.Programacion;
 import com.htg.mills.entities.maintenance.Tarea;
+import com.htg.mills.entities.maintenance.TareaParte;
 import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
 import com.htg.mills.reader.ExcelReader;
@@ -836,4 +837,13 @@ public class App {
 		}
 	}
 	
+	public TareaParte updatePartTask(TareaParte tareaParte) {
+		dao.updatePartTask(tareaParte);
+		return dao.getParteTareaById(tareaParte.getId());
+	}
+	
+	public Tarea updateTask(Tarea tarea) {
+		dao.updateTask(tarea);
+		return dao.getTareaById(tarea.getId());
+	}
 }

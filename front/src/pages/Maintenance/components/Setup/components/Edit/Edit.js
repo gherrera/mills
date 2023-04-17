@@ -196,7 +196,7 @@ const Edit = ({molino, action, loadMolinos }) => {
 
         { (action === "STARTED" || action === "FINISHED") &&
           <Row className="section">
-              <Avance key={action+"-"+mode} molino={molinoVar} action={action} />
+              <Avance key={action+"-"+mode} molino={molinoVar} action={action} mode={mode} />
           </Row>
         }
     </div>

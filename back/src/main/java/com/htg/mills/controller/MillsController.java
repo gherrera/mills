@@ -46,6 +46,7 @@ import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Tarea;
+import com.htg.mills.entities.maintenance.TareaParte;
 import com.htg.mills.entities.maintenance.Turno;
 import com.htg.mills.exceptions.HTGException;
 import com.htg.mills.security.JwtRequest;
@@ -488,4 +489,22 @@ public class MillsController {
 		return results;
 	}
 	
+	@PostMapping("downloadScheduled")
+	public ModelAndView downloadScheduled(@RequestBody Map<String, String> params) {
+		Molino molino = app.getMolinoById(params.get("id"));
+		return new ModelAndView(excelController, "scheduled", molino.getScheduled());
+	}
+	
+	@PostMapping("updatePartTask")
+	@ResponseBody
+	public TareaParte updatePartTask(@RequestBody TareaParte tareaParte) {
+		return app.updatePartTask(tareaParte);
+	}
+	
+	@PostMapping("updateTask")
+	@ResponseBody
+	public Tarea updateTask(@RequestBody Tarea tarea) {
+		return app.updateTask(tarea);
+	}
+
 }

@@ -4,6 +4,7 @@ import { Form, Button, Row, Col, Upload, Icon, Table, notification, Collapse, In
 import { uploadSchedulePromise } from '../../../../promises'
 import apiConfig from '../../../../../../config/api'
 import { useTranslation } from 'react-i18next'
+import { ReportService } from '../../../../../../services'
 
 const { Panel } = Collapse;
 
@@ -71,7 +72,7 @@ function formatNumber(value) {
     }
 }
 
-const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, scheduled, notifSchedule, initForm }) => {
+const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, molino, scheduled, notifSchedule, initForm }) => {
     const { getFieldDecorator, validateFields, getFieldsValue } = form;
     const [programacion, setProgramacion] = useState(scheduled)
     const [movimientos, setMovimientos] = useState(scheduled?.movs)
@@ -123,7 +124,6 @@ const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, scheduled, notifSche
     }
 
     const saveFaenaLocal = () => {
-        debugger
         if(!movimientos || movimientos.length === 0) {
           notification.error({
             message: 'Error',
@@ -190,6 +190,10 @@ const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, scheduled, notifSche
         )
     }
 
+    const downloadScheduled = () => {
+        ReportService.read('/downloadScheduled', { id: molino.id}, null, 'Programado.xlsx')
+    }
+
     return (
         <div className='step5'>
             <Collapse defaultActiveKey={["1", "2"]}>
@@ -199,20 +203,24 @@ const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, scheduled, notifSche
                             A continuación ingrese los datos de Movimientos programados
                         </Row>
                     }
-                    { (mode === "new" || mode === "edit") &&
-                        <Row gutter={[16, 16]} style={{padding: 10}}>
+                    <Row gutter={[16, 16]} style={{padding: 10}}>
+                        { (mode === "new" || mode === "edit") &&
                             <Col span={4} offset={8} style={{textAlign:'center'}}>
                                 <Upload {...getPropsUpload()}>
-                                    <Button size="small">
-                                        <Icon type="upload" /> Cargar archivo
+                                    <Button size="small" icon="upload">
+                                        Cargar archivo
                                     </Button>
                                 </Upload>
                             </Col>
-                            <Col span={4} style={{textAlign:'center'}}>
-                                <Button type="link" href={apiConfig.url + '/../load/Programacion.xlsx'}>Descargar Plantilla</Button>
-                            </Col>
-                        </Row>
-                    }
+                        }
+                        <Col span={4} offset={mode === 'view' ? 16 : 0} style={{textAlign:'center'}}>
+                            { mode === 'new' ?
+                                <Button size="small" icon="file-excel" href={apiConfig.url + '/../load/Programacion.xlsx'}>Descargar Plantilla</Button>
+                            :
+                                <Button size="small" icon="file-excel" onClick={downloadScheduled}>Descargar</Button>
+                            }
+                        </Col>
+                    </Row>
                     <Row>
                         <Table columns={ getTableColumns() } dataSource={ movimientos } size="small" pagination={movimientos && movimientos.length > 10}/>
                     </Row>

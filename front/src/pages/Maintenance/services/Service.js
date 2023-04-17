@@ -84,5 +84,19 @@ export default {
           'Content-Type': 'multipart/form-data'
       }
     })
+  },
+  updatePartTask: (tareaParte) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/updatePartTask',
+      method: 'post',
+      body: tareaParte
+    })
+  },
+  updateTask: (tarea) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/updateTask',
+      method: 'post',
+      body: tarea
+    })
   }
 }

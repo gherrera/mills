@@ -5,7 +5,7 @@ import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import AvanceFase from './AvanceFase'
 
-const Avance = ({molino, action }) => {
+const Avance = ({molino}) => {
     //const { t } = useTranslation()
 
   useEffect(() => {

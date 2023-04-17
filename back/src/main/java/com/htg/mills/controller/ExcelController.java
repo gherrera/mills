@@ -24,6 +24,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.document.AbstractXlsxView;
 
 import com.htg.mills.app.ApiApp;
+import com.htg.mills.entities.maintenance.Programacion;
+import com.htg.mills.entities.maintenance.Scheduled;
 
 @Component
 public class ExcelController extends AbstractXlsxView implements InitializingBean {
@@ -136,6 +138,74 @@ public class ExcelController extends AbstractXlsxView implements InitializingBea
 		sheet.autoSizeColumn(0);
 		sheet.autoSizeColumn(1);
 	}
+	
+	private void excelScheduled(Workbook workbook, Scheduled scheduled) {
+		Sheet sheet = workbook.createSheet("Programado");
+		Cell cell;
+		CellStyle cellStyleSkyBlue = getColor(workbook, 221, 235, 247);
+		Row header = sheet.createRow(0);
+		
+		int col=0;
+		cell = header.createCell(col++);
+		cell.setCellStyle(cellStyleSkyBlue);
+		cell.setCellValue("Turno");
+		
+		cell = header.createCell(col++);
+		cell.setCellStyle(cellStyleSkyBlue);
+		cell.setCellValue("Hora/Correlativa");
+
+		cell = header.createCell(col++);
+		cell.setCellStyle(cellStyleSkyBlue);
+		cell.setCellValue("Hora/Turno");
+
+		cell = header.createCell(col++);
+		cell.setCellStyle(cellStyleSkyBlue);
+		cell.setCellValue("Unidad de Esfuerzo");
+
+		cell = header.createCell(col++);
+		cell.setCellStyle(cellStyleSkyBlue);
+		cell.setCellValue("Movimientos Ejecución");
+
+		cell = header.createCell(col++);
+		cell.setCellStyle(cellStyleSkyBlue);
+		cell.setCellValue("Total");
+
+		cell = header.createCell(col++);
+		cell.setCellStyle(cellStyleSkyBlue);
+		cell.setCellValue("Piezas montadas");
+		
+		if(scheduled != null && scheduled.getMovs() != null) {
+			int rowNum = 1;
+			for(Programacion programado : scheduled.getMovs()) {
+				Row row = sheet.createRow(rowNum++);
+				col = 0;
+				cell = row.createCell(col++);
+				cell.setCellValue(programado.getTurn());
+				
+				cell = row.createCell(col++);
+				if(programado.getCorrHour() != null) cell.setCellValue(programado.getCorrHour());
+
+				cell = row.createCell(col++);
+				if(programado.getTurnHour() != null) cell.setCellValue(programado.getTurnHour());
+
+				cell = row.createCell(col++);
+				if(programado.getUnit() != null) cell.setCellValue(programado.getUnit());
+
+				cell = row.createCell(col++);
+				if(programado.getMovs() != null) cell.setCellValue(programado.getMovs());
+
+				cell = row.createCell(col++);
+				if(programado.getTotal() != null) cell.setCellValue(programado.getTotal());
+
+				cell = row.createCell(col++);
+				if(programado.getMounted() != null) cell.setCellValue(programado.getMounted());
+			}
+		}
+		
+		for(int i=0;i<7;i++) {
+			sheet.setColumnWidth(i, 4000);
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -160,6 +230,9 @@ public class ExcelController extends AbstractXlsxView implements InitializingBea
 			}else if(model.get("personal") != null) {
 				List<Map<String, String>> personal = (List<Map<String, String>>)model.get("personal");
 				excelPersonal(workbook, personal, cellStyleTitle, dateStyle);
+			}else if(model.get("scheduled") != null) {
+				Scheduled scheduled = (Scheduled)model.get("scheduled");
+				excelScheduled(workbook, scheduled);
 			}
 		}catch(Exception e) {
 			log.debug("Error al generar reporte", e);

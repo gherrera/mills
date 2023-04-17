@@ -1,12 +1,14 @@
 import './AvanceFase.scss'
 import React, { useEffect, useState } from 'react'
-import { Row, Col, Switch, Table, Modal, Button, Spin, Tabs } from 'antd'
+import { Row, Col, Switch, Table, Modal, Button, Spin, Tabs, Descriptions, Tooltip, DatePicker } from 'antd'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoon, faSun } from '@fortawesome/free-regular-svg-icons'
+import { updatePartTaskPromise, updateTaskPromise } from '../../../../promises'
 
 const { TabPane } = Tabs;
+const { confirm } = Modal;
 
 const AvanceFase = ({molino, stage}) => {
     const { t } = useTranslation()
@@ -15,6 +17,9 @@ const AvanceFase = ({molino, stage}) => {
     const [ isVisibleDetailsExecution, setIsVisibleDetailsExecution ] = useState(false)
     const [ detailsExecution, setDetailsExecution ] = useState(null)
     const [ interruptions, setInterruptions ] = useState(null)
+    const [ recordPartTask, setRecordPartTask ] = useState(null)
+    const [ recordTask, setRecordTask ] = useState(null)
+    const [ tasks, setTasks ] = useState(stage.tasks)
 
   useEffect(() => {
     if(stage.stage === 'EXECUTION') {
@@ -53,8 +58,12 @@ const AvanceFase = ({molino, stage}) => {
   }
 
   const getIconTurno = (turno) => {
-    if(turno === 'DAY') return <FontAwesomeIcon icon={faSun} />
-    else return <FontAwesomeIcon icon={faMoon} />
+    if(turno === 'DAY') return <Tooltip title="Día"><FontAwesomeIcon icon={faSun} /></Tooltip>
+    else return <Tooltip title="Noche"><FontAwesomeIcon icon={faMoon} /></Tooltip>
+  }
+
+  const editTask = (task) => {
+    setRecordTask(task)
   }
 
   const getColumnsStage = () => {
@@ -116,7 +125,11 @@ const AvanceFase = ({molino, stage}) => {
         title: 'Acciones',
         width: '10%',
         render: (text, record, index) => {
-          return <div></div>
+          return <div>
+            <Tooltip title="Modificar Fecha/Hora">
+                <Button icon="edit" size="small" onClick={() => editTask(record)}/>
+            </Tooltip>
+          </div>
         }
       }
     )
@@ -141,6 +154,18 @@ const AvanceFase = ({molino, stage}) => {
     }
   ]
 
+  const editPartTask = (task) => {
+    setRecordPartTask(task)
+  }
+
+  const onCancelModalRecordTask = () => {
+    setRecordTask(null)
+  }
+
+  const onCancelModalRecordPartTask = () => {
+    setRecordPartTask(null)
+  }
+
   const getColumnsPartsDetail = (task) => {
     let columns = [
       {
@@ -152,7 +177,9 @@ const AvanceFase = ({molino, stage}) => {
         title: 'Fecha',
         dataIndex: 'creationDate',
         with: '15%',
-        render: (fec) => moment(fec).format("DD/MM/YYYY HH:mm")
+        render: (fec, record) => {
+          return <Button type="link" onClick={() => editPartTask(record)}>{ moment(fec).format("DD/MM/YYYY HH:mm") }</Button>
+        }
       },
       {
         title: 'Turno',
@@ -185,7 +212,7 @@ const AvanceFase = ({molino, stage}) => {
         render: (part) => part.name
       }
     )
-    debugger
+
     return columns
   }
 
@@ -238,6 +265,54 @@ const AvanceFase = ({molino, stage}) => {
       render: (text) => <pre>{text}</pre>
     }
   ]
+
+  const changeDateTimeTask = (attr, d) => {
+    setRecordTask({ ...recordTask, save: true, [attr]: d.getTime()})
+  }
+
+  const changeDateTimePartTask = (d) => {
+    setRecordPartTask({ ...recordPartTask, save: true, creationDate: new Date(d).getTime()})
+  }
+
+  const saveTask = () => {
+    confirm({
+      title: 'Está seguro de modificar la Fecha/Hora de la Tarea?',
+      onOk() {
+        updateTaskPromise({ id: recordTask.id, creationDate: recordTask.creationDate, finishDate: recordTask.finishDate}).then(t => {
+          setRecordTask({ ...recordTask, creationDate: t.finishDate, save: null, duration: t.duration })
+
+          let _tasks = [...tasks]
+          _tasks.map(ta => {
+            if(ta.id === t.id) {
+              ta.creationDate = t.creationDate
+              ta.finishDate = t.finishDate
+              ta.duration = t.duration
+            }
+          })
+          setTasks(_tasks)
+        })
+      }
+    });
+  }
+
+  const savePartTask = () => {
+    confirm({
+      title: 'Está seguro de modificar la Fecha/Hora de la Tarea?',
+      onOk() {
+        updatePartTaskPromise({ id: recordPartTask.id, creationDate: recordPartTask.creationDate}).then(t => {
+          setRecordPartTask({ ...recordPartTask, creationDate: t.creationDate, save: null })
+
+          let _detailsExecution = [...detailsExecution]
+          _detailsExecution.map(d => {
+            if(d.id === t.id) {
+              d.creationDate = t.creationDate
+            }
+          })
+          setDetailsExecution(_detailsExecution)
+        })
+      }
+    });
+  }
 
   return (
     <div className="stage">
@@ -308,7 +383,7 @@ const AvanceFase = ({molino, stage}) => {
         }
         { checked &&
           <Row className="data-table">
-            <Table dataSource={stage.tasks} columns={getColumnsStage()} size="small" pagination={false} rowClassName={(record, index) => 'row-task-'+record.task} />
+            <Table dataSource={tasks} columns={getColumnsStage()} size="small" pagination={false} rowClassName={(record, index) => 'row-task-'+record.task} />
           </Row>
         }
 
@@ -366,6 +441,72 @@ const AvanceFase = ({molino, stage}) => {
             ]}
           >
             <Table dataSource={interruptions} columns={interruptionsColumns} size="small" pagination={false}/>
+          </Modal>
+        }
+        { recordTask &&
+          <Modal
+            title="Modificar Fechas Tarea"
+            visible={true}
+            width={800}
+            onCancel={onCancelModalRecordTask}
+            footer={ [
+              <Button disabled={!recordTask.save} onClick={saveTask}>
+                Guardar
+              </Button>,
+              <Button onClick={onCancelModalRecordTask}>
+                Cerrar
+              </Button>
+            ]}
+          >
+              <Descriptions bordered size="small" layout="vertical">
+                <Descriptions.Item label="Tarea">{ t('messages.mills.task.'+recordTask.task) }</Descriptions.Item>
+                <Descriptions.Item label="Turno">{ getIconTurno(recordTask.turnoFinish ? recordTask.turnoFinish.turno.name : recordTask.turnoStart.turno.name) }</Descriptions.Item>
+                <Descriptions.Item label="Duración">{ secondsToHms(recordTask.duration) }</Descriptions.Item>
+                <Descriptions.Item label="Inicio">
+                  <DatePicker showTime={{format: 'HH:mm'}} format="YYYY-MM-DD HH:mm" 
+                    allowClear={false} showToday={false}
+                    defaultValue={moment(recordTask.creationDate)}
+                    onOk={(d) => changeDateTimeTask('creationDate', new Date(d))} />
+                </Descriptions.Item>
+                <Descriptions.Item label="Termino">
+                  { recordTask.finishDate &&
+                    <DatePicker showTime={{format: 'HH:mm'}} format="YYYY-MM-DD HH:mm" 
+                      allowClear={false} showToday={false}
+                      defaultValue={moment(recordTask.finishDate)}
+                      onOk={(d) => changeDateTimeTask('finishDate', new Date(d))} />
+                  }
+                </Descriptions.Item>
+              </Descriptions>
+          </Modal>
+        }
+        { recordPartTask &&
+          <Modal
+            title="Modificar Fecha Movimiento"
+            visible={true}
+            width={800}
+            onCancel={onCancelModalRecordPartTask}
+            footer={ [
+              <Button disabled={!recordPartTask.save} onClick={savePartTask}>
+                Guardar
+              </Button>,
+              <Button onClick={onCancelModalRecordPartTask}>
+                Cerrar
+              </Button>
+            ]}
+          >
+            <Descriptions bordered size="small" layout="vertical">
+              <Descriptions.Item label="Turno">{ getIconTurno(recordPartTask.turno.turno.name) }</Descriptions.Item>
+              <Descriptions.Item label="Usuario">{ recordPartTask.user }</Descriptions.Item>
+              <Descriptions.Item label="Tarea">{ t('messages.mills.task.'+recordPartTask.task.task) }</Descriptions.Item>
+              <Descriptions.Item label="Sección">{ recordPartTask.part.type }</Descriptions.Item>
+              <Descriptions.Item label="Pieza">{ recordPartTask.part.name }</Descriptions.Item>
+              <Descriptions.Item label="Fecha/Hora">
+                <DatePicker showTime={{format: 'HH:mm'}} format="YYYY-MM-DD HH:mm" 
+                  allowClear={false} showToday={false}
+                  defaultValue={moment(recordPartTask.creationDate)}
+                  onOk={changeDateTimePartTask} />
+              </Descriptions.Item>
+            </Descriptions>
           </Modal>
         }
     </div>

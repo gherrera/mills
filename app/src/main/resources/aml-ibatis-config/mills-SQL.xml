@@ -349,6 +349,12 @@
 		order by fecha_inicio, tarea
 	</select>
 
+	<select id="getTareaById" resultMap="Tarea">
+		select id, fecha_inicio, tarea, fecha_termino, user_inicio, user_termino, turno_id_inicio, turno_id_termino
+		from etapa_tareas
+		where id = #value#
+	</select>
+
 	<select id="getPartesByMolino" resultMap="Parte">
 		select id, fec_creacion, nombre, tipo, cantidad, botadas, limpiadas, montadas, total_botadas, total_limpiadas, total_montadas
 		from molino_partes
@@ -368,6 +374,18 @@
 		order by fecha
 	</select>
 	
+	<select id="getParteTareaById" resultMap="TareaParte">
+		select id, fecha, usuario, cantidad, parte_id, turno_id
+		from tarea_partes
+		where id = #value#
+	</select>
+	
+	<update id="updatePartTask">
+		update tarea_partes
+			set fecha = #creationDate#
+		where id = #id#
+	</update>
+
 	<select id="getFaenaById" resultMap="Faena">
 		select id, fec_creacion, nombre, cliente_id
 		from faenas
@@ -459,6 +477,15 @@
 			set fecha_termino = #finishDate#,
 				user_termino = #userFinish#,
 				turno_id_termino = #turnoFinish.id#
+		where id = #id#
+	</update>
+	
+	<update id="updateTarea">
+		update etapa_tareas
+			set fecha_inicio = #creationDate#
+			<isNotNull property="finishDate">
+				, fecha_termino = #finishDate#
+			</isNotNull>
 		where id = #id#
 	</update>
 	

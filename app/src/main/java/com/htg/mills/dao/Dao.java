@@ -493,6 +493,24 @@ public class Dao {
 		}
 	}
 	
+	public TareaParte getParteTareaById(String id) {
+		try {
+			return (TareaParte)sqlMap.queryForObject("getParteTareaById", id);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+
+	public Tarea getTareaById(String id) {
+		try {
+			return (Tarea)sqlMap.queryForObject("getTareaById", id);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+
 	public Molino getMolinoById(String id) {
 		try {
 			return (Molino)sqlMap.queryForObject("getMolinoById", id);
@@ -913,4 +931,19 @@ public class Dao {
 		}
 	}
 
+	public void updatePartTask(TareaParte tareaParte) {
+		try {
+			sqlMap.update("updatePartTask", tareaParte);
+		} catch (SQLException e) {
+			log.error("Error al modificar datos", e);
+		}
+	}
+	
+	public void updateTask(Tarea tarea) {
+		try {
+			sqlMap.update("updateTarea", tarea);
+		} catch (SQLException e) {
+			log.error("Error al modificar datos", e);
+		}
+	}
 }

@@ -31,7 +31,7 @@ const Programado = ({molino, action, readOnly, mode, handleChangeProgramado, ini
         </Row>
         { showAll &&
         <>
-          <Step5 key={mode} mode={mode} readOnly={readOnly} scheduled={scheduled} notifSchedule={handleNotifSchedule} initForm={initForm} />
+          <Step5 key={mode} mode={mode} readOnly={readOnly} molino={molino} scheduled={scheduled} notifSchedule={handleNotifSchedule} initForm={initForm} />
         </>
         }
     </div>
