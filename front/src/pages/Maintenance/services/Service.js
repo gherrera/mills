@@ -98,5 +98,12 @@ export default {
       method: 'post',
       body: tarea
     })
+  },
+  updateStage: (stage) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/updateStage',
+      method: 'post',
+      body: stage
+    })
   }
 }

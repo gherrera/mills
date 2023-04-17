@@ -35,8 +35,19 @@ const Edit = ({molino, action, loadMolinos }) => {
       setMode('edit')
       setReadOnly(false)
     }else {
-      setMode('view')
-      setReadOnly(true)
+      if(programado && programado.updated) {
+        confirm({
+          title: 'Advertencia',
+          content: 'Hay Datos de Programación no guardados. Desea salir?',
+          onOk() {
+            setMode('view')
+            setReadOnly(true)
+          }
+        })
+      }else {
+        setMode('view')
+        setReadOnly(true)
+      }
     }
   }
 

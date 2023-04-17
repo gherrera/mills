@@ -91,8 +91,8 @@ public class Tarea extends Entity {
 		this.turnoFinish = turnoFinish;
 	}
 	
-	public int getDuration() {
-		int seg = 0;
+	public long getDuration() {
+		long seg = 0;
 		
 		Timestamp finish = finishDate;
 		if(finish == null) {
@@ -105,15 +105,15 @@ public class Tarea extends Entity {
 				Timestamp finish1 = turnoStart.getClosedDate();
 				
 				long diff = finish1.getTime() - getCreationDate().getTime();
-				seg += (int)diff / 1000;
+				seg += diff / 1000;
 			}
 			if(turnoFinish.getCreationDate() != null && turnoFinish.getCreationDate().before(finish)) {
 				long diff = finish.getTime() - turnoFinish.getCreationDate().getTime();
-				seg += (int)diff / 1000;
+				seg += diff / 1000;
 			}
 		}else { // Hay cambio de turno
 			long diff = finish.getTime() - getCreationDate().getTime();
-			seg = (int)diff / 1000;
+			seg = diff / 1000;
 		}
 		return seg;
 	}

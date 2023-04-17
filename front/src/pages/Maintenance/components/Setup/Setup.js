@@ -409,12 +409,7 @@ const Setup = ({currentUser, action, history}) => {
               </div>
             }
             <div className="table-wrapper">
-            {
-                isLoading ?
-                <Spin spinning={ true } size="large" />
-                :
-                <Table columns={ getTableColumns() } dataSource={ molinos } size="small"/>
-            }
+              <Table columns={ getTableColumns() } dataSource={ molinos } size="small" loading={isLoading}/>
             </div>
 
             { isModalVisibleConfig &&

@@ -946,4 +946,21 @@ public class Dao {
 			log.error("Error al modificar datos", e);
 		}
 	}
+	
+	public void updateStage(Etapa etapa) {
+		try {
+			sqlMap.update("updateEtapa", etapa);
+		} catch (SQLException e) {
+			log.error("Error al modificar datos", e);
+		}
+	}
+	
+	public Etapa getEtapaById(String id) {
+		try {
+			return (Etapa)sqlMap.queryForObject("getEtapaById", id);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
 }

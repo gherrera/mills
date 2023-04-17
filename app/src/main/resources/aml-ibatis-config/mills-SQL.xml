@@ -335,6 +335,12 @@
 		order by fecha_inicio
 	</select>
 	
+	<select id="getEtapaById" resultMap="Etapa">
+		select id, fecha_inicio, etapa, estado, fecha_termino, user_inicio, user_termino, turno_id_inicio, turno_id_termino
+		from molino_etapas
+		where id = #value#
+	</select>
+
 	<select id="getEventosByEtapa" resultMap="Evento">
 		select id, fecha_inicio, tipo, comentarios, fecha_termino, user_inicio, user_termino
 		from etapa_eventos
@@ -495,6 +501,15 @@
 				user_termino = #userFinish#,
 				estado = #status#,
 				turno_id_termino = #turnoFinish.id#
+		where id = #id#
+	</update>
+	
+	<update id="updateEtapa">
+		update molino_etapas
+			set fecha_inicio = #creationDate#
+			<isNotNull property="finishDate">
+				, fecha_termino = #finishDate#
+			</isNotNull>
 		where id = #id#
 	</update>
 	

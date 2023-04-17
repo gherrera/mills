@@ -1,11 +1,11 @@
 import './AvanceFase.scss'
 import React, { useEffect, useState } from 'react'
-import { Row, Col, Switch, Table, Modal, Button, Spin, Tabs, Descriptions, Tooltip, DatePicker } from 'antd'
+import { Row, Col, Switch, Table, Modal, Button, Spin, Tabs, Descriptions, Tooltip, DatePicker, notification } from 'antd'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoon, faSun } from '@fortawesome/free-regular-svg-icons'
-import { updatePartTaskPromise, updateTaskPromise } from '../../../../promises'
+import { updatePartTaskPromise, updateTaskPromise, updateStagePromise } from '../../../../promises'
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -20,6 +20,7 @@ const AvanceFase = ({molino, stage}) => {
     const [ recordPartTask, setRecordPartTask ] = useState(null)
     const [ recordTask, setRecordTask ] = useState(null)
     const [ tasks, setTasks ] = useState(stage.tasks)
+    const [ vstage, setVstage ] = useState(stage)
 
   useEffect(() => {
     if(stage.stage === 'EXECUTION') {
@@ -34,6 +35,7 @@ const AvanceFase = ({molino, stage}) => {
         setDetailsExecution(details)
       }
     }
+    setTasks(stage.tasks)
   }, [stage])
 
   function zeroPad(num, places) {
@@ -290,6 +292,11 @@ const AvanceFase = ({molino, stage}) => {
             }
           })
           setTasks(_tasks)
+          notification.success({
+            message: 'Movimiento',
+            description: 'Fechas actualizadas'
+          })
+
         })
       }
     });
@@ -309,6 +316,27 @@ const AvanceFase = ({molino, stage}) => {
             }
           })
           setDetailsExecution(_detailsExecution)
+          notification.success({
+            message: 'Tarea',
+            description: 'Fechas actualizadas'
+          })
+        })
+      }
+    });
+  }
+
+  const changeDateTimeStage = (attr, d) => {
+    confirm({
+      title: 'Está seguro de modificar la Fecha/Hora de la Fase?',
+      onOk() {
+        const st = { id: vstage.id, creationDate: vstage.creationDate, finishDate: vstage.finishDate }
+        st[attr] = d.getTime()
+        updateStagePromise(st).then(s => {
+          setVstage(s)
+          notification.success({
+            message: 'Fase',
+            description: 'Fecha actualizada'
+          })
         })
       }
     });
@@ -318,42 +346,58 @@ const AvanceFase = ({molino, stage}) => {
     <div className="stage">
         <Row className="title-stage">
           <Col span={3}>
-            Fase {t('messages.mills.stage.'+stage.stage)}
+            Fase {t('messages.mills.stage.'+vstage.stage)}
           </Col>
-          { stage.stage === 'DELIVERY' ?
+          { vstage.stage === 'DELIVERY' ?
             <Col span={21} className="data-title" style={{paddingRight:'777px'}}>
               <label>Fecha</label>
-              <span className="info datetime">{moment(stage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
+              <span className="info datetime">{moment(vstage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
             </Col>
             :
             <Col span={21} className="data-title">
               <label>Inicio</label>
-              <span className="info datetime">{moment(stage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
+              <span className="info datetime">
+                <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
+                  size="small"
+                  style={{minWidth:'unset'}}
+                  allowClear={false} showToday={false}
+                  defaultValue={moment(vstage.creationDate)}
+                  onOk={(d) => changeDateTimeStage('startDate', new Date(d))} />
+              </span>
 
               <label>Fin</label>
-              <span className="info datetime">{stage.finishDate ? moment(stage.finishDate).format("DD/MM/YYYY HH:mm") : 'N/A'}</span>
+              <span className="info datetime">
+                {vstage.finishDate ? 
+                  <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
+                    size="small"
+                    style={{minWidth:'unset'}}
+                    allowClear={false} showToday={false}
+                    defaultValue={moment(vstage.finishDate)}
+                    onOk={(d) => changeDateTimeStage('finishDate', new Date(d))} />
+                  : 'N/A'}
+              </span>
 
               <label>Duración total</label>
-              <span className="info duration">{secondsToHms(stage.realDuration)}</span>
+              <span className="info duration">{secondsToHms(vstage.realDuration)}</span>
 
               <label>Duración real</label>
-              <span className="info duration">{secondsToHms(stage.duration)}</span>
+              <span className="info duration">{secondsToHms(vstage.duration)}</span>
 
               <label>Interrupciones</label>
               <span className="info interruption">
-                {stage.events.length === 0 ? 0
+                {vstage.events.length === 0 ? 0
                 :
-                  <a onClick={() => openInterruptions(stage.events)}>{stage.events.length}</a>
+                  <a onClick={() => openInterruptions(vstage.events)}>{vstage.events.length}</a>
                 }
               </span>
 
-              { stage.stage !== 'DELIVERY' &&
+              { vstage.stage !== 'DELIVERY' &&
                 <Switch size="small" defaultChecked={checked} onChange={onChangeSwitch}/>
               }
             </Col>
           }
         </Row>
-        { stage.stage === 'EXECUTION' &&
+        { vstage.stage === 'EXECUTION' &&
           <Row className="indicators-ex" gutter={[12,18]}>
             <Col span={8}>
               <div className="indicator">
@@ -463,14 +507,14 @@ const AvanceFase = ({molino, stage}) => {
                 <Descriptions.Item label="Turno">{ getIconTurno(recordTask.turnoFinish ? recordTask.turnoFinish.turno.name : recordTask.turnoStart.turno.name) }</Descriptions.Item>
                 <Descriptions.Item label="Duración">{ secondsToHms(recordTask.duration) }</Descriptions.Item>
                 <Descriptions.Item label="Inicio">
-                  <DatePicker showTime={{format: 'HH:mm'}} format="YYYY-MM-DD HH:mm" 
+                  <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
                     allowClear={false} showToday={false}
                     defaultValue={moment(recordTask.creationDate)}
                     onOk={(d) => changeDateTimeTask('creationDate', new Date(d))} />
                 </Descriptions.Item>
                 <Descriptions.Item label="Termino">
                   { recordTask.finishDate &&
-                    <DatePicker showTime={{format: 'HH:mm'}} format="YYYY-MM-DD HH:mm" 
+                    <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
                       allowClear={false} showToday={false}
                       defaultValue={moment(recordTask.finishDate)}
                       onOk={(d) => changeDateTimeTask('finishDate', new Date(d))} />
@@ -501,7 +545,7 @@ const AvanceFase = ({molino, stage}) => {
               <Descriptions.Item label="Sección">{ recordPartTask.part.type }</Descriptions.Item>
               <Descriptions.Item label="Pieza">{ recordPartTask.part.name }</Descriptions.Item>
               <Descriptions.Item label="Fecha/Hora">
-                <DatePicker showTime={{format: 'HH:mm'}} format="YYYY-MM-DD HH:mm" 
+                <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
                   allowClear={false} showToday={false}
                   defaultValue={moment(recordPartTask.creationDate)}
                   onOk={changeDateTimePartTask} />

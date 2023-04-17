@@ -40,6 +40,11 @@
                             &.duration, &.interruption {
                                 width: 60px !important;
                             }
+
+                            &.datetime {
+                                width: 150px;
+                                padding: unset;
+                            }
                         }
                     }
                 }

@@ -154,13 +154,20 @@ const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, molino, scheduled, n
             let resp = await uploadSchedulePromise(formData)
             if(resp.status === 'OK') {
                 setMovimientos(resp.sheduled)
-                const sche = { ...programacion, movs: resp.sheduled}
+                const sche = { ...programacion, movs: resp.sheduled, updated: true}
                 setProgramacion(sche)
                 if(notifSchedule) notifSchedule(sche)
                 notification.success({
                     message: 'Programación',
                     description: 'Datos cargados exitosamente'
                 })
+                if(mode === 'edit') {
+                    notification.warning({
+                        message: 'Guardar Datos',
+                        description: 'Los datos solo se graban al presionar el botón "Guardar"',
+                        duration: 10
+                    })
+                }
             }else {
                 notification.error({
                     message: 'Error',
@@ -204,8 +211,15 @@ const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, molino, scheduled, n
                         </Row>
                     }
                     <Row gutter={[16, 16]} style={{padding: 10}}>
+                        <Col span={4} offset={mode === 'view' ? 16 : 8} style={{textAlign:'center'}}>
+                            { mode === 'new' ?
+                                <Button size="small" icon="file-excel" href={apiConfig.url + '/../load/Programacion.xlsx'}>Descargar Plantilla</Button>
+                            :
+                                <Button size="small" icon="file-excel" onClick={downloadScheduled}>Descargar</Button>
+                            }
+                        </Col>
                         { (mode === "new" || mode === "edit") &&
-                            <Col span={4} offset={8} style={{textAlign:'center'}}>
+                            <Col span={4} style={{textAlign:'center'}}>
                                 <Upload {...getPropsUpload()}>
                                     <Button size="small" icon="upload">
                                         Cargar archivo
@@ -213,13 +227,6 @@ const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, molino, scheduled, n
                                 </Upload>
                             </Col>
                         }
-                        <Col span={4} offset={mode === 'view' ? 16 : 0} style={{textAlign:'center'}}>
-                            { mode === 'new' ?
-                                <Button size="small" icon="file-excel" href={apiConfig.url + '/../load/Programacion.xlsx'}>Descargar Plantilla</Button>
-                            :
-                                <Button size="small" icon="file-excel" onClick={downloadScheduled}>Descargar</Button>
-                            }
-                        </Col>
                     </Row>
                     <Row>
                         <Table columns={ getTableColumns() } dataSource={ movimientos } size="small" pagination={movimientos && movimientos.length > 10}/>

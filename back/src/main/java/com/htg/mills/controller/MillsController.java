@@ -506,5 +506,11 @@ public class MillsController {
 	public Tarea updateTask(@RequestBody Tarea tarea) {
 		return app.updateTask(tarea);
 	}
+	
+	@PostMapping("updateStage")
+	@ResponseBody
+	public Etapa updateStage(@RequestBody Etapa etapa) {
+		return app.updateStage(etapa);
+	}
 
 }

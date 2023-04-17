@@ -17,29 +17,25 @@ const Avance = ({molino}) => {
     return Array(+(zero > 0 && zero)).join("0") + num;
   }
 
-  function secondsToHms(d) {
+  function secondsToHms(d, format='hour') {
     d = Number(d);
     var h = Math.floor(d / 3600);
     var m = Math.floor(d % 3600 / 60);
-    /*
-    var s = Math.floor(d % 3600 % 60);
 
-    var hDisplay = h > 0 ? h + (":") : "";
-    var mDisplay = m > 0 ? m + (":") : "";
-    var sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
-    */
-    return zeroPad(h,2)+":"+zeroPad(m,2); 
+    let r = zeroPad(h,2)+":"+zeroPad(m,2);
+    return r;
   }
-
 
   return (
     <div className='avance'>
-        <Row className="title">
-            <Col span={5}>Registro de avance</Col>
-            <Col span={7}>Fecha de actualización: <b>{moment().format('DD/MM/YYYY HH:mm')}</b></Col>
-            <Col span={12} className="indicadores">
+        <Row className="title" style={{fontWeight: 'unset'}}>
+            <Col span={4} style={{fontWeight: '500'}}>Registro de avance</Col>
+            <Col span={6}>Fecha de actualización: <span style={{fontWeight:'bold', fontSize:'smaller'}}>{moment().format('DD/MM/YYYY HH:mm')}</span></Col>
+            <Col span={14} className="indicadores">
               <label>Inicio</label>
-              <span>{moment(molino.startDate).format('DD/MM/YYYY HH:mm')}</span>
+              <span>
+                {moment(molino.startDate).format('DD/MM/YYYY HH:mm')}
+              </span>
 
               <label>Fin</label>
               <span>
@@ -51,7 +47,7 @@ const Avance = ({molino}) => {
               </span>
 
               <label>Tiempo total</label>
-              <span>{secondsToHms(molino.realDuration)}</span>
+              <span style={{minWidth: '80px'}}>{secondsToHms(molino.realDuration, 'days')}</span>
             </Col>
         </Row>
         <Row className="indicators">
@@ -64,7 +60,7 @@ const Avance = ({molino}) => {
             <div className="indicator">
               <div className="content-indicator">
                 <div>Avance en horas</div>
-                {secondsToHms(molino.duration)} horas
+                {secondsToHms(molino.duration, 'days')} dias/horas
               </div>
             </div>
             <div className="indicator">

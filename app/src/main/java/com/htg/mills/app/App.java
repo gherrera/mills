@@ -799,6 +799,14 @@ public class App {
 		}
 	}
 	
+	private Integer getIntFromStr(String str) {
+		if(str != null && !str.trim().isEmpty()) {
+			String n = str.trim().replaceAll("\\.", "").replaceAll("\\,", "");
+			return Integer.valueOf(n);
+		}
+		return null;
+	}
+	
 	public List<Programacion> transformFileIntoSchedule(File file) {
 		try {
 			List<Programacion> scheduled = new ArrayList<Programacion>();
@@ -812,17 +820,17 @@ public class App {
 				if(data.length>5) {
 					Programacion schedule = new Programacion();
 					schedule.setTurn(data[0]);
-					schedule.setCorrHour(Integer.valueOf(data[1]));
-					schedule.setTurnHour(Integer.valueOf(data[2]));
+					schedule.setCorrHour(getIntFromStr(data[1]));
+					schedule.setTurnHour(getIntFromStr(data[2]));
 					if(data[3] != null && !data[3].isEmpty() && !data[3].isBlank()) {
-						schedule.setUnit(Integer.valueOf(data[3]));
+						schedule.setUnit(getIntFromStr(data[3]));
 					}
 					if(data[4] != null && !data[4].isEmpty() && !data[4].isBlank()) {
-						schedule.setMovs(Integer.valueOf(data[4]));
+						schedule.setMovs(getIntFromStr(data[4]));
 					}
-					schedule.setTotal(Integer.valueOf(data[5]));
+					schedule.setTotal(getIntFromStr(data[5]));
 					if(data.length > 6 && data[6] != null && !data[6].isEmpty() && !data[6].isBlank()) {
-						schedule.setMounted(Integer.valueOf(data[6]));
+						schedule.setMounted(getIntFromStr(data[6]));
 					}
 					
 					scheduled.add(schedule);
@@ -845,5 +853,10 @@ public class App {
 	public Tarea updateTask(Tarea tarea) {
 		dao.updateTask(tarea);
 		return dao.getTareaById(tarea.getId());
+	}
+	
+	public Etapa updateStage(Etapa etapa) {
+		dao.updateStage(etapa);
+		return dao.getEtapaById(etapa.getId());
 	}
 }

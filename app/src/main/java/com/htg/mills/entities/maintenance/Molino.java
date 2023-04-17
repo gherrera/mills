@@ -316,8 +316,8 @@ public class Molino extends Entity {
 		this.createUser = createUser;
 	}
 
-	public float getRealDuration() {
-		float duration = 0;
+	public long getRealDuration() {
+		long duration = 0;
 		if(stages != null && stages.size() >0) {
 			Timestamp finish = getFinishDate();
 			if(finish == null) {
@@ -326,13 +326,13 @@ public class Molino extends Entity {
 				finish = new Timestamp(date.getTime());
 			}
 			long diff = finish.getTime() - stages.get(0).getCreationDate().getTime();
-			duration = (int)diff / 1000;
+			duration = diff / 1000;
 		}
-		return duration;		
+		return duration;
 	}
 	
-	public float getDuration() {
-		float duration = 0;
+	public long getDuration() {
+		long duration = 0;
 		if(stages != null) {
 			for(Etapa stage : stages) {
 				duration += stage.getDuration();

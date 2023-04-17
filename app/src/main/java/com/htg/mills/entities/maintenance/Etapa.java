@@ -163,7 +163,7 @@ public class Etapa extends Entity {
 		return false;
 	}
 	
-	public float getRealDuration() {
+	public long getRealDuration() {
 		Timestamp finish = getFinishDate();
 		if(finish == null) {
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
@@ -171,12 +171,11 @@ public class Etapa extends Entity {
 			finish = new Timestamp(date.getTime());
 		}
 		long diff = finish.getTime() - getCreationDate().getTime();
-		int seg = (int)diff / 1000;
-		return seg;
+		return diff / 1000;
 	}
 	
-	public float getDuration() {
-		float duration = 0;
+	public long getDuration() {
+		long duration = 0;
 		if(tasks != null) {
 			for(Tarea t : tasks) {
 				if(!t.getTask().equals(Tarea.TareaEnum.LIMPIEZA)) duration += t.getDuration();
