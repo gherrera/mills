@@ -362,7 +362,7 @@ const AvanceFase = ({molino, stage}) => {
                   style={{minWidth:'unset'}}
                   allowClear={false} showToday={false}
                   defaultValue={moment(vstage.creationDate)}
-                  onOk={(d) => changeDateTimeStage('startDate', new Date(d))} />
+                  onOk={(d) => changeDateTimeStage('creationDate', new Date(d))} />
               </span>
 
               <label>Fin</label>
