@@ -801,8 +801,9 @@ public class App {
 	
 	private Integer getIntFromStr(String str) {
 		if(str != null && !str.trim().isEmpty()) {
-			String n = str.trim().replaceAll("\\.", "").replaceAll("\\,", "");
-			return Integer.valueOf(n);
+			String n = str.trim().replaceAll("\\.", ",");
+			String[] d = n.split("\\,");
+			return Integer.valueOf(d[0]);
 		}
 		return null;
 	}

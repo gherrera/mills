@@ -16,8 +16,8 @@ const Dashboard = ({currentUser}) => {
     const [isLoadingMolinos, setIsLoadingMolinos] = useState(false)
     const [isLoadingMolino, setIsLoadingMolino] = useState(false)
     const [fecha, setFecha] = useState(null)
+    const [maxGraph, setMaxGraph] = useState(10)
     const [avances, setAvances] = useState({})
-    const [ days, setDays ] = useState([])
     const [ dataGraph, setDataGraph ] = useState([])
 
     useEffect(() => {
@@ -64,11 +64,13 @@ const Dashboard = ({currentUser}) => {
         getMolinoPromise(id).then(m => {
             setMolino(m)
             let f = moment()
-            m.stages && m.stages.map(s => {
-                if(s.stage === 'EXECUTION' && s.finishDate) {
-                    f = moment(s.finishDate)
+            if(m.currentStage) {
+                if(m.currentStage.finishDate) {
+                    f = moment(m.currentStage.finishDate)
+                }else {
+                    f = moment(m.currentStage.creationDate)
                 }
-            })
+            }
 
             setFecha(f)
 
@@ -93,15 +95,39 @@ const Dashboard = ({currentUser}) => {
         return parts
     }
 
-    const getStatsAvancesByFecha = (pFecha, pMolino) => {
-        let avObj = {...avances}
-        const f = new Date(pFecha.format())
+    const getStatsAvancesByFecha = (pFecha, pMolino, groupBy='date') => {
+        let avObj = { }
+        const f = new Date(pFecha)
+        const ant = new Date(pFecha)
+        ant.setDate(f.getDate() - 1)
+        const keyFecha = moment(ant).format("DD-MM-YYYY")
 
         let giros = 0
-        let turnos = {}
+        let listValues = []
+        let turnosExec = {}
+
         let hasFihishExec = false
         pMolino.stages && pMolino.stages.map(s => {
-            if(s.stage === 'EXECUTION') {
+            if(s.stage === 'BEGINNING' || s.stage === 'FINISHED') {
+                s.tasks && s.tasks.map(task => {
+                    if(task.finishDate) {
+                        let fec = moment(task.finishDate)
+
+                        if(fec.isBefore(pFecha)) {
+                            let key = keyFecha
+                            let entry = listValues.filter(v => v.ejeX === key)
+                            if(entry.length === 0) {
+                                listValues.push({ejeX: key, movs : 0, movsExec: 0, montadas: 0, duration: 0, scheduled: 0})
+                            }
+                            entry = listValues.filter(v => v.ejeX === key)[0]
+
+                            if(pMolino.scheduled && pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
+                                entry.movs = entry.movs + pMolino.scheduled.tasks[task.task]
+                            }
+                        }
+                    }
+                })
+            }else if(s.stage === 'EXECUTION') {
                 if(s.finishDate) {
                     let fec = moment(s.finishDate)
                     if(fec.isBefore(pFecha)) hasFihishExec = true
@@ -109,8 +135,21 @@ const Dashboard = ({currentUser}) => {
                 s.tasks && s.tasks.map(task => {
                     if(task.task === 'GIRO' || task.task === 'BOTADO' || task.task === 'MONTAJE') {
                         if(task.task === 'GIRO') {
-                            let fec = moment(task.creationDate)
-                            if(fec.isBefore(pFecha)) giros++
+                            debugger
+                            let fec = moment(task.finishDate)
+                            if(fec.format("DD-MM-YYYY") === keyFecha) {
+                                giros++
+                                let key = keyFecha
+                                let entry = listValues.filter(v => v.ejeX === key)
+                                if(entry.length === 0) {
+                                    listValues.push({ejeX: key, movs : 0, movsExec: 0, montadas: 0, duration: 0, scheduled: 0})
+                                }
+                                entry = listValues.filter(v => v.ejeX === key)[0]
+                                if(pMolino.scheduled && pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
+                                    entry.movs = entry.movs + pMolino.scheduled.tasks[task.task]
+                                    entry.giros = entry.movs
+                                }
+                            }
                         }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
                             task.parts && task.parts.map(part => {
                                 const fecParte = moment(part.creationDate)
@@ -133,12 +172,20 @@ const Dashboard = ({currentUser}) => {
                                     fec = moment(part.turno.creationDate)
                                 }
                                 if(fec.isBefore(pFecha)) {
-                                    if(!turnos[part.turno.id]) turnos[part.turno.id] = {qty : 0, montadas: 0, duration: (fecFin - fecIni)/1000}
+                                    let key = keyFecha
+                                    let entry = listValues.filter(v => v.ejeX === key)
+                                    if(entry.length === 0) {
+                                        listValues.push({ejeX: key, movs : 0, movsExec: 0, montadas: 0, duration: (fecFin - fecIni)/1000, scheduled: 0})
+                                    }
+                                    entry = listValues.filter(v => v.ejeX === key)[0]
                                     if(fecParte.isBefore(pFecha)) {
-                                        turnos[part.turno.id].qty = turnos[part.turno.id].qty + part.qty
+                                        entry.movs = entry.movs + part.qty
+                                        entry.movsExec = entry.movsExec + part.qty
                                         if(task.task === 'MONTAJE') {
-                                            turnos[part.turno.id].montadas = turnos[part.turno.id].montadas + part.qty
+                                            entry.montadas = entry.montadas + part.qty
                                         }
+
+                                        turnosExec[part.turno] = part.turno
                                     }
                                 }
                             })
@@ -149,69 +196,73 @@ const Dashboard = ({currentUser}) => {
         })
 
         avObj.giros = giros
-        const movs = Object.entries(turnos).reduce((accumulator, current) => {
-            return accumulator + current[1].qty
+        const movsExec = listValues.reduce((accumulator, current) => {
+            return accumulator + current.movsExec
         }, 0)
-        const montadas = Object.entries(turnos).reduce((accumulator, current) => {
-            return accumulator + current[1].montadas
+        const montadas = listValues.reduce((accumulator, current) => {
+            return accumulator + current.montadas
         }, 0)
-        const durationTurnos = Object.entries(turnos).reduce((accumulator, current) => {
-            return accumulator + current[1].duration
+        const durationTurnos = listValues.reduce((accumulator, current) => {
+            return accumulator + current.duration
         }, 0)
-        const nTurnos = Object.entries(turnos).length
-        avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movs/nTurnos)
-        avObj.promMinPieza = movs === 0 ? 'N/A' : (durationTurnos / 60 / (movs / 2)).toFixed(1)
-        avObj.avance = Math.round(movs / (pMolino.piezas * 2) * 100)
+        const nTurnos = Object.values(turnosExec).length
+        avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movsExec/nTurnos)
+        avObj.promMinPieza = movsExec === 0 ? 'N/A' : (durationTurnos / 60 / (movsExec / 2)).toFixed(1)
 
         const segPiezaMeta = pMolino.exHours * 3600 / (pMolino.piezas * 2)
-        const segPiezaReal = durationTurnos / movs
+        const segPiezaReal = durationTurnos / movsExec
         avObj.hasRetraso = durationTurnos === 0 ? 'N/A' : segPiezaReal > segPiezaMeta ? 'Sí' : 'No'
 
-        avObj.movimientosReal = movs
+        avObj.movimientosReal = movsExec
         avObj.montadas = montadas
         let tpo = durationTurnos / (pMolino.exHours * 3600)
         if(tpo > 1) tpo = 1
         avObj.movimientosProg = Math.round(tpo * pMolino.piezas * 2)
-        if(hasFihishExec) avObj.movimientosProg = movs
+        if(hasFihishExec) avObj.movimientosProg = movsExec
+
+        avObj.avance = Math.round(movsExec / (pMolino.piezas * 2) * 100)
         avObj.avanceProg = Math.round(avObj.movimientosProg / (pMolino.piezas * 2) * 100)
 
+        avObj.values = listValues
         return avObj
     }
 
     const setStatsAvances = (pFecha, pMolino) => {
         let fecIni=null
         pMolino.stages && pMolino.stages.map(s => {
-            if(s.stage === 'EXECUTION') {
+            if(s.stage === 'BEGINNING') {
                 fecIni = moment(s.creationDate)
             }
         })
-        let vDays = []
         let vGraph = []
         if(fecIni) {
             const date2 = new Date(pFecha.startOf('day')).getTime()
             const date1 = new Date(fecIni.startOf('day')).getTime()
             const d = Math.floor((date2-date1)/(1000*60*60*24));
 
-            for(let i=0;i<d;i++) {
+            debugger
+
+            for(let i=1;i<=d;i++) {
                 let f = new Date(fecIni.startOf('day'))
                 f.setDate(f.getDate() + i)
                 let vFec = moment(f).startOf('day')
 
-                let fecha = vFec.format("DD-MM-YYYY")
+                let values = getStatsAvancesByFecha(vFec, pMolino)
 
-                f.setDate(f.getDate() + 1)
-                vFec = moment(f).startOf('day')
-                let avObj = getStatsAvancesByFecha(vFec, pMolino)
-                avObj.fecha = fecha
-
-                vGraph.push(avObj)
-                vDays.push(vFec.format("DD-MM-YYYY"))
+                vGraph.push(...values.values)
             }
         }
 
-        setDataGraph(vGraph)
-        setDays(vDays)
+        const movMax = Math.max(...vGraph.map(o => o.movs))
+        const movScheduled = Math.max(...vGraph.map(o => o.scheduled))
+        if(movScheduled > movMax) {
+            setMaxGraph(movScheduled)
+        }else {
+            setMaxGraph(movMax)
+        }
 
+        setDataGraph(vGraph)
+        debugger
         let avObj = getStatsAvancesByFecha(pFecha, pMolino)
         setAvances(avObj)
     }
@@ -347,7 +398,12 @@ const Dashboard = ({currentUser}) => {
                                     </Col>
                                 }
                                 <Col span={6} xs={10} md={6}>
-                                    <Select style={{width:'100%'}} placeholder="Orden de Trabajo" value={molino && molino.id} onChange={handleChangeMolino}>
+                                    <Select style={{width:'100%'}} placeholder="Orden de Trabajo" value={molino && molino.id}
+                                        showSearch
+                                        filterOption={(input, option) => 
+                                            option.props.children && option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                        }
+                                        onChange={handleChangeMolino}>
                                         { molinos.map(m => 
                                             (!cliente || cliente === m.faena.client.id) && m.status &&
                                             <Select.Option value={m.id}>{m.ordenTrabajo}</Select.Option>
@@ -479,7 +535,7 @@ const Dashboard = ({currentUser}) => {
                                     </Col>
                                 </Row>
                                 <Row style={{marginTop: 4}} gutter={[8,8]} type="flex">
-                                    <Col xs={24} lg={12}>
+                                    <Col xs={24} xxl={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
                                                 <Col span={12}>
@@ -558,7 +614,7 @@ const Dashboard = ({currentUser}) => {
                                             </Row>
                                         </Row>
                                     </Col>
-                                    <Col xs={24} lg={12}>
+                                    <Col xs={24} xxl={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             <Plot
                                                 useResizeHandler={true}
@@ -567,8 +623,8 @@ const Dashboard = ({currentUser}) => {
                                                     [
                                                         // Avance real
                                                         {
-                                                            x: dataGraph.map(d => d.fecha),
-                                                            y: dataGraph.map(d => d.avance),
+                                                            x: dataGraph.map(d => d.ejeX),
+                                                            y: dataGraph.map(d => d.movs),
                                                             type: 'scatter',
                                                             mode: 'lines+markers',
                                                             line: {
@@ -591,7 +647,7 @@ const Dashboard = ({currentUser}) => {
                                                         },
                                                         // Avance estimado
                                                         {
-                                                            x: dataGraph.map(d => d.fecha),
+                                                            x: dataGraph.map(d => d.ejeX),
                                                             y: dataGraph.map(d => d.avanceProg),
                                                             type: 'scatter',
                                                             mode: 'lines+markers',
@@ -612,6 +668,21 @@ const Dashboard = ({currentUser}) => {
                                                             },
                                                             */
                                                             name: 'Avance programado'
+                                                        },
+                                                        // Giros
+                                                        {
+                                                            x: dataGraph.map(d => d.ejeX),
+                                                            y: dataGraph.map(d => d.giros),
+                                                            type: 'scatter',
+                                                            mode: 'markers',
+                                                            marker: {
+                                                                size: 12,
+                                                                color: 'rgba(255, 255, 255, 0)',
+                                                                line: {
+                                                                    width: 3
+                                                                }
+                                                            },
+                                                            name: 'Giro'
                                                         }
                                                     ]
                                                 }
@@ -624,9 +695,8 @@ const Dashboard = ({currentUser}) => {
                                                             l: 30,
                                                             r: 20,
                                                             b: 20,
-                                                            t: 20,
+                                                            t: 0,
                                                         },
-                                                        //title: 'Tramos de Venta',
                                                         paper_bgcolor: 'rgba(0,0,0,0)',
                                                         plot_bgcolor: 'rgba(0,0,0,0)',
                                                         autoscale: true,
@@ -653,7 +723,7 @@ const Dashboard = ({currentUser}) => {
                                                                 size: 10,
                                                                 color: 'rgb(103 103 103)'
                                                             },
-                                                            range: [0, 110],
+                                                            range: [0, maxGraph + 15],
                                                             tickmode: 'array',
                                                             showgrid: true,
                                                             gridcolor: 'rgb(187 187 187)',
