@@ -19,6 +19,7 @@ const Dashboard = ({currentUser}) => {
     const [maxGraph, setMaxGraph] = useState(10)
     const [avances, setAvances] = useState({})
     const [ dataGraph, setDataGraph ] = useState([])
+    const [ groupGraph, setGroupGraph ] = useState("turno")
 
     useEffect(() => {
         init()
@@ -95,18 +96,43 @@ const Dashboard = ({currentUser}) => {
         return parts
     }
 
-    const getStatsAvancesByFecha = (pFecha, pMolino, groupBy='date') => {
+    const getScheduledByParams = (pMolino, hour, turnos) => {
+        let sched = 0
+        let schedExec = 0
+        const keyTurno = turnos[turnos.length-1].key
+        const filteredTurnos = pMolino.scheduled.movs.filter(m => m.turn === keyTurno)
+        for(let i=0;i<pMolino.scheduled.movs.length;i++) {
+            if(pMolino.scheduled.movs[i].turn !== keyTurno) {
+                sched += pMolino.scheduled.movs[i].total
+                if(pMolino.scheduled.movs[i].movs) {
+                    schedExec += pMolino.scheduled.movs[i].movs
+                }
+            }else {
+                break;
+            }
+        }
+        for(let i=0;i<filteredTurnos.length;i++) {
+            if(i < hour) {
+                sched += filteredTurnos[i].total
+                if(filteredTurnos[i].movs) {
+                    schedExec += filteredTurnos[i].movs
+                }
+            }else {
+                break
+            }
+        }
+        return { sched, schedExec }
+    }
+
+    const getStatsAvancesByFecha = (pFecha, pMolino, groupBy='fecha') => {
         let avObj = { }
         const f = new Date(pFecha)
-        const ant = new Date(pFecha)
-        ant.setDate(f.getDate() - 1)
-        const keyFecha = moment(ant).format("DD-MM-YYYY")
 
-        let giros = 0
         let listValues = []
         let turnosExec = {}
+        let turnos = []
+        let durationTurnos = 0;
 
-        let hasFihishExec = false
         pMolino.stages && pMolino.stages.map(s => {
             if(s.stage === 'BEGINNING' || s.stage === 'FINISHED') {
                 s.tasks && s.tasks.map(task => {
@@ -114,145 +140,189 @@ const Dashboard = ({currentUser}) => {
                         let fec = moment(task.finishDate)
 
                         if(fec.isBefore(pFecha)) {
+                            const keyFecha = fec.format("DD-MM-YYYY")
                             let key = keyFecha
-                            let entry = listValues.filter(v => v.ejeX === key)
-                            if(entry.length === 0) {
-                                listValues.push({ejeX: key, movs : 0, movsExec: 0, montadas: 0, duration: 0, scheduled: 0})
+                            let ejeX = key
+                            if(groupBy === 'turno') {
+                                key = task.turnoFinish.id
+                                fec = moment(task.turnoFinish.creationDate)
+                                ejeX = fec.format("DD-MM-YYYY") + '-' + task.turnoFinish.turno.name
                             }
-                            entry = listValues.filter(v => v.ejeX === key)[0]
+                            let entry = listValues.filter(v => v.key === key)
+                            if(entry.length === 0) {
+                                listValues.push({key, ejeX, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0})
+                            }
+                            entry = listValues.filter(v => v.key === key)[0]
 
-                            if(pMolino.scheduled && pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
-                                entry.movs = entry.movs + pMolino.scheduled.tasks[task.task]
+                            let nturnos = turnos.filter(t => t.id === task.turnoStart.id).length
+                            if(nturnos === 0) {
+                                turnos.push({ id: task.turnoStart.id, key: 'T' + (turnos.length+1)})
+                            }
+                            nturnos = turnos.filter(t => t.id === task.turnoFinish.id).length
+                            if(nturnos === 0) {
+                                turnos.push({ id: task.turnoFinish.id, key: 'T' + (turnos.length+1)})
+                            }
+                            if(pMolino.scheduled) {
+                                if(pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
+                                    entry.movs = entry.movs + pMolino.scheduled.tasks[task.task]
+                                }
+
+                                // Programado
+                                if(pMolino.scheduled.movs) {
+                                    const hour = Math.floor((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
+                                    let s = getScheduledByParams(pMolino, hour, turnos)
+                                    
+                                    entry.scheduled = s.sched
+                                    entry.scheduledExec = s.schedExec
+                                }
                             }
                         }
                     }
                 })
             }else if(s.stage === 'EXECUTION') {
-                if(s.finishDate) {
-                    let fec = moment(s.finishDate)
-                    if(fec.isBefore(pFecha)) hasFihishExec = true
-                }
                 s.tasks && s.tasks.map(task => {
                     if(task.task === 'GIRO' || task.task === 'BOTADO' || task.task === 'MONTAJE') {
+                        let fecTask = moment(task.finishDate)
                         if(task.task === 'GIRO') {
-                            debugger
-                            let fec = moment(task.finishDate)
-                            if(fec.format("DD-MM-YYYY") === keyFecha) {
-                                giros++
+                            if(fecTask.isBefore(pFecha)) {
+                                const keyFecha = fecTask.format("DD-MM-YYYY")
                                 let key = keyFecha
-                                let entry = listValues.filter(v => v.ejeX === key)
-                                if(entry.length === 0) {
-                                    listValues.push({ejeX: key, movs : 0, movsExec: 0, montadas: 0, duration: 0, scheduled: 0})
+                                let ejeX = key
+                                if(groupBy === 'turno') {
+                                    key = task.turnoFinish.id
+                                    const fec = moment(task.turnoFinish.creationDate)
+                                    ejeX = fec.format("DD-MM-YYYY") + '-' + task.turnoFinish.turno.name
                                 }
-                                entry = listValues.filter(v => v.ejeX === key)[0]
-                                if(pMolino.scheduled && pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
-                                    entry.movs = entry.movs + pMolino.scheduled.tasks[task.task]
-                                    entry.giros = entry.movs
+                                let entry = listValues.filter(v => v.key === key)
+                                if(entry.length === 0) {
+                                    listValues.push({key, ejeX, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0})
+                                }
+                                entry = listValues.filter(v => v.key === key)[0]
+                                entry.giros = entry.giros + 1
+
+                                let nturnos = turnos.filter(t => t.id === task.turnoStart.id).length
+                                if(nturnos === 0) {
+                                    turnos.push({ id: task.turnoStart.id, key: 'T' + (turnos.length+1)})
+                                }
+                                nturnos = turnos.filter(t => t.id === task.turnoFinish.id).length
+                                if(nturnos === 0) {
+                                    turnos.push({ id: task.turnoFinish.id, key: 'T' + (turnos.length+1)})
+                                }
+                                if(pMolino.scheduled) {
+                                    if(pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
+                                        entry.movs = entry.movs + pMolino.scheduled.tasks[task.task]
+                                    }
+
+                                    // Programado
+                                    if(pMolino.scheduled.movs) {
+                                        const hour = Math.floor((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
+                                        let s = getScheduledByParams(pMolino, hour, turnos)
+
+                                        entry.scheduled = s.sched
+                                        entry.scheduledExec = s.schedExec
+                                    }
                                 }
                             }
                         }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
+                            let maxFecPart
                             task.parts && task.parts.map(part => {
                                 const fecParte = moment(part.creationDate)
-
-                                let fec
-                                let fecIni = part.turno.creationDate
-                                if(fecIni < s.creationDate) fecIni = s.creationDate
-
-                                let fecFin = f.getTime()
-                                if(part.turno.closedDate) {
-                                    fec = moment(part.turno.closedDate)
-                                    fecFin = part.turno.closedDate
-                                    if(!fec.isBefore(pFecha)) {
-                                        fec = moment(part.turno.creationDate)
-                                        if(fec.isBefore(pFecha)) {
-                                            fecFin = f.getTime()
-                                        }
-                                    }
-                                }else {
-                                    fec = moment(part.turno.creationDate)
-                                }
-                                if(fec.isBefore(pFecha)) {
+                                if(fecParte.isBefore(pFecha)) {
+                                    maxFecPart = fecParte
+                                    const keyFecha = fecParte.format("DD-MM-YYYY")
                                     let key = keyFecha
-                                    let entry = listValues.filter(v => v.ejeX === key)
-                                    if(entry.length === 0) {
-                                        listValues.push({ejeX: key, movs : 0, movsExec: 0, montadas: 0, duration: (fecFin - fecIni)/1000, scheduled: 0})
+                                    let ejeX = key
+                                    if(groupBy === 'turno') {
+                                        key = part.turno.id
+                                        const fec = moment(part.turno.creationDate)
+                                        ejeX = fec.format("DD-MM-YYYY") + '-' + part.turno.turno.name
                                     }
-                                    entry = listValues.filter(v => v.ejeX === key)[0]
-                                    if(fecParte.isBefore(pFecha)) {
-                                        entry.movs = entry.movs + part.qty
-                                        entry.movsExec = entry.movsExec + part.qty
-                                        if(task.task === 'MONTAJE') {
-                                            entry.montadas = entry.montadas + part.qty
-                                        }
+                                    let entry = listValues.filter(v => v.key === key)
+                                    if(entry.length === 0) {
+                                        listValues.push({key, ejeX, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0})
+                                    }
+                                    entry = listValues.filter(v => v.key === key)[0]
+                                
+                                    entry.movs = entry.movs + part.qty
+                                    entry.movsExec = entry.movsExec + part.qty
+                                    if(task.task === 'MONTAJE') {
+                                        entry.montadas = entry.montadas + part.qty
+                                    }
 
-                                        turnosExec[part.turno] = part.turno
+                                    turnosExec[part.turno.id] = part.turno.id
+
+                                    let nturnos = turnos.filter(t => t.id === part.turno.id).length
+                                    if(nturnos === 0) {
+                                        turnos.push({ id: part.turno.id, key: 'T' + (turnos.length+1)})
+                                    }
+                                    if(pMolino.scheduled) {
+                                        // Programado
+                                        if(pMolino.scheduled.movs) {
+                                            const hour = Math.floor((part.creationDate - part.turno.creationDate) / 1000 / 3600)
+                                            let s = getScheduledByParams(pMolino, hour, turnos)
+                                            
+                                            entry.scheduled = s.sched
+                                            entry.scheduledExec = s.schedExec
+                                        }
                                     }
                                 }
                             })
+                            if(maxFecPart) {
+                                durationTurnos += task.duration
+                            }
                         }
                     }
                 })
             }
         })
 
+        debugger
+        const giros = listValues.reduce((accumulator, current) => accumulator + current.giros, 0)
+        const movs = listValues.reduce((accumulator, current) => accumulator + current.movs, 0)
+        const movsExec = listValues.reduce((accumulator, current) => accumulator + current.movsExec, 0)
+        const montadas = listValues.reduce((accumulator, current) => accumulator + current.montadas, 0)
         avObj.giros = giros
-        const movsExec = listValues.reduce((accumulator, current) => {
-            return accumulator + current.movsExec
-        }, 0)
-        const montadas = listValues.reduce((accumulator, current) => {
-            return accumulator + current.montadas
-        }, 0)
-        const durationTurnos = listValues.reduce((accumulator, current) => {
-            return accumulator + current.duration
-        }, 0)
+
+        let scheduled = 0
+        let scheduledExec = 0
+        if(listValues.length > 0) {
+            scheduled = listValues[listValues.length-1].scheduled
+            scheduledExec = listValues[listValues.length-1].scheduledExec
+
+            for(let i=listValues.length-1;i>0;i--) {
+                let _movs = 0;
+                let _movsExec = 0;
+                for(let j=0;j<i;j++) {
+                    _movs += listValues[j].movs
+                    _movsExec += listValues[j].movsExec
+                }
+                listValues[i].movs = listValues[i].movs + _movs
+                listValues[i].movsExec = listValues[i].movsExec + _movsExec
+            }
+            listValues.map((l, index) => {
+                if(l.giros > 0) l.ngiros = l.movs
+                if(groupBy === 'turno') l.ejeX = l.ejeX + "-" + (index+1)
+            })
+        }
+
         const nTurnos = Object.values(turnosExec).length
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movsExec/nTurnos)
         avObj.promMinPieza = movsExec === 0 ? 'N/A' : (durationTurnos / 60 / (movsExec / 2)).toFixed(1)
-
-        const segPiezaMeta = pMolino.exHours * 3600 / (pMolino.piezas * 2)
-        const segPiezaReal = durationTurnos / movsExec
-        avObj.hasRetraso = durationTurnos === 0 ? 'N/A' : segPiezaReal > segPiezaMeta ? 'Sí' : 'No'
+        avObj.hasRetraso = movs < scheduled ? 'Sí' : 'No'
 
         avObj.movimientosReal = movsExec
         avObj.montadas = montadas
-        let tpo = durationTurnos / (pMolino.exHours * 3600)
-        if(tpo > 1) tpo = 1
-        avObj.movimientosProg = Math.round(tpo * pMolino.piezas * 2)
-        if(hasFihishExec) avObj.movimientosProg = movsExec
+        avObj.movimientosProg = scheduledExec
 
-        avObj.avance = Math.round(movsExec / (pMolino.piezas * 2) * 100)
-        avObj.avanceProg = Math.round(avObj.movimientosProg / (pMolino.piezas * 2) * 100)
+        avObj.avance = Math.round(movs / scheduled * 100)
 
         avObj.values = listValues
         return avObj
     }
 
     const setStatsAvances = (pFecha, pMolino) => {
-        let fecIni=null
-        pMolino.stages && pMolino.stages.map(s => {
-            if(s.stage === 'BEGINNING') {
-                fecIni = moment(s.creationDate)
-            }
-        })
-        let vGraph = []
-        if(fecIni) {
-            const date2 = new Date(pFecha.startOf('day')).getTime()
-            const date1 = new Date(fecIni.startOf('day')).getTime()
-            const d = Math.floor((date2-date1)/(1000*60*60*24));
-
-            debugger
-
-            for(let i=1;i<=d;i++) {
-                let f = new Date(fecIni.startOf('day'))
-                f.setDate(f.getDate() + i)
-                let vFec = moment(f).startOf('day')
-
-                let values = getStatsAvancesByFecha(vFec, pMolino)
-
-                vGraph.push(...values.values)
-            }
-        }
-
+        let avObj = getStatsAvancesByFecha(pFecha, pMolino, groupGraph)
+        let vGraph = avObj.values
         const movMax = Math.max(...vGraph.map(o => o.movs))
         const movScheduled = Math.max(...vGraph.map(o => o.scheduled))
         if(movScheduled > movMax) {
@@ -262,8 +332,6 @@ const Dashboard = ({currentUser}) => {
         }
 
         setDataGraph(vGraph)
-        debugger
-        let avObj = getStatsAvancesByFecha(pFecha, pMolino)
         setAvances(avObj)
     }
 
@@ -648,7 +716,7 @@ const Dashboard = ({currentUser}) => {
                                                         // Avance estimado
                                                         {
                                                             x: dataGraph.map(d => d.ejeX),
-                                                            y: dataGraph.map(d => d.avanceProg),
+                                                            y: dataGraph.map(d => d.scheduled),
                                                             type: 'scatter',
                                                             mode: 'lines+markers',
                                                             line: {
@@ -672,7 +740,10 @@ const Dashboard = ({currentUser}) => {
                                                         // Giros
                                                         {
                                                             x: dataGraph.map(d => d.ejeX),
-                                                            y: dataGraph.map(d => d.giros),
+                                                            y: dataGraph.map(d => d.ngiros),
+                                                            hovertemplate: '%{text} Giro(s)',
+                                                            //hoverinfo: "label+percent+name+text",
+                                                            text: dataGraph.map((d, index) => d.giros),
                                                             type: 'scatter',
                                                             mode: 'markers',
                                                             marker: {
