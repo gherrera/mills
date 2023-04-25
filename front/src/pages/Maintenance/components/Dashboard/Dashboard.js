@@ -22,7 +22,7 @@ const Dashboard = ({currentUser}) => {
     const [maxGraph, setMaxGraph] = useState(10)
     const [avances, setAvances] = useState({})
     const [ dataGraph, setDataGraph ] = useState([])
-    const [ groupGraph, setGroupGraph ] = useState("hora")
+    const [ groupGraph, setGroupGraph ] = useState("turno")
 
     useEffect(() => {
         init()
@@ -139,7 +139,6 @@ const Dashboard = ({currentUser}) => {
     }
 
     const getStatsAvancesByFecha = (pFecha, pMolino, groupBy='fecha') => {
-        debugger
         let avObj = { }
         const f = new Date(pFecha)
 
@@ -400,7 +399,6 @@ const Dashboard = ({currentUser}) => {
     }
 
     const onChangeGroup = (val) => {
-        debugger
         setGroupGraph(val.target.value)
     }
 
@@ -723,13 +721,15 @@ const Dashboard = ({currentUser}) => {
                                     </Col>
                                     <Col xs={24} xxl={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
-                                            <Col style={{textAlign:'right'}}>
-                                                <Radio.Group onChange={onChangeGroup} defaultValue={groupGraph} size='small'>
-                                                    <Radio value="fecha">Diario</Radio>
-                                                    <Radio value="turno">Turno</Radio>
-                                                    <Radio value="hora">Hora</Radio>
-                                                </Radio.Group>
-                                            </Col>
+                                            { (currentUser.type !== 'DASHBOARD' || !currentUser.client) &&
+                                                <Col style={{textAlign:'right'}}>
+                                                    <Radio.Group onChange={onChangeGroup} defaultValue={groupGraph} size='small'>
+                                                        <Radio value="fecha">Diario</Radio>
+                                                        <Radio value="turno">Turno</Radio>
+                                                        <Radio value="hora">Hora</Radio>
+                                                    </Radio.Group>
+                                                </Col>
+                                            }
                                             <Col>
                                                 <Plot
                                                     useResizeHandler={true}
