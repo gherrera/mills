@@ -2,12 +2,14 @@ import './Dashboard.scss'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { withRouter } from 'react-router'
-import { Statistic, DatePicker, Row, Col, Spin, Skeleton, Select, Button, Tooltip } from 'antd'
+import { Statistic, DatePicker, Row, Col, Spin, Skeleton, Select, Button, Tooltip, Radio } from 'antd'
 import { getMolinosPromise, getMolinoPromise } from '../../promises'
 import moment from "moment";
 import Plot from "react-plotly.js";
 
 const Dashboard = ({currentUser}) => {
+    const { t } = useTranslation()
+
     const [molinos, setMolinos] = useState([])
     const [clientes, setClientes] = useState([])
     const [cliente, setCliente] = useState(null)
@@ -16,10 +18,11 @@ const Dashboard = ({currentUser}) => {
     const [isLoadingMolinos, setIsLoadingMolinos] = useState(false)
     const [isLoadingMolino, setIsLoadingMolino] = useState(false)
     const [fecha, setFecha] = useState(null)
+    const [fechaFilter, setFechaFilter] = useState(null)
     const [maxGraph, setMaxGraph] = useState(10)
     const [avances, setAvances] = useState({})
     const [ dataGraph, setDataGraph ] = useState([])
-    const [ groupGraph, setGroupGraph ] = useState("turno")
+    const [ groupGraph, setGroupGraph ] = useState("hora")
 
     useEffect(() => {
         init()
@@ -27,6 +30,12 @@ const Dashboard = ({currentUser}) => {
             setCliente(currentUser.client.id)
         }
     }, [])
+
+    useEffect(() => {
+        if(molino) {
+            setStatsAvances(fechaFilter, molino)
+        }
+    }, [groupGraph])
 
     const loadMolinos = async () => {
         setIsLoadingMolinos(true)
@@ -96,16 +105,16 @@ const Dashboard = ({currentUser}) => {
         return parts
     }
 
-    const getScheduledByParams = (pMolino, hour, turnos) => {
+    const getScheduledByParams = (movs, hour, turnos) => {
         let sched = 0
         let schedExec = 0
         const keyTurno = turnos[turnos.length-1].key
-        const filteredTurnos = pMolino.scheduled.movs.filter(m => m.turn === keyTurno)
-        for(let i=0;i<pMolino.scheduled.movs.length;i++) {
-            if(pMolino.scheduled.movs[i].turn !== keyTurno) {
-                sched += pMolino.scheduled.movs[i].total
-                if(pMolino.scheduled.movs[i].movs) {
-                    schedExec += pMolino.scheduled.movs[i].movs
+        const filteredTurnos = movs.filter(m => m.turn === keyTurno)
+        for(let i=0;i<movs.length;i++) {
+            if(movs[i].turn !== keyTurno) {
+                sched += movs[i].total
+                if(movs[i].movs) {
+                    schedExec += movs[i].movs
                 }
             }else {
                 break;
@@ -124,7 +133,13 @@ const Dashboard = ({currentUser}) => {
         return { sched, schedExec }
     }
 
+    const getAbreviadoTurno = (turno) => {
+        //return t('messages.mills.turno.' + turno.name)
+        return turno.name.substring(0,1)
+    }
+
     const getStatsAvancesByFecha = (pFecha, pMolino, groupBy='fecha') => {
+        debugger
         let avObj = { }
         const f = new Date(pFecha)
 
@@ -140,13 +155,18 @@ const Dashboard = ({currentUser}) => {
                         let fec = moment(task.finishDate)
 
                         if(fec.isBefore(pFecha)) {
+                            const hour = Math.floor((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
                             const keyFecha = fec.format("DD-MM-YYYY")
                             let key = keyFecha
                             let ejeX = key
                             if(groupBy === 'turno') {
                                 key = task.turnoFinish.id
                                 fec = moment(task.turnoFinish.creationDate)
-                                ejeX = fec.format("DD-MM-YYYY") + '-' + task.turnoFinish.turno.name
+                                ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno)
+                            }else if(groupBy === 'hora') {
+                                key = task.turnoFinish.id + "-" + hour
+                                fec = moment(task.turnoFinish.creationDate)
+                                ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno) + ':' + (hour+1)
                             }
                             let entry = listValues.filter(v => v.key === key)
                             if(entry.length === 0) {
@@ -169,8 +189,7 @@ const Dashboard = ({currentUser}) => {
 
                                 // Programado
                                 if(pMolino.scheduled.movs) {
-                                    const hour = Math.floor((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
-                                    let s = getScheduledByParams(pMolino, hour, turnos)
+                                    let s = getScheduledByParams(pMolino.scheduled.movs, hour, turnos)
                                     
                                     entry.scheduled = s.sched
                                     entry.scheduledExec = s.schedExec
@@ -185,13 +204,18 @@ const Dashboard = ({currentUser}) => {
                         let fecTask = moment(task.finishDate)
                         if(task.task === 'GIRO') {
                             if(fecTask.isBefore(pFecha)) {
+                                const hour = Math.floor((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
                                 const keyFecha = fecTask.format("DD-MM-YYYY")
                                 let key = keyFecha
                                 let ejeX = key
                                 if(groupBy === 'turno') {
                                     key = task.turnoFinish.id
                                     const fec = moment(task.turnoFinish.creationDate)
-                                    ejeX = fec.format("DD-MM-YYYY") + '-' + task.turnoFinish.turno.name
+                                    ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno)
+                                }else if(groupBy === 'hora') {
+                                    key = task.turnoFinish.id + "-" + hour
+                                    const fec = moment(task.turnoFinish.creationDate)
+                                    ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno) + ':' + (hour+1)
                                 }
                                 let entry = listValues.filter(v => v.key === key)
                                 if(entry.length === 0) {
@@ -215,8 +239,7 @@ const Dashboard = ({currentUser}) => {
 
                                     // Programado
                                     if(pMolino.scheduled.movs) {
-                                        const hour = Math.floor((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
-                                        let s = getScheduledByParams(pMolino, hour, turnos)
+                                        let s = getScheduledByParams(pMolino.scheduled.movs, hour, turnos)
 
                                         entry.scheduled = s.sched
                                         entry.scheduledExec = s.schedExec
@@ -230,12 +253,17 @@ const Dashboard = ({currentUser}) => {
                                 if(fecParte.isBefore(pFecha)) {
                                     maxFecPart = fecParte
                                     const keyFecha = fecParte.format("DD-MM-YYYY")
+                                    const hour = Math.floor((part.creationDate - part.turno.creationDate) / 1000 / 3600)
                                     let key = keyFecha
                                     let ejeX = key
                                     if(groupBy === 'turno') {
                                         key = part.turno.id
                                         const fec = moment(part.turno.creationDate)
-                                        ejeX = fec.format("DD-MM-YYYY") + '-' + part.turno.turno.name
+                                        ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(part.turno.turno)
+                                    }else if(groupBy === 'hora') {
+                                        key = part.turno.id + "-" + hour
+                                        const fec = moment(part.turno.creationDate)
+                                        ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(part.turno.turno) + ':' + (hour+1)
                                     }
                                     let entry = listValues.filter(v => v.key === key)
                                     if(entry.length === 0) {
@@ -258,8 +286,7 @@ const Dashboard = ({currentUser}) => {
                                     if(pMolino.scheduled) {
                                         // Programado
                                         if(pMolino.scheduled.movs) {
-                                            const hour = Math.floor((part.creationDate - part.turno.creationDate) / 1000 / 3600)
-                                            let s = getScheduledByParams(pMolino, hour, turnos)
+                                            let s = getScheduledByParams(pMolino.scheduled.movs, hour, turnos)
                                             
                                             entry.scheduled = s.sched
                                             entry.scheduledExec = s.schedExec
@@ -276,7 +303,6 @@ const Dashboard = ({currentUser}) => {
             }
         })
 
-        debugger
         const giros = listValues.reduce((accumulator, current) => accumulator + current.giros, 0)
         const movs = listValues.reduce((accumulator, current) => accumulator + current.movs, 0)
         const movsExec = listValues.reduce((accumulator, current) => accumulator + current.movsExec, 0)
@@ -321,6 +347,7 @@ const Dashboard = ({currentUser}) => {
     }
 
     const setStatsAvances = (pFecha, pMolino) => {
+        setFechaFilter(pFecha)
         let avObj = getStatsAvancesByFecha(pFecha, pMolino, groupGraph)
         let vGraph = avObj.values
         const movMax = Math.max(...vGraph.map(o => o.movs))
@@ -341,16 +368,23 @@ const Dashboard = ({currentUser}) => {
         let hoy = new Date(moment().startOf('day'))
         if(hoy.getTime() < f.getTime()) f = hoy
 
-        molino.stages && molino.stages.map(s => {
-            if(s.stage === 'EXECUTION' && s.finishDate) {
-                let finish = new Date(moment(s.finishDate).startOf('day'))
-                if(finish.getTime() < f.getTime()) f = finish
+        if(molino.currentStage) {
+            let fec
+            if(molino.currentStage.finishDate) {
+                fec = moment(molino.currentStage.finishDate)
+            }else {
+                fec = moment(molino.currentStage.creationDate)
             }
-        })
+            fec = new Date(fec.startOf('day'))
+            if(fec.getTime() < f.getTime()) f = fec
+        }
 
-        f.setDate(f.getDate() + 1);
+        f = moment(f)
+        setFecha(f)
+        let d = new Date(f.startOf('day'))
+        d.setDate(d.getDate() + 1);
 
-        setStatsAvances(moment(f), molino)
+        setStatsAvances(moment(d), molino)
     }
 
     const getTotalByTurno = (tasks) => {
@@ -363,6 +397,11 @@ const Dashboard = ({currentUser}) => {
             })
         })
         return parts
+    }
+
+    const onChangeGroup = (val) => {
+        debugger
+        setGroupGraph(val.target.value)
     }
 
     return (
@@ -684,134 +723,142 @@ const Dashboard = ({currentUser}) => {
                                     </Col>
                                     <Col xs={24} xxl={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
-                                            <Plot
-                                                useResizeHandler={true}
-                                                style={{width: "100%", height: "100%"}}
-                                                data={
-                                                    [
-                                                        // Avance real
-                                                        {
-                                                            x: dataGraph.map(d => d.ejeX),
-                                                            y: dataGraph.map(d => d.movs),
-                                                            type: 'scatter',
-                                                            mode: 'lines+markers',
-                                                            line: {
-                                                                shape: 'spline',
-                                                                smoothing: '1.1',
-                                                                //width: 3,
-                                                                //color: 'rgb(138 187 249)',
-                                                            },
-                                                            /*
-                                                            marker: {
-                                                                color: 'rgb(217 231 251)',
-                                                                size: 6,
+                                            <Col style={{textAlign:'right'}}>
+                                                <Radio.Group onChange={onChangeGroup} defaultValue={groupGraph} size='small'>
+                                                    <Radio value="fecha">Diario</Radio>
+                                                    <Radio value="turno">Turno</Radio>
+                                                    <Radio value="hora">Hora</Radio>
+                                                </Radio.Group>
+                                            </Col>
+                                            <Col>
+                                                <Plot
+                                                    useResizeHandler={true}
+                                                    style={{width: "100%", height: "100%"}}
+                                                    data={
+                                                        [
+                                                            // Avance real
+                                                            {
+                                                                x: dataGraph.map(d => d.ejeX),
+                                                                y: dataGraph.map(d => d.movs),
+                                                                type: 'scatter',
+                                                                mode: 'lines+markers',
                                                                 line: {
-                                                                    color: 'rgb(138 187 249)',
-                                                                    width: 1
-                                                                }
+                                                                    shape: 'spline',
+                                                                    smoothing: '1.1',
+                                                                    //width: 3,
+                                                                    //color: 'rgb(138 187 249)',
+                                                                },
+                                                                /*
+                                                                marker: {
+                                                                    color: 'rgb(217 231 251)',
+                                                                    size: 6,
+                                                                    line: {
+                                                                        color: 'rgb(138 187 249)',
+                                                                        width: 1
+                                                                    }
+                                                                },
+                                                                */
+                                                                name: 'Avance real'
                                                             },
-                                                            */
-                                                            name: 'Avance real'
-                                                        },
-                                                        // Avance estimado
-                                                        {
-                                                            x: dataGraph.map(d => d.ejeX),
-                                                            y: dataGraph.map(d => d.scheduled),
-                                                            type: 'scatter',
-                                                            mode: 'lines+markers',
-                                                            line: {
-                                                                shape: 'spline',
-                                                                smoothing: '1.1',
-                                                                //width: 3,
-                                                                //color: 'rgb(138 187 249)',
-                                                            },
-                                                            /*
-                                                            marker: {
-                                                                color: 'rgb(217 231 251)',
-                                                                size: 6,
+                                                            // Avance estimado
+                                                            {
+                                                                x: dataGraph.map(d => d.ejeX),
+                                                                y: dataGraph.map(d => d.scheduled),
+                                                                type: 'scatter',
+                                                                mode: 'lines+markers',
                                                                 line: {
-                                                                    color: 'rgb(138 187 249)',
-                                                                    width: 1
-                                                                }
+                                                                    shape: 'spline',
+                                                                    smoothing: '1.1',
+                                                                    //width: 3,
+                                                                    //color: 'rgb(138 187 249)',
+                                                                },
+                                                                /*
+                                                                marker: {
+                                                                    color: 'rgb(217 231 251)',
+                                                                    size: 6,
+                                                                    line: {
+                                                                        color: 'rgb(138 187 249)',
+                                                                        width: 1
+                                                                    }
+                                                                },
+                                                                */
+                                                                name: 'Avance programado'
                                                             },
-                                                            */
-                                                            name: 'Avance programado'
-                                                        },
-                                                        // Giros
-                                                        {
-                                                            x: dataGraph.map(d => d.ejeX),
-                                                            y: dataGraph.map(d => d.ngiros),
-                                                            hovertemplate: '%{text} Giro(s)',
-                                                            //hoverinfo: "label+percent+name+text",
-                                                            text: dataGraph.map((d, index) => d.giros),
-                                                            type: 'scatter',
-                                                            mode: 'markers',
-                                                            marker: {
-                                                                size: 12,
-                                                                color: 'rgba(255, 255, 255, 0)',
-                                                                line: {
-                                                                    width: 3
-                                                                }
-                                                            },
-                                                            name: 'Giro'
-                                                        }
-                                                    ]
-                                                }
-                                                layout=
-                                                {
+                                                            // Giros
+                                                            {
+                                                                x: dataGraph.map(d => d.ejeX),
+                                                                y: dataGraph.map(d => d.ngiros),
+                                                                hovertemplate: '%{text} Giro(s)',
+                                                                //hoverinfo: "label+percent+name+text",
+                                                                text: dataGraph.map(d  => (d.ejeX + ": " + d.giros)),
+                                                                type: 'scatter',
+                                                                mode: 'markers',
+                                                                marker: {
+                                                                    size: 12,
+                                                                    color: 'rgba(255, 255, 255, 0)',
+                                                                    line: {
+                                                                        width: 3
+                                                                    }
+                                                                },
+                                                                name: 'Giro'
+                                                            }
+                                                        ]
+                                                    }
+                                                    layout=
                                                     {
-                                                        hovermode: 'closest',
-                                                        showlegend: true,
-                                                        margin: {
-                                                            l: 30,
-                                                            r: 20,
-                                                            b: 20,
-                                                            t: 0,
-                                                        },
-                                                        paper_bgcolor: 'rgba(0,0,0,0)',
-                                                        plot_bgcolor: 'rgba(0,0,0,0)',
-                                                        autoscale: true,
-                                                        xaxis: {
-                                                            showgrid: false,
-                                                            showticklabels: true,
-                                                            tickfont: {
-                                                                family: 'Arial, sans-serif',
-                                                                size: 10,
-                                                                color: 'rgb(103 103 103)'
+                                                        {
+                                                            hovermode: 'closest',
+                                                            showlegend: true,
+                                                            margin: {
+                                                                l: 30,
+                                                                r: 20,
+                                                                b: groupGraph === 'hora' ? 50 : 20,
+                                                                t: 0,
                                                             },
-                                                            dtick: 1
-                                                        },
-                                                        yaxis: {
-                                                            title: 'Avance',
-                                                            titlefont: {
-                                                                family: 'Arial, sans-serif',
-                                                                size: 10,
-                                                                color: 'rgb(103 103 103)'
+                                                            paper_bgcolor: 'rgba(0,0,0,0)',
+                                                            plot_bgcolor: 'rgba(0,0,0,0)',
+                                                            autoscale: true,
+                                                            xaxis: {
+                                                                showgrid: false,
+                                                                showticklabels: true,
+                                                                tickfont: {
+                                                                    family: 'Arial, sans-serif',
+                                                                    size: 10,
+                                                                    color: 'rgb(103 103 103)'
+                                                                },
+                                                                dtick: 1
                                                             },
-                                                            showticklabels: true,
-                                                            tickfont: {
-                                                                family: 'Arial, sans-serif',
-                                                                size: 10,
-                                                                color: 'rgb(103 103 103)'
+                                                            yaxis: {
+                                                                titlefont: {
+                                                                    family: 'Arial, sans-serif',
+                                                                    size: 10,
+                                                                    color: 'rgb(103 103 103)'
+                                                                },
+                                                                showticklabels: true,
+                                                                tickfont: {
+                                                                    family: 'Arial, sans-serif',
+                                                                    size: 10,
+                                                                    color: 'rgb(103 103 103)'
+                                                                },
+                                                                range: [0, maxGraph + 15],
+                                                                tickmode: 'array',
+                                                                showgrid: true,
+                                                                gridcolor: 'rgb(187 187 187)',
                                                             },
-                                                            range: [0, maxGraph + 15],
-                                                            tickmode: 'array',
-                                                            showgrid: true,
-                                                            gridcolor: 'rgb(187 187 187)',
-                                                        },
-                                                        legend: {
-                                                            x: 0,
-                                                            y: 1.1,
-                                                            orientation: "h"
+                                                            legend: {
+                                                                x: 0,
+                                                                y: 1.1,
+                                                                orientation: "h"
+                                                            }
                                                         }
                                                     }
-                                                }
 
-                                                config={{
-                                                    displayModeBar: false, // this is the line that hides the bar.
-                                                }}
-                                            >
-                                            </Plot>
+                                                    config={{
+                                                        displayModeBar: false, // this is the line that hides the bar.
+                                                    }}
+                                                >
+                                                </Plot>
+                                            </Col>
                                         </Row>
                                     </Col>
                                 </Row>

@@ -17,6 +17,9 @@
    "messages.mills.task.DESBLOQUEO":"Desbloqueo",
    "messages.mills.task.REAPRIETE":"Reapriete de Piezas",
 
+   "messages.mills.turno.DAY":"Día",
+   "messages.mills.turno.NIGHT":"Noche",
+
    "messages.mills.mandatory": "Campo obligatorio",
    "messages.mills.status.ACTIVE": "Activo",
    "messages.mills.status.INACTIVE": "Inactivo",

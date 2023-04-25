@@ -17,6 +17,9 @@
   "messages.mills.task.DESBLOQUEO":"Unlocking",
   "messages.mills.task.REAPRIETE":"Retightening of Parts",
 
+  "messages.mills.turno.DAY":"Day",
+  "messages.mills.turno.NIGHT":"Night",
+
   "messages.mills.mandatory": "Mandatory field",
   "messages.mills.status.ACTIVE": "Active",
   "messages.mills.status.INACTIVE": "Inactive",
