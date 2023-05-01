@@ -69,6 +69,13 @@ const App: () => Node = () => {
     screenWidth: width < height ? width : height,
     screenHeight: width < height ? height : width,
   };
+
+  const dimensions = {
+    height: metrics.screenHeight - StatusBar.currentHeight
+  }
+
+  //console.log(metrics)
+  //console.log(StatusBar.currentHeight)
   
   const handleLogout = async () => {
     await logoutPromise()
@@ -91,13 +98,13 @@ const App: () => Node = () => {
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView style={backgroundStyle} contentContainerStyle={{height: metrics.screenHeight - (apiConfig.env === "dev" ? StatusBar.currentHeight : 0)}}>
+      <ScrollView style={backgroundStyle} contentContainerStyle={dimensions}>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
           { isLoggedIn ? 
-          <Private currentUser={currentUser} logoutHandler={handleLogout} screenProps={{t, i18n}} />
+          <Private currentUser={currentUser} logoutHandler={handleLogout} screenProps={{t, i18n}} dimensions={dimensions} />
           :
           <LoginPage successHandler={ handleLogin } />
           }

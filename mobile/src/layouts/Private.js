@@ -2,29 +2,12 @@ import React, { Component } from 'react';
 import {
     StyleSheet,
     View,
-    Dimensions,
-    Text,
-    StatusBar
+    Text
 } from 'react-native';
-import { Header, Button } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import { HomePage } from '../pages';
 
-import StylesGlobal from '../pages/StylesGlobal';
-import apiConfig from '../config/api';
-
-
-const {width, height} = Dimensions.get('window');
-const metrics = {
-    screenWidth: width < height ? width : height,
-    screenHeight: width < height ? height : width,
-};
-
 const styles = StyleSheet.create({
-    scroll: {
-        height: metrics.screenHeight - (apiConfig.env === "dev" ? StatusBar.currentHeight : 0),
-        //borderWidth:1,
-        //borderColor:'red'
-    },
     primaryButton: {
         position: 'absolute',
         right: 5,
@@ -77,10 +60,10 @@ export default class Private extends Component {
     }
 
     render() {
-        const { currentUser, logoutHandler,  } = this.props
+        const { currentUser, logoutHandler, dimensions } = this.props
 
         return (
-            <View style={styles.scroll} >
+            <View style={dimensions} >
                 <View style={{flexDirection: "row", flexWrap: "wrap", backgroundColor: styles.header.backgroundColor, height: styles.header.height}} textAlign="flex-start">
                     <View style={{ ...styles.col, width: '30%', paddingLeft:5}}>
                         <Text style={{ color: '#fff', top:2, fontSize: 16, padding: 2 }}>{currentUser.login}</Text>
@@ -100,7 +83,7 @@ export default class Private extends Component {
                         />
                     </View>
                 </View>
-                <HomePage currentUser={currentUser} screenProps={this.props.screenProps} height={styles.scroll.height - styles.header.height}/>
+                <HomePage currentUser={currentUser} screenProps={this.props.screenProps} height={dimensions.height - styles.header.height}/>
             </View>
         )
     }
