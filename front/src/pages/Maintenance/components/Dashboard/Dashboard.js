@@ -333,6 +333,7 @@ const Dashboard = ({currentUser}) => {
         const nTurnos = Object.values(turnosExec).length
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movsExec/nTurnos)
         avObj.promMinPieza = movsExec === 0 ? 'N/A' : (durationTurnos / 60 / (movsExec / 2)).toFixed(1)
+        avObj.promMinMov = movsExec === 0 ? 'N/A' : (durationTurnos / 60 / movsExec).toFixed(1)
         avObj.hasRetraso = movs < scheduled ? 'Sí' : 'No'
 
         avObj.movimientosReal = movsExec
@@ -651,16 +652,19 @@ const Dashboard = ({currentUser}) => {
                                                 </Col>
                                             </Row>
                                             <Row style={{padding:10}}>
-                                                <Col span={6} xs={12} lg={6}>
+                                                <Col xs={8} lg={5}>
                                                     <Statistic title="Prom Mov/Turno" value={avances.promMovTurno}/>
                                                 </Col>
-                                                <Col span={6} xs={12} lg={6}>
+                                                <Col xs={8} lg={5}>
                                                     <Statistic title="Prom Min/Pieza" value={avances.promMinPieza}/>
                                                 </Col>
-                                                <Col span={6} xs={12} lg={6}>
+                                                <Col xs={8} lg={5}>
+                                                    <Statistic title="Prom Min/Mov" value={avances.promMinMov}/>
+                                                </Col>
+                                                <Col xs={12} lg={5}>
                                                     <Statistic title="Giros" value={avances.giros}/>
                                                 </Col>
-                                                <Col span={6} xs={12} lg={6}>
+                                                <Col xs={12} lg={4}>
                                                     <Statistic title="Retraso esperado" value={avances.hasRetraso}/>
                                                 </Col>
                                             </Row>
