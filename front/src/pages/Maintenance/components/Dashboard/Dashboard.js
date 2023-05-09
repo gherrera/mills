@@ -24,6 +24,7 @@ const Dashboard = ({currentUser}) => {
     const [ dataGraph, setDataGraph ] = useState([])
     const [ groupGraph, setGroupGraph ] = useState("turno")
     const [ totalHoras, setTotalHoras ] = useState(0)
+    const [ totalExec, setTotalExec ] = useState(0)
 
     useEffect(() => {
         init()
@@ -74,10 +75,13 @@ const Dashboard = ({currentUser}) => {
         setIsLoadingMolino(true)
         getMolinoPromise(id).then(m => {
             let total = 0
+            let totalE = 0
             if(m.scheduled && m.scheduled.movs) {
                 total = m.scheduled.movs.reduce((accumulator, current) => accumulator + current.total, 0)
+                totalE = m.scheduled.movs.reduce((accumulator, current) => accumulator + (current.movs ? current.movs : 0), 0)
             }
             setTotalHoras(total)
+            setTotalExec(totalE)
             setMolino(m)
             let f = moment()
             if(m.currentStage) {
@@ -198,23 +202,21 @@ const Dashboard = ({currentUser}) => {
             if(s.stage === 'BEGINNING' || s.stage === 'FINISHED') {
                 s.tasks && s.tasks.map(task => {
                     if(task.finishDate) {
-                        let fec = moment(task.finishDate)
+                        let fecTask = moment(task.finishDate)
 
-                        if(fec.isBefore(pFecha)) {
-                            let hour = 12
-                            const keyFecha = fec.format("DD-MM-YYYY")
+                        if(fecTask.isBefore(pFecha)) {
+                            const initTurno = moment(task.turnoFinish.creationDate)
+                            let hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
+                            if(hour > 12) hour = 12
+                            const keyFecha = fecTask.format("DD-MM-YYYY")
                             let key = keyFecha
                             let ejeX = key
                             if(groupBy === 'turno') {
                                 key = task.turnoFinish.id
-                                fec = moment(task.turnoFinish.creationDate)
-                                ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno)
+                                ejeX = initTurno.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno)
                             }else if(groupBy === 'hora') {
-                                hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
-                                if(hour > 12) hour = 12
                                 key = task.turnoFinish.id + "-" + hour
-                                fec = moment(task.turnoFinish.creationDate)
-                                ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno) + ':' + (hour)
+                                ejeX = initTurno.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno) + ':' + (hour)
                             }
                             
                             let nturnos = turnos.filter(t => t.id === task.turnoStart.id).length
@@ -231,9 +233,10 @@ const Dashboard = ({currentUser}) => {
                                 if(groupBy === 'hora') {
                                     addHours(pMolino, listValues, ejeX, hour, task.turnoFinish.id, turnos)
                                 }
-                                listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id})
+                                listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id, initTurno })
                             }
                             entry = listValues.filter(v => v.key === key)[0]
+                            entry.fecha = fecTask
 
                             if(pMolino.scheduled) {
                                 if(pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
@@ -257,20 +260,18 @@ const Dashboard = ({currentUser}) => {
                         let fecTask = moment(task.finishDate)
                         if(task.task === 'GIRO') {
                             if(fecTask.isBefore(pFecha)) {
-                                let hour = 12
+                                const initTurno = moment(task.turnoFinish.creationDate)
+                                let hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
+                                if(hour > 12) hour = 12
                                 const keyFecha = fecTask.format("DD-MM-YYYY")
                                 let key = keyFecha
                                 let ejeX = key
                                 if(groupBy === 'turno') {
                                     key = task.turnoFinish.id
-                                    const fec = moment(task.turnoFinish.creationDate)
-                                    ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno)
+                                    ejeX = initTurno.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno)
                                 }else if(groupBy === 'hora') {
-                                    hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
-                                    if(hour > 12) hour = 12
                                     key = task.turnoFinish.id + "-" + hour
-                                    const fec = moment(task.turnoFinish.creationDate)
-                                    ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno) + ':' + (hour)
+                                    ejeX = initTurno.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno) + ':' + (hour)
                                 }
 
                                 let nturnos = turnos.filter(t => t.id === task.turnoStart.id).length
@@ -287,11 +288,11 @@ const Dashboard = ({currentUser}) => {
                                     if(groupBy === 'hora') {
                                         addHours(pMolino, listValues, ejeX, hour, task.turnoFinish.id, turnos)
                                     }
-                                    listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id})
+                                    listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id, initTurno})
                                 }
                                 entry = listValues.filter(v => v.key === key)[0]
                                 entry.giros = entry.giros + 1
-
+                                entry.fecha = fecTask
                                 
                                 if(pMolino.scheduled) {
                                     if(pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
@@ -314,19 +315,17 @@ const Dashboard = ({currentUser}) => {
                                 if(fecParte.isBefore(pFecha)) {
                                     maxFecPart = fecParte
                                     const keyFecha = fecParte.format("DD-MM-YYYY")
-                                    let hour = 12
+                                    const initTurno = moment(part.turno.creationDate)
+                                    let hour = Math.ceil((part.creationDate - part.turno.creationDate) / 1000 / 3600)
+                                    if(hour > 12) hour = 12
                                     let key = keyFecha
                                     let ejeX = key
                                     if(groupBy === 'turno') {
                                         key = part.turno.id
-                                        const fec = moment(part.turno.creationDate)
-                                        ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(part.turno.turno)
+                                        ejeX = initTurno.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(part.turno.turno)
                                     }else if(groupBy === 'hora') {
-                                        hour = Math.ceil((part.creationDate - part.turno.creationDate) / 1000 / 3600)
-                                        if(hour > 12) hour = 12
                                         key = part.turno.id + "-" + hour
-                                        const fec = moment(part.turno.creationDate)
-                                        ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(part.turno.turno) + ':' + (hour)
+                                        ejeX = initTurno.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(part.turno.turno) + ':' + (hour)
                                     }
 
                                     turnosExec[part.turno.id] = part.turno.id
@@ -341,10 +340,11 @@ const Dashboard = ({currentUser}) => {
                                         if(groupBy === 'hora') {
                                             addHours(pMolino, listValues, ejeX, hour, part.turno.id, turnos)
                                         }
-                                        listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: part.turno.id})
+                                        debugger
+                                        listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: part.turno.id, initTurno})
                                     }
                                     entry = listValues.filter(v => v.key === key)[0]
-                                
+                                    entry.fecha = fecParte
                                     entry.movs = entry.movs + part.qty
                                     entry.movsExec = entry.movsExec + part.qty
                                     if(task.task === 'MONTAJE') {
@@ -371,10 +371,42 @@ const Dashboard = ({currentUser}) => {
             }
         })
 
-        const giros = listValues.reduce((accumulator, current) => accumulator + current.giros, 0)
-        const movs = listValues.reduce((accumulator, current) => accumulator + current.movs, 0)
-        const movsExec = listValues.reduce((accumulator, current) => accumulator + current.movsExec, 0)
-        const montadas = listValues.reduce((accumulator, current) => accumulator + current.montadas, 0)
+        if(listValues.length > 0 && groupBy === 'hora' && pMolino.scheduled.movs) {
+            const last = listValues[listValues.length-1]
+            if(last.initTurno) {
+                let lastTurno = turnos[turnos.length-1].key.substring(1) * 1
+                let fecha = last.initTurno.add(last.hour, 'hours')
+                let lastHour = last.hour
+                while(fecha.isBefore(pFecha)) {
+                    lastHour++
+                    if(lastHour === 13) {
+                        lastHour = 1
+                        lastTurno++
+                    }
+                    fecha = fecha.add(1, 'hours')
+                    if(fecha.isBefore(pFecha)) {
+                        const keyFecha = fecha.format("DD-MM-YYYY")
+                        const keyTurno = 'T' + lastTurno
+                        if(pMolino.scheduled.movs.find(t => t.turn === keyTurno && t.turnHour === lastHour)) {
+                            let nturnos = turnos.filter(t => t.key === keyTurno).length
+                            if(nturnos === 0) {
+                                turnos.push({ key: keyTurno })
+                            }
+                            let s = getScheduledByParams(pMolino.scheduled.movs, lastHour, turnos)
+                            let entry = {key: keyTurno + '-' + lastHour, ejeX: keyFecha + '-' + keyTurno + ':' + lastHour, hour: lastHour, scheduled: s.sched, scheduledExec: s.schedExec}
+                            listValues.push(entry)
+                        }else {
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        
+        const giros = listValues.reduce((accumulator, current) => accumulator + (current.giros ? current.giros : 0), 0)
+        const movs = listValues.reduce((accumulator, current) => accumulator + (current.movs ? current.movs : 0), 0)
+        const movsExec = listValues.reduce((accumulator, current) => accumulator + (current.movsExec ? current.movsExec : 0), 0)
+        const montadas = listValues.reduce((accumulator, current) => accumulator + (current.montadas ? current.montadas : 0), 0)
         avObj.giros = giros
 
         let scheduled = 0
@@ -401,8 +433,8 @@ const Dashboard = ({currentUser}) => {
 
         const nTurnos = Object.values(turnosExec).length
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movsExec/nTurnos)
-        avObj.promMinPieza = movsExec === 0 ? 'N/A' : (durationTurnos / 60 / (movsExec / 2)).toFixed(1)
-        avObj.promMinMov = movsExec === 0 ? 'N/A' : (durationTurnos / 60 / movsExec).toFixed(1)
+        avObj.promMinPieza = movsExec === 0 ? 0 : (durationTurnos / 60 / (movsExec / 2)).toFixed(1)
+        avObj.promMinMov = movsExec === 0 ? 0 : (durationTurnos / 60 / movsExec).toFixed(1)
         avObj.hasRetraso = movs < scheduled ? 'Sí' : 'No'
 
         avObj.movimientosReal = movsExec
@@ -434,7 +466,7 @@ const Dashboard = ({currentUser}) => {
         if(value === null) value = moment()
         let f = new Date(value.startOf('day'))
         let hoy = new Date(moment().startOf('day'))
-        if(hoy.getTime() < f.getTime()) f = hoy
+        //if(hoy.getTime() < f.getTime()) f = hoy
 
         if(molino.currentStage) {
             let fec
@@ -444,7 +476,7 @@ const Dashboard = ({currentUser}) => {
                 fec = moment(molino.currentStage.creationDate)
             }
             fec = new Date(fec.startOf('day'))
-            if(fec.getTime() < f.getTime()) f = fec
+            //if(fec.getTime() < f.getTime()) f = fec
         }
 
         f = moment(f)
@@ -709,6 +741,28 @@ const Dashboard = ({currentUser}) => {
                                     </Col>
                                 </Row>
                                 <Row style={{marginTop: 4}} gutter={[8,8]} type="flex">
+                                    <Col xs={24} xxl={12}>
+                                        <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
+                                            <Row type="flex" gutter={[12,12]}>
+                                                <Col span={9} md={{span:9}} xs={12} className="indicador-avance">
+                                                    <Col className="indicador-block">
+                                                        Movimientos programados Totales
+                                                        <div className="indicador-number">
+                                                            {totalExec}
+                                                        </div>
+                                                    </Col>
+                                                </Col>
+                                                <Col span={9} md={{span:9, offset:5}} xs={{span: 12, offset:0}} offset={5} className="indicador-avance">
+                                                    <Col className="indicador-block">
+                                                        Piezas programadas Totales
+                                                        <div className="indicador-number">
+                                                            {Math.floor(totalExec/2)}
+                                                        </div>
+                                                    </Col>
+                                                </Col>
+                                            </Row>
+                                        </Row>
+                                    </Col>
                                     <Col xs={24} xxl={12}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             <Row style={{padding: 5, borderBottom:'1px solid rgba(0,0,0,.8)'}}>
