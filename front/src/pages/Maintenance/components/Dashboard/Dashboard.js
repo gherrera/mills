@@ -144,31 +144,43 @@ const Dashboard = ({currentUser}) => {
         return turno.name.substring(0,1)
     }
 
-    const addHours = (pMolino, listValues, hour, turnoId, turnos) => {
-        const last = listValues[listValues.length-1]
-        const x = last.ejeX.substring(0, last.ejeX.lastIndexOf(':') + 1)
+    const addHourRange = (pMolino, listValues, o, turnoId, turnos, last, i) => {
+        if(pMolino.scheduled) {
+            // Programado
+            if(pMolino.scheduled.movs) {
+                let t = turnos
+                if(last.turno !== turnoId) {
+                    const lastTurno = turnos[turnos.length-1]
+                    t = turnos.filter(t => t.key !== lastTurno.key)
+                }
+                let s = getScheduledByParams(pMolino.scheduled.movs, i, t)
+                
+                o.scheduled = s.sched
+                o.scheduledExec = s.schedExec
+            }
+        }
+        listValues.push(o)
+    }
+
+    const addHours = (pMolino, listValues, ejeX, hour, turnoId, turnos) => {
+        let last = { hour: 12, ejeX, scheduled: 0, scheduledExec: 0}
+        if(listValues.length > 0) last = listValues[listValues.length-1]
+        let x = last.ejeX.substring(0, last.ejeX.lastIndexOf(':') + 1)
         if(last.turno !== turnoId || (hour - last.hour) > 1) {
             let lastH = 12
             if(last.turno === turnoId) {
                 lastH = hour-1
             }
             for(let i=last.hour+1; i<=lastH; i++) {
-                const e = {key: (last.turno + '-' + i), ejeX: (x + i), hour: i, movs: 0, movsExec: 0, montadas: 0, scheduled: last.scheduled, giros: 0, scheduledExec: last.scheduledExec, turno: last.turno}
-                if(pMolino.scheduled) {
-                    // Programado
-                    if(pMolino.scheduled.movs) {
-                        let t = turnos
-                        if(last.turno !== turnoId) {
-                            const lastTurno = turnos[turnos.length-1]
-                            t = turnos.filter(t => t.key !== lastTurno.key)
-                        }
-                        let s = getScheduledByParams(pMolino.scheduled.movs, i, t)
-                        
-                        e.scheduled = s.sched
-                        e.scheduledExec = s.schedExec
-                    }
+                const o = {key: (last.turno + '-' + i), ejeX: (x + i), hour: i, movs: 0, movsExec: 0, montadas: 0, scheduled: last.scheduled, giros: 0, scheduledExec: last.scheduledExec, turno: last.turno}
+                addHourRange(pMolino, listValues, o, turnoId, turnos, last, i)
+            }
+            if(last.turno !== turnoId) {
+                x = ejeX.substring(0, ejeX.lastIndexOf(':') + 1)
+                for(let i=1; i<hour; i++) {
+                    const o = {key: (turnoId + '-' + i), ejeX: (x + i), hour: i, movs: 0, movsExec: 0, montadas: 0, scheduled: last.scheduled, giros: 0, scheduledExec: last.scheduledExec, turno: turnoId}
+                    addHourRange(pMolino, listValues, o, turnoId, turnos, o, i)
                 }
-                listValues.push(e)
             }
         }
     }
@@ -199,6 +211,7 @@ const Dashboard = ({currentUser}) => {
                                 ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno)
                             }else if(groupBy === 'hora') {
                                 hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
+                                if(hour > 12) hour = 12
                                 key = task.turnoFinish.id + "-" + hour
                                 fec = moment(task.turnoFinish.creationDate)
                                 ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno) + ':' + (hour)
@@ -215,8 +228,8 @@ const Dashboard = ({currentUser}) => {
 
                             let entry = listValues.filter(v => v.key === key)
                             if(entry.length === 0) {
-                                if(groupBy === 'hora' && listValues.length > 0) {
-                                    addHours(pMolino, listValues, hour, task.turnoFinish.id, turnos)
+                                if(groupBy === 'hora') {
+                                    addHours(pMolino, listValues, ejeX, hour, task.turnoFinish.id, turnos)
                                 }
                                 listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id})
                             }
@@ -254,6 +267,7 @@ const Dashboard = ({currentUser}) => {
                                     ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno)
                                 }else if(groupBy === 'hora') {
                                     hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
+                                    if(hour > 12) hour = 12
                                     key = task.turnoFinish.id + "-" + hour
                                     const fec = moment(task.turnoFinish.creationDate)
                                     ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(task.turnoFinish.turno) + ':' + (hour)
@@ -270,8 +284,8 @@ const Dashboard = ({currentUser}) => {
 
                                 let entry = listValues.filter(v => v.key === key)
                                 if(entry.length === 0) {
-                                    if(groupBy === 'hora' && listValues.length > 0) {
-                                        addHours(pMolino, listValues, hour, task.turnoFinish.id, turnos)
+                                    if(groupBy === 'hora') {
+                                        addHours(pMolino, listValues, ejeX, hour, task.turnoFinish.id, turnos)
                                     }
                                     listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id})
                                 }
@@ -309,6 +323,7 @@ const Dashboard = ({currentUser}) => {
                                         ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(part.turno.turno)
                                     }else if(groupBy === 'hora') {
                                         hour = Math.ceil((part.creationDate - part.turno.creationDate) / 1000 / 3600)
+                                        if(hour > 12) hour = 12
                                         key = part.turno.id + "-" + hour
                                         const fec = moment(part.turno.creationDate)
                                         ejeX = fec.format("DD-MM-YYYY") + '-' + getAbreviadoTurno(part.turno.turno) + ':' + (hour)
@@ -323,8 +338,8 @@ const Dashboard = ({currentUser}) => {
 
                                     let entry = listValues.filter(v => v.key === key)
                                     if(entry.length === 0) {
-                                        if(groupBy === 'hora' && listValues.length > 0) {
-                                            addHours(pMolino, listValues, hour, part.turno.id, turnos)
+                                        if(groupBy === 'hora') {
+                                            addHours(pMolino, listValues, ejeX, hour, part.turno.id, turnos)
                                         }
                                         listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: part.turno.id})
                                     }
@@ -393,8 +408,7 @@ const Dashboard = ({currentUser}) => {
         avObj.movimientosReal = movsExec
         avObj.montadas = montadas
         avObj.movimientosProg = scheduledExec
-
-        avObj.avance = Math.round(movs / scheduled * 100)
+        avObj.avance = Math.round(movs / totalHoras * 100)
 
         avObj.values = listValues
         return avObj
@@ -797,9 +811,9 @@ const Dashboard = ({currentUser}) => {
                                                             // Avance real
                                                             {
                                                                 x: dataGraph.map(d => d.ejeX),
-                                                                y: dataGraph.map(d => d.movs),
-                                                                hovertemplate: '%{text}% Avance',
-                                                                text: dataGraph.map(d  => (d.ejeX + ": " + (totalHoras > 0 ? Math.round(d.movs / totalHoras * 100) : 'N/A'))),
+                                                                y: dataGraph.map(d => d.movs / totalHoras * 100),
+                                                                hovertemplate: '%{text}',
+                                                                text: dataGraph.map(d  => (d.ejeX + ": " + (totalHoras > 0 ? Math.round(d.movs / totalHoras * 100) + '% (' + d.movs + ')' : 'N/A'))),
                                                                 type: 'scatter',
                                                                 mode: 'lines+markers',
                                                                 line: {
@@ -823,9 +837,9 @@ const Dashboard = ({currentUser}) => {
                                                             // Avance estimado
                                                             {
                                                                 x: dataGraph.map(d => d.ejeX),
-                                                                y: dataGraph.map(d => d.scheduled),
-                                                                hovertemplate: '%{text}% Programado',
-                                                                text: dataGraph.map(d  => (d.ejeX + ": " + (totalHoras > 0 ? Math.round(d.scheduled / totalHoras * 100) : 'N/A'))),
+                                                                y: dataGraph.map(d => d.scheduled / totalHoras * 100),
+                                                                hovertemplate: '%{text}',
+                                                                text: dataGraph.map(d  => (d.ejeX + ": " + (totalHoras > 0 ? Math.round(d.scheduled / totalHoras * 100) + '% (' + d.scheduled + ')' : 'N/A'))),
                                                                 type: 'scatter',
                                                                 mode: 'lines+markers',
                                                                 line: {
@@ -849,7 +863,7 @@ const Dashboard = ({currentUser}) => {
                                                             // Giros
                                                             {
                                                                 x: dataGraph.map(d => d.ejeX),
-                                                                y: dataGraph.map(d => d.ngiros),
+                                                                y: dataGraph.map(d => d.ngiros / totalHoras * 100),
                                                                 hovertemplate: '%{text} Giro(s)',
                                                                 //hoverinfo: "label+percent+name+text",
                                                                 text: dataGraph.map(d  => (d.ejeX + ": " + d.giros)),
@@ -874,7 +888,7 @@ const Dashboard = ({currentUser}) => {
                                                             margin: {
                                                                 l: 30,
                                                                 r: 20,
-                                                                b: groupGraph === 'hora' ? 50 : 20,
+                                                                b: groupGraph === 'hora' ? 100 : 20,
                                                                 t: 0,
                                                             },
                                                             paper_bgcolor: 'rgba(0,0,0,0)',
@@ -902,7 +916,7 @@ const Dashboard = ({currentUser}) => {
                                                                     size: 10,
                                                                     color: 'rgb(103 103 103)'
                                                                 },
-                                                                range: [0, maxGraph + 15],
+                                                                range: [0, (maxGraph / totalHoras * 110)],
                                                                 tickmode: 'array',
                                                                 showgrid: true,
                                                                 gridcolor: 'rgb(187 187 187)',
