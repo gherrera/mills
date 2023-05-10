@@ -237,6 +237,7 @@ const Dashboard = ({currentUser}) => {
                             }
                             entry = listValues.filter(v => v.key === key)[0]
                             entry.fecha = fecTask
+                            entry.hour = hour
 
                             if(pMolino.scheduled) {
                                 if(pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
@@ -288,11 +289,12 @@ const Dashboard = ({currentUser}) => {
                                     if(groupBy === 'hora') {
                                         addHours(pMolino, listValues, ejeX, hour, task.turnoFinish.id, turnos)
                                     }
-                                    listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id, initTurno})
+                                    listValues.push({ key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id })
                                 }
                                 entry = listValues.filter(v => v.key === key)[0]
                                 entry.giros = entry.giros + 1
                                 entry.fecha = fecTask
+                                entry.hour = hour
                                 
                                 if(pMolino.scheduled) {
                                     if(pMolino.scheduled.tasks && pMolino.scheduled.tasks[task.task]) {
@@ -340,11 +342,11 @@ const Dashboard = ({currentUser}) => {
                                         if(groupBy === 'hora') {
                                             addHours(pMolino, listValues, ejeX, hour, part.turno.id, turnos)
                                         }
-                                        debugger
                                         listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: part.turno.id, initTurno})
                                     }
                                     entry = listValues.filter(v => v.key === key)[0]
                                     entry.fecha = fecParte
+                                    entry.hour = hour
                                     entry.movs = entry.movs + part.qty
                                     entry.movsExec = entry.movsExec + part.qty
                                     if(task.task === 'MONTAJE') {
@@ -371,30 +373,48 @@ const Dashboard = ({currentUser}) => {
             }
         })
 
-        if(listValues.length > 0 && groupBy === 'hora' && pMolino.scheduled.movs) {
+        if(listValues.length > 0 && pMolino.scheduled.movs) {
             const last = listValues[listValues.length-1]
             if(last.initTurno) {
                 let lastTurno = turnos[turnos.length-1].key.substring(1) * 1
-                let fecha = last.initTurno.add(last.hour, 'hours')
+                let fecha = last.fecha
                 let lastHour = last.hour
+                let turno = last.ejeX.split(':')[0].split('-')[3]
                 while(fecha.isBefore(pFecha)) {
                     lastHour++
                     if(lastHour === 13) {
                         lastHour = 1
                         lastTurno++
+                        if(turno === 'D') turno = 'N'
+                        else turno = 'D'
                     }
                     fecha = fecha.add(1, 'hours')
                     if(fecha.isBefore(pFecha)) {
                         const keyFecha = fecha.format("DD-MM-YYYY")
                         const keyTurno = 'T' + lastTurno
                         if(pMolino.scheduled.movs.find(t => t.turn === keyTurno && t.turnHour === lastHour)) {
+                            let ejeX = keyFecha + '-' + turno + ':' + lastHour
+                            if(groupBy === 'turno') {
+                                ejeX = keyFecha + '-' + turno
+                            }else if(groupBy === 'fecha') {
+                                ejeX = keyFecha
+                            }
+
                             let nturnos = turnos.filter(t => t.key === keyTurno).length
                             if(nturnos === 0) {
                                 turnos.push({ key: keyTurno })
                             }
-                            let s = getScheduledByParams(pMolino.scheduled.movs, lastHour, turnos)
-                            let entry = {key: keyTurno + '-' + lastHour, ejeX: keyFecha + '-' + keyTurno + ':' + lastHour, hour: lastHour, scheduled: s.sched, scheduledExec: s.schedExec}
-                            listValues.push(entry)
+                            
+                            let entry = listValues.filter(v => v.ejeX === ejeX)
+                            if(entry.length === 0) {
+                                entry = {key: keyTurno + '-' + lastHour, ejeX, hour: lastHour}
+                                listValues.push(entry)
+                            }else {
+                                entry = listValues[listValues.length-1]
+                            }
+                            const s = getScheduledByParams(pMolino.scheduled.movs, lastHour, turnos)
+                            entry.scheduled =  s.sched
+                            entry.scheduledExec = s.schedExec
                         }else {
                             break
                         }
