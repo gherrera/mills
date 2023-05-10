@@ -39,6 +39,25 @@ const Dashboard = ({currentUser}) => {
         }
     }, [groupGraph])
 
+    useEffect(() => {
+        if(molino) {
+            let f = moment()
+            if(molino.currentStage) {
+                if(molino.currentStage.finishDate) {
+                    f = moment(molino.currentStage.finishDate)
+                }else {
+                    f = moment(molino.currentStage.creationDate)
+                }
+            }
+            setFecha(f)
+
+            let d = new Date(f.startOf('day'))
+            d.setDate(d.getDate() + 1);
+            setStatsAvances(moment(d), molino)
+            setIsLoadingMolino(false)
+        }
+    }, [molino])
+
     const loadMolinos = async () => {
         setIsLoadingMolinos(true)
         return getMolinosPromise(null).then(m => {
@@ -83,21 +102,6 @@ const Dashboard = ({currentUser}) => {
             setTotalHoras(total)
             setTotalExec(totalE)
             setMolino(m)
-            let f = moment()
-            if(m.currentStage) {
-                if(m.currentStage.finishDate) {
-                    f = moment(m.currentStage.finishDate)
-                }else {
-                    f = moment(m.currentStage.creationDate)
-                }
-            }
-
-            setFecha(f)
-
-            let d = new Date(f.startOf('day'))
-            d.setDate(d.getDate() + 1);
-            setStatsAvances(moment(d), m)
-            setIsLoadingMolino(false)
         })
     }
 
