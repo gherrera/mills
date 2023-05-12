@@ -411,7 +411,7 @@ public class App {
 	
 	public List<Molino> getMolinos(String userId, Map<String, String> params) {
 		List<Molino> molinos = dao.getMolinos(params);
-		if(molinos != null) {
+		if(molinos != null && params != null && "STARTED".equals(params.get("status"))) {
 			for(Molino molino : molinos) {
 				Molino m = getMolinoById(molino.getId());
 				molino.setPercentageVal(m.getPercentage());
