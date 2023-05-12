@@ -55,7 +55,7 @@
 		<result property="turno" column="turno_id" select="getTurnoCoreById"/>
 	</resultMap>
 	
-	<resultMap id="Molino" class="com.htg.mills.entities.maintenance.Molino">
+	<resultMap id="MolinoCore" class="com.htg.mills.entities.maintenance.Molino">
 		<result property="id" column="id"/>
 		<result property="nro" column="nro"/>
 		<result property="creationDate" column="fec_creacion"/>
@@ -71,6 +71,9 @@
 		<result property="updateUser" column="user_act"/>
 		<result property="createUser" column="create_user"/>
 		<result property="finishDate" column="fecha_termino"/>
+	</resultMap>
+	
+	<resultMap id="Molino" class="com.htg.mills.entities.maintenance.Molino" extends="MolinoCore">
 		<result property="turns" column="id" select="getTurnosByMolino"/>
 		<result property="stages" column="id" select="getEtapasByMolino"/>
 		<result property="parts" column="id" select="getPartesByMolino"/>
@@ -129,7 +132,7 @@
 		<result property="userFinish" column="user_termino"/>
 		<result property="turnoStart" column="turno_id_inicio" select="getHistorialTurnoById"/>
 		<result property="turnoFinish" column="turno_id_termino" select="getHistorialTurnoById"/>
-<!-- 		<result property="parts" column="id" select="getPartesByTarea"/> -->
+ 		<result property="parts" column="id" select="getPartesByTarea"/> 
 	</resultMap>
 
 	<resultMap id="Parte" class="com.htg.mills.entities.maintenance.Parte">

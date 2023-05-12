@@ -416,15 +416,6 @@ public class App {
 	public Molino getMolinoById(String id) {
 		Molino molino = dao.getMolinoById(id);
 		if(molino != null) {
-			if(molino.getStages() != null) {
-				for(Etapa stage : molino.getStages()) {
-					if(stage.getTasks() != null && stage.getStage().equals(Etapa.EtapaEnum.EXECUTION)) {
-						for(Tarea task : stage.getTasks()) {
-							task.setParts(dao.getPartesByTarea(task.getId()));
-						}
-					}
-				}
-			}
 			if(molino.getTurns() != null) {
 				for(Turno turno : molino.getTurns()) {
 					turno.setHistory(dao.getHistorialTurno(turno.getId()));
@@ -553,11 +544,11 @@ public class App {
 	}
 	
 	public Turno getTurnoById(String id) {
-		long lStartTime = System.currentTimeMillis();
+		//long lStartTime = System.currentTimeMillis();
 
 		Turno turno = dao.getTurnoById(id);
-		long lEndTime = System.currentTimeMillis();
-		log.debug("getTurnoById: "+(lEndTime-lStartTime)+"ms");
+		//long lEndTime = System.currentTimeMillis();
+		//log.debug("getTurnoById: "+(lEndTime-lStartTime)+"ms");
 
 		return turno;
 }

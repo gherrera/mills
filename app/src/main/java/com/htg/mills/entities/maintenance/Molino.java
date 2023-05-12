@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.htg.mills.entities.Entity;
+import com.htg.mills.entities.maintenance.Tarea.TareaEnum;
 
 public class Molino extends Entity {
 
@@ -124,14 +125,47 @@ public class Molino extends Entity {
 	
 	public float getPercentage() {
 		int total = 0;
-		float montadas = 0;
-		if(parts != null) {
-			for(Parte parte : parts) {
-				total += parte.getQty();
-				montadas += parte.getTotalMontadas();
+		float movs = 0;
+		if(stages != null && scheduled != null) {
+			if(scheduled.getMovs() != null) {
+				total = scheduled.getMovs().stream().mapToInt(Programacion::getTotal).sum();
+			}
+			
+			for(Etapa stage : stages) {
+				if(Etapa.EtapaEnum.BEGINNING.equals(stage.getStage()) || Etapa.EtapaEnum.FINISHED.equals(stage.getStage())) {
+					if(stage.getTasks() != null && scheduled.getTasks() != null) {
+						for(Tarea task : stage.getTasks()) {
+							if(task.getFinishDate() != null) {
+								Integer mov = scheduled.getTasks().get(task.getTask());
+								if(mov != null) {
+									movs += mov;
+								}
+							}
+						}
+					}
+				}else if(Etapa.EtapaEnum.EXECUTION.equals(stage.getStage())) {
+					if(stage.getTasks() != null) {
+						for(Tarea task : stage.getTasks()) {
+							if(TareaEnum.GIRO.equals(task.getTask())) {
+								if(task.getFinishDate() != null && scheduled.getTasks() != null) {
+									Integer mov = scheduled.getTasks().get(task.getTask());
+									if(mov != null) {
+										movs += mov;
+									}
+								}
+							}else if(TareaEnum.BOTADO.equals(task.getTask()) || TareaEnum.MONTAJE.equals(task.getTask())) {
+								if(task.getParts() != null) {
+									for(TareaParte part : task.getParts()) {
+										movs += part.getQty();
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
-		return montadas/total;
+		return total == 0 ? 0 : (movs/total);
 	}
 	
 	public float getPiezas() {

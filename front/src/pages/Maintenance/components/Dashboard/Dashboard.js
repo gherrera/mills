@@ -369,7 +369,12 @@ const Dashboard = ({currentUser}) => {
                                 }
                             })
                             if(maxFecPart) {
-                                durationTurnos += task.duration
+                                if(task.finishDate) {
+                                    durationTurnos += task.duration
+                                }else {
+                                    let secs = Math.ceil((maxFecPart.valueOf() - task.creationDate) / 1000)
+                                    durationTurnos += secs
+                                }
                             }
                         }
                     }
@@ -860,7 +865,7 @@ const Dashboard = ({currentUser}) => {
                                                         <div className="number">
                                                             {avances.avance}%
                                                             <br/>
-                                                            avance
+                                                            Avance
                                                         </div>
                                                         <div className="octagon">
                                                         </div>
