@@ -414,7 +414,7 @@ public class App {
 		if(molinos != null) {
 			for(Molino molino : molinos) {
 				Molino m = getMolinoById(molino.getId());
-				molino.setPercentageVal(m.getPercentageVal());
+				molino.setPercentageVal(m.getPercentage());
 			}
 		}
 		return molinos;
