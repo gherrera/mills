@@ -132,7 +132,7 @@
 		<result property="userFinish" column="user_termino"/>
 		<result property="turnoStart" column="turno_id_inicio" select="getHistorialTurnoById"/>
 		<result property="turnoFinish" column="turno_id_termino" select="getHistorialTurnoById"/>
- 		<result property="parts" column="id" select="getPartesByTarea"/> 
+<!-- 		<result property="parts" column="id" select="getPartesByTarea"/> -->
 	</resultMap>
 
 	<resultMap id="Parte" class="com.htg.mills.entities.maintenance.Parte">

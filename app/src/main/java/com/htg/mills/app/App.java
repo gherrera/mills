@@ -410,12 +410,28 @@ public class App {
 	}
 	
 	public List<Molino> getMolinos(String userId, Map<String, String> params) {
-		return dao.getMolinos(params);
+		List<Molino> molinos = dao.getMolinos(params);
+		if(molinos != null) {
+			for(Molino molino : molinos) {
+				Molino m = getMolinoById(molino.getId());
+				molino.setPercentageVal(m.getPercentageVal());
+			}
+		}
+		return molinos;
 	}
 	
 	public Molino getMolinoById(String id) {
 		Molino molino = dao.getMolinoById(id);
 		if(molino != null) {
+			if(molino.getStages() != null) {
+				for(Etapa stage : molino.getStages()) {
+					if(stage.getTasks() != null && stage.getStage().equals(Etapa.EtapaEnum.EXECUTION)) {
+						for(Tarea task : stage.getTasks()) {
+							task.setParts(dao.getPartesByTarea(task.getId()));
+						}
+					}
+				}
+			}
 			if(molino.getTurns() != null) {
 				for(Turno turno : molino.getTurns()) {
 					turno.setHistory(dao.getHistorialTurno(turno.getId()));
@@ -547,6 +563,17 @@ public class App {
 		//long lStartTime = System.currentTimeMillis();
 
 		Turno turno = dao.getTurnoById(id);
+		if(turno != null && turno.getMolino() != null) {
+			if(turno.getMolino().getStages() != null) {
+				for(Etapa stage : turno.getMolino().getStages()) {
+					if(stage.getTasks() != null && stage.getStage().equals(Etapa.EtapaEnum.EXECUTION)) {
+						for(Tarea task : stage.getTasks()) {
+							task.setParts(dao.getPartesByTarea(task.getId()));
+						}
+					}
+				}
+			}
+		}
 		//long lEndTime = System.currentTimeMillis();
 		//log.debug("getTurnoById: "+(lEndTime-lStartTime)+"ms");
 

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.htg.mills.entities.Entity;
 import com.htg.mills.entities.maintenance.Tarea.TareaEnum;
 
@@ -44,6 +45,8 @@ public class Molino extends Entity {
 	private String updateUser;
 	private Timestamp finishDate;
 	private Scheduled scheduled;
+	@JsonIgnore
+	private Float percentageVal;
 
 	public String getName() {
 		return name;
@@ -124,6 +127,10 @@ public class Molino extends Entity {
 	}
 	
 	public float getPercentage() {
+		if(percentageVal != null) {
+			return percentageVal;
+		}
+
 		int total = 0;
 		float movs = 0;
 		if(stages != null && scheduled != null) {
@@ -415,4 +422,13 @@ public class Molino extends Entity {
 	public void setScheduled(Scheduled scheduled) {
 		this.scheduled = scheduled;
 	}
+
+	public Float getPercentageVal() {
+		return percentageVal;
+	}
+
+	public void setPercentageVal(Float percentageVal) {
+		this.percentageVal = percentageVal;
+	}
+
 }
