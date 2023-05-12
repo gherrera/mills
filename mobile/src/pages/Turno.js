@@ -334,10 +334,10 @@ export default class Turno extends Component {
                                 </View>
                             </View>
                             <View style={{ ...styles.col, width: '35%', marginTop: 10}}>
-                                <Text style={{fontSize: 35, color: StylesGlobal.colorBlack90, fontWeight:'400', textAlign:'right', width:44, flexWrap:'nowrap'}}>
+                                <Text style={{fontSize: 35, color: StylesGlobal.colorBlack90, fontWeight:'400', textAlign:'right', width:50, flexWrap:'nowrap'}}>
                                     {turno.molino.totalMontadas}
                                 </Text>
-                                <View style={{left:47, width:'100%', position:'absolute', top:5}}>
+                                <View style={{left:52, width:'100%', position:'absolute', top:5}}>
                                     <Text style={{width:'100%', fontSize: 17, color: StylesGlobal.colorBlack75, flexWrap:'nowrap'}}>
                                         Piezas
                                     </Text>
@@ -350,7 +350,7 @@ export default class Turno extends Component {
                                 <Text style={{fontSize: 35, color: StylesGlobal.colorBlack90, fontWeight:'400', textAlign:'right', width:40}}>
                                     {turno.molino.giros}
                                 </Text>
-                                <View style={{left:45, position:'absolute', top:20}}>
+                                <View style={{left:42, position:'absolute', top:20}}>
                                     <Text style={{fontSize: 17, color: StylesGlobal.colorBlack75, lineHeight:18, top:-7}}>
                                         Giros
                                     </Text>
