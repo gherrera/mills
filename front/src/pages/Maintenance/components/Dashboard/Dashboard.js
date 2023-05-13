@@ -458,6 +458,8 @@ const Dashboard = ({currentUser}) => {
                 if(l.giros > 0) l.ngiros = l.movs
                 if(groupBy === 'turno') l.ejeX = l.ejeX + "-" + (index+1)
             })
+
+            listValues.unshift({ ejeX: 'Origen', movs: 0, scheduled: 0})
         }
 
         const nTurnos = Object.values(turnosExec).length
@@ -971,13 +973,14 @@ const Dashboard = ({currentUser}) => {
                                                             margin: {
                                                                 l: 30,
                                                                 r: 20,
-                                                                b: groupGraph === 'hora' ? 100 : 20,
-                                                                t: 0,
+                                                                b: groupGraph === 'hora' && dataGraph.length > 40 ? 90 : groupGraph === 'hora' && dataGraph.length > 18 ? 50 : 20,
+                                                                t: 0
                                                             },
                                                             paper_bgcolor: 'rgba(0,0,0,0)',
                                                             plot_bgcolor: 'rgba(0,0,0,0)',
                                                             autoscale: true,
                                                             xaxis: {
+                                                                automargin: true,
                                                                 showgrid: false,
                                                                 showticklabels: true,
                                                                 tickfont: {
