@@ -122,6 +122,7 @@ const Dashboard = ({currentUser}) => {
     const getScheduledByParams = (movs, hour, turnos) => {
         let sched = 0
         let schedExec = 0
+        let mounted = 0
         const keyTurno = turnos[turnos.length-1].key
         const filteredTurnos = movs.filter(m => m.turn === keyTurno)
         for(let i=0;i<movs.length;i++) {
@@ -129,6 +130,9 @@ const Dashboard = ({currentUser}) => {
                 sched += movs[i].total
                 if(movs[i].movs) {
                     schedExec += movs[i].movs
+                }
+                if(movs[i].mounted) {
+                    mounted += movs[i].mounted
                 }
             }else {
                 break;
@@ -140,11 +144,14 @@ const Dashboard = ({currentUser}) => {
                 if(filteredTurnos[i].movs) {
                     schedExec += filteredTurnos[i].movs
                 }
+                if(filteredTurnos[i].mounted) {
+                    mounted += filteredTurnos[i].mounted
+                }
             }else {
                 break
             }
         }
-        return { sched, schedExec }
+        return { sched, schedExec, mounted }
     }
 
     const getAbreviadoTurno = (turno) => {
@@ -165,13 +172,14 @@ const Dashboard = ({currentUser}) => {
                 
                 o.scheduled = s.sched
                 o.scheduledExec = s.schedExec
+                o.scheduledMounted = s.mounted
             }
         }
         listValues.push(o)
     }
 
     const addHours = (pMolino, listValues, ejeX, hour, turnoId, turnos) => {
-        let last = { hour: 12, ejeX, scheduled: 0, scheduledExec: 0}
+        let last = { hour: 12, ejeX, scheduled: 0, scheduledExec: 0, scheduledMounted: 0}
         if(listValues.length > 0) last = listValues[listValues.length-1]
         let x = last.ejeX.substring(0, last.ejeX.lastIndexOf(':') + 1)
         if(last.turno !== turnoId || (hour - last.hour) > 1) {
@@ -180,13 +188,13 @@ const Dashboard = ({currentUser}) => {
                 lastH = hour-1
             }
             for(let i=last.hour+1; i<=lastH; i++) {
-                const o = {key: (last.turno + '-' + i), ejeX: (x + i), hour: i, movs: 0, movsExec: 0, montadas: 0, scheduled: last.scheduled, giros: 0, scheduledExec: last.scheduledExec, turno: last.turno}
+                const o = {key: (last.turno + '-' + i), ejeX: (x + i), hour: i, movs: 0, movsExec: 0, montadas: 0, scheduled: last.scheduled, giros: 0, scheduledExec: last.scheduledExec, scheduledMounted: last.scheduledMounted,turno: last.turno}
                 addHourRange(pMolino, listValues, o, turnoId, turnos, last, i)
             }
             if(last.turno !== turnoId) {
                 x = ejeX.substring(0, ejeX.lastIndexOf(':') + 1)
                 for(let i=1; i<hour; i++) {
-                    const o = {key: (turnoId + '-' + i), ejeX: (x + i), hour: i, movs: 0, movsExec: 0, montadas: 0, scheduled: last.scheduled, giros: 0, scheduledExec: last.scheduledExec, turno: turnoId}
+                    const o = {key: (turnoId + '-' + i), ejeX: (x + i), hour: i, movs: 0, movsExec: 0, montadas: 0, scheduled: last.scheduled, giros: 0, scheduledExec: last.scheduledExec, scheduledMounted: last.scheduledMounted, turno: turnoId}
                     addHourRange(pMolino, listValues, o, turnoId, turnos, o, i)
                 }
             }
@@ -237,7 +245,7 @@ const Dashboard = ({currentUser}) => {
                                 if(groupBy === 'hora') {
                                     addHours(pMolino, listValues, ejeX, hour, task.turnoFinish.id, turnos)
                                 }
-                                listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id, initTurno })
+                                listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, scheduledMounted: 0, turno: task.turnoFinish.id, initTurno })
                             }
                             entry = listValues.filter(v => v.key === key)[0]
                             entry.fecha = fecTask
@@ -254,6 +262,7 @@ const Dashboard = ({currentUser}) => {
                                     
                                     entry.scheduled = s.sched
                                     entry.scheduledExec = s.schedExec
+                                    entry.scheduledMounted = s.mounted
                                 }
                             }
                         }
@@ -262,6 +271,7 @@ const Dashboard = ({currentUser}) => {
             }else if(s.stage === 'EXECUTION') {
                 s.tasks && s.tasks.map(task => {
                     if(task.task === 'GIRO' || task.task === 'BOTADO' || task.task === 'MONTAJE') {
+                        let maxFecPart
                         let fecTask = moment(task.finishDate)
                         if(task.task === 'GIRO') {
                             if(fecTask.isBefore(pFecha)) {
@@ -293,7 +303,7 @@ const Dashboard = ({currentUser}) => {
                                     if(groupBy === 'hora') {
                                         addHours(pMolino, listValues, ejeX, hour, task.turnoFinish.id, turnos)
                                     }
-                                    listValues.push({ key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: task.turnoFinish.id })
+                                    listValues.push({ key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, scheduledMounted: 0, turno: task.turnoFinish.id })
                                 }
                                 entry = listValues.filter(v => v.key === key)[0]
                                 entry.giros = entry.giros + 1
@@ -311,11 +321,12 @@ const Dashboard = ({currentUser}) => {
 
                                         entry.scheduled = s.sched
                                         entry.scheduledExec = s.schedExec
+                                        entry.scheduledMounted = s.mounted
                                     }
                                 }
+                                durationTurnos += task.duration
                             }
                         }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
-                            let maxFecPart
                             task.parts && task.parts.map(part => {
                                 const fecParte = moment(part.creationDate)
                                 if(fecParte.isBefore(pFecha)) {
@@ -346,7 +357,7 @@ const Dashboard = ({currentUser}) => {
                                         if(groupBy === 'hora') {
                                             addHours(pMolino, listValues, ejeX, hour, part.turno.id, turnos)
                                         }
-                                        listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, turno: part.turno.id, initTurno})
+                                        listValues.push({key, ejeX, hour, movs: 0, movsExec: 0, montadas: 0, scheduled: 0, giros: 0, scheduledExec: 0, scheduledMounted:0, turno: part.turno.id, initTurno})
                                     }
                                     entry = listValues.filter(v => v.key === key)[0]
                                     entry.fecha = fecParte
@@ -364,18 +375,17 @@ const Dashboard = ({currentUser}) => {
                                             
                                             entry.scheduled = s.sched
                                             entry.scheduledExec = s.schedExec
+                                            entry.scheduledMounted = s.mounted
                                         }
                                     }
                                 }
                             })
-                            if(maxFecPart) {
-                                if(task.finishDate) {
-                                    durationTurnos += task.duration
-                                }else {
-                                    let secs = Math.ceil((maxFecPart.valueOf() - task.creationDate) / 1000)
-                                    durationTurnos += secs
-                                }
-                            }
+                        }
+                        if(task.finishDate && fecTask.isBefore(pFecha)) {
+                            durationTurnos += task.duration
+                        }else if(maxFecPart) {
+                            let secs = Math.ceil((maxFecPart.valueOf() - task.creationDate) / 1000)
+                            durationTurnos += secs
                         }
                     }
                 })
@@ -424,6 +434,7 @@ const Dashboard = ({currentUser}) => {
                             const s = getScheduledByParams(pMolino.scheduled.movs, lastHour, turnos)
                             entry.scheduled =  s.sched
                             entry.scheduledExec = s.schedExec
+                            entry.scheduledMounted = s.mounted
                         }else {
                             break
                         }
@@ -440,9 +451,11 @@ const Dashboard = ({currentUser}) => {
 
         let scheduled = 0
         let scheduledExec = 0
+        let scheduledMounted = 0
         if(listValues.length > 0) {
             scheduled = listValues[listValues.length-1].scheduled
             scheduledExec = listValues[listValues.length-1].scheduledExec
+            scheduledMounted = listValues[listValues.length-1].scheduledMounted
 
             for(let i=listValues.length-1;i>0;i--) {
                 let _movs = 0;
@@ -471,6 +484,7 @@ const Dashboard = ({currentUser}) => {
         avObj.movimientosReal = movsExec
         avObj.montadas = montadas
         avObj.movimientosProg = scheduledExec
+        avObj.piezasProg = scheduledMounted
         avObj.avance = Math.round(movs / totalHoras * 100)
 
         avObj.values = listValues
@@ -838,7 +852,7 @@ const Dashboard = ({currentUser}) => {
                                                                 Piezas<br/>
                                                                 programadas
                                                                 <div className="indicador-number">
-                                                                    {Math.floor(avances.movimientosProg/2)}
+                                                                    {Math.floor(avances.piezasProg)}
                                                                 </div>
                                                             </Col>
                                                         </Col>
