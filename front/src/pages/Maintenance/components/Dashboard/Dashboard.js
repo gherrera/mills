@@ -464,7 +464,7 @@ const Dashboard = ({currentUser}) => {
 
         const nTurnos = Object.values(turnosExec).length
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movsExec/nTurnos)
-        avObj.promMinPieza = movsExec === 0 ? 0 : (durationTurnos / 60 / (movsExec / 2)).toFixed(1)
+        avObj.promMinPieza = montadas === 0 ? 0 : (durationTurnos / 60 / montadas).toFixed(1)
         avObj.promMinMov = movsExec === 0 ? 0 : (durationTurnos / 60 / movsExec).toFixed(1)
         avObj.hasRetraso = movs < scheduled ? 'Sí' : 'No'
 
