@@ -51,7 +51,7 @@ const Dashboard = ({currentUser}) => {
                         if(molino.currentStage.currentTask.finishDate) {
                             f = moment(molino.currentStage.currentTask.finishDate)
                         }else {
-                            if(molino.currentStage.currentTask.parts) {
+                            if(molino.currentStage.currentTask.parts && molino.currentStage.currentTask.parts.length > 0) {
                                 const lastPart = molino.currentStage.currentTask.parts[molino.currentStage.currentTask.parts.length-1]
                                 f = moment(lastPart.creationDate)
                             }else {
