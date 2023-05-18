@@ -47,13 +47,22 @@ const Dashboard = ({currentUser}) => {
                     f = moment(molino.currentStage.finishDate)
                 }else {
                     f = moment(molino.currentStage.creationDate)
+                    if(molino.currentStage.currentTask) {
+                        if(molino.currentStage.currentTask.finishDate) {
+                            f = moment(molino.currentStage.currentTask.finishDate)
+                        }else {
+                            if(molino.currentStage.currentTask.parts) {
+                                const lastPart = molino.currentStage.currentTask.parts[molino.currentStage.currentTask.parts.length-1]
+                                f = moment(lastPart.creationDate)
+                            }else {
+                                f = moment(molino.currentStage.currentTask.creationDate)
+                            }
+                        }
+                    }
                 }
             }
             setFecha(f)
-
-            let d = new Date(f.startOf('day'))
-            d.setDate(d.getDate() + 1);
-            setStatsAvances(moment(d), molino)
+            setStatsAvances(f, molino)
             setIsLoadingMolino(false)
         }
     }, [molino])
@@ -208,7 +217,8 @@ const Dashboard = ({currentUser}) => {
         let listValues = []
         let turnosExec = {}
         let turnos = []
-        let durationTurnos = 0;
+        let fecIniExec
+        let maxFecExec
 
         pMolino.stages && pMolino.stages.map(s => {
             if(s.stage === 'BEGINNING' || s.stage === 'FINISHED') {
@@ -216,7 +226,7 @@ const Dashboard = ({currentUser}) => {
                     if(task.finishDate) {
                         let fecTask = moment(task.finishDate)
 
-                        if(fecTask.isBefore(pFecha)) {
+                        if(fecTask.isSameOrBefore(pFecha)) {
                             const initTurno = moment(task.turnoFinish.creationDate)
                             let hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
                             if(hour > 12) hour = 12
@@ -269,12 +279,12 @@ const Dashboard = ({currentUser}) => {
                     }
                 })
             }else if(s.stage === 'EXECUTION') {
+                fecIniExec = s.creationDate
                 s.tasks && s.tasks.map(task => {
                     if(task.task === 'GIRO' || task.task === 'BOTADO' || task.task === 'MONTAJE') {
-                        let maxFecPart
                         let fecTask = moment(task.finishDate)
                         if(task.task === 'GIRO') {
-                            if(fecTask.isBefore(pFecha)) {
+                            if(task.finishDate && fecTask.isSameOrBefore(pFecha)) {
                                 const initTurno = moment(task.turnoFinish.creationDate)
                                 let hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
                                 if(hour > 12) hour = 12
@@ -324,13 +334,12 @@ const Dashboard = ({currentUser}) => {
                                         entry.scheduledMounted = s.mounted
                                     }
                                 }
-                                durationTurnos += task.duration
                             }
                         }else if(task.task === 'BOTADO' || task.task === 'MONTAJE') {
                             task.parts && task.parts.map(part => {
                                 const fecParte = moment(part.creationDate)
-                                if(fecParte.isBefore(pFecha)) {
-                                    maxFecPart = fecParte
+                                if(fecParte.isSameOrBefore(pFecha)) {
+                                    maxFecExec = part.creationDate
                                     const keyFecha = fecParte.format("DD-MM-YYYY")
                                     const initTurno = moment(part.turno.creationDate)
                                     let hour = Math.ceil((part.creationDate - part.turno.creationDate) / 1000 / 3600)
@@ -381,16 +390,17 @@ const Dashboard = ({currentUser}) => {
                                 }
                             })
                         }
-                        if(task.finishDate && fecTask.isBefore(pFecha)) {
-                            durationTurnos += task.duration
-                        }else if(maxFecPart) {
-                            let secs = Math.ceil((maxFecPart.valueOf() - task.creationDate) / 1000)
-                            durationTurnos += secs
+                        if(task.finishDate && fecTask.isSameOrBefore(pFecha)) {
+                            maxFecExec = task.finishDate
+                            turnosExec[task.turnoStart.id] = task.turnoStart.id
+                            turnosExec[task.turnoFinish.id] = task.turnoFinish.id
                         }
                     }
                 })
             }
         })
+
+        const nTurnos = Object.values(turnos).length
 
         if(listValues.length > 0 && pMolino.scheduled.movs) {
             const last = listValues[listValues.length-1]
@@ -399,7 +409,7 @@ const Dashboard = ({currentUser}) => {
                 let fecha = last.fecha
                 let lastHour = last.hour
                 let turno = last.ejeX.split(':')[0].split('-')[3]
-                while(fecha.isBefore(pFecha)) {
+                while(fecha.isSameOrBefore(pFecha)) {
                     lastHour++
                     if(lastHour === 13) {
                         lastHour = 1
@@ -408,7 +418,7 @@ const Dashboard = ({currentUser}) => {
                         else turno = 'D'
                     }
                     fecha = fecha.add(1, 'hours')
-                    if(fecha.isBefore(pFecha)) {
+                    if(fecha.isSameOrBefore(pFecha)) {
                         const keyFecha = fecha.format("DD-MM-YYYY")
                         const keyTurno = 'T' + lastTurno
                         if(pMolino.scheduled.movs.find(t => t.turn === keyTurno && t.turnHour === lastHour)) {
@@ -443,6 +453,11 @@ const Dashboard = ({currentUser}) => {
             }
         }
         
+        let durationExec = 0
+        if(fecIniExec && maxFecExec) {
+            durationExec = (maxFecExec - fecIniExec) / 1000
+        }
+
         const giros = listValues.reduce((accumulator, current) => accumulator + (current.giros ? current.giros : 0), 0)
         const movs = listValues.reduce((accumulator, current) => accumulator + (current.movs ? current.movs : 0), 0)
         const movsExec = listValues.reduce((accumulator, current) => accumulator + (current.movsExec ? current.movsExec : 0), 0)
@@ -475,10 +490,9 @@ const Dashboard = ({currentUser}) => {
             listValues.unshift({ ejeX: 'Origen', movs: 0, scheduled: 0})
         }
 
-        const nTurnos = Object.values(turnosExec).length
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movsExec/nTurnos)
-        avObj.promMinPieza = montadas === 0 ? 0 : (durationTurnos / 60 / montadas).toFixed(1)
-        avObj.promMinMov = movsExec === 0 ? 0 : (durationTurnos / 60 / movsExec).toFixed(1)
+        avObj.promMinPieza = montadas === 0 ? 0 : (durationExec / 60 / montadas).toFixed(1)
+        avObj.promMinMov = movsExec === 0 ? 0 : (durationExec / 60 / movsExec).toFixed(1)
         avObj.hasRetraso = movs < scheduled ? 'Sí' : 'No'
 
         avObj.movimientosReal = movsExec
@@ -508,28 +522,14 @@ const Dashboard = ({currentUser}) => {
     }
 
     const handleChangeAvance = (value) => {
-        if(value === null) value = moment()
-        let f = new Date(value.startOf('day'))
-        let hoy = new Date(moment().startOf('day'))
-        //if(hoy.getTime() < f.getTime()) f = hoy
-
-        if(molino.currentStage) {
-            let fec
-            if(molino.currentStage.finishDate) {
-                fec = moment(molino.currentStage.finishDate)
-            }else {
-                fec = moment(molino.currentStage.creationDate)
-            }
-            fec = new Date(fec.startOf('day'))
-            //if(fec.getTime() < f.getTime()) f = fec
+        debugger
+        let f = value
+        if(value === null) {
+            f = moment()
         }
 
-        f = moment(f)
         setFecha(f)
-        let d = new Date(f.startOf('day'))
-        d.setDate(d.getDate() + 1);
-
-        setStatsAvances(moment(d), molino)
+        setStatsAvances(f, molino)
     }
 
     const getTotalByTurno = (tasks) => {
@@ -815,7 +815,14 @@ const Dashboard = ({currentUser}) => {
                                                     Avances al
                                                 </Col>
                                                 <Col span={12} style={{textAlign:'right'}}>
-                                                    <DatePicker size="small" defaultValue={fecha} format="DD/MM/YYYY" onChange={handleChangeAvance} allowClear={false} />
+                                                    <DatePicker 
+                                                        size="small" 
+                                                        defaultValue={fecha} 
+                                                        format="DD/MM/YYYY HH:mm" 
+                                                        showTime={{format: 'HH:mm'}}
+                                                        onChange={handleChangeAvance} 
+                                                        allowClear={false} 
+                                                    />
                                                 </Col>
                                             </Row>
                                             <Row style={{padding:10}}>
@@ -915,12 +922,12 @@ const Dashboard = ({currentUser}) => {
                                                                 text: dataGraph.map(d  => (d.ejeX + ": " + (totalHoras > 0 ? Math.round(d.movs / totalHoras * 100) + '% (' + d.movs + ')' : 'N/A'))),
                                                                 type: 'scatter',
                                                                 mode: 'lines+markers',
-                                                                line: {
+                                                                /*line: {
                                                                     shape: 'spline',
                                                                     smoothing: '1.1',
                                                                     //width: 3,
                                                                     //color: 'rgb(138 187 249)',
-                                                                },
+                                                                },*/
                                                                 /*
                                                                 marker: {
                                                                     color: 'rgb(217 231 251)',
@@ -941,12 +948,12 @@ const Dashboard = ({currentUser}) => {
                                                                 text: dataGraph.map(d  => (d.ejeX + ": " + (totalHoras > 0 ? Math.round(d.scheduled / totalHoras * 100) + '% (' + d.scheduled + ')' : 'N/A'))),
                                                                 type: 'scatter',
                                                                 mode: 'lines+markers',
-                                                                line: {
+                                                                /*line: {
                                                                     shape: 'spline',
                                                                     smoothing: '1.1',
                                                                     //width: 3,
                                                                     //color: 'rgb(138 187 249)',
-                                                                },
+                                                                },*/
                                                                 /*
                                                                 marker: {
                                                                     color: 'rgb(217 231 251)',
