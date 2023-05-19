@@ -218,7 +218,7 @@ const Dashboard = ({currentUser}) => {
         let turnosExec = {}
         let turnos = []
         let fecIniExec
-        let maxFecExec
+        let fecMaxExec
 
         pMolino.stages && pMolino.stages.map(s => {
             if(s.stage === 'BEGINNING' || s.stage === 'FINISHED') {
@@ -339,7 +339,7 @@ const Dashboard = ({currentUser}) => {
                             task.parts && task.parts.map(part => {
                                 const fecParte = moment(part.creationDate)
                                 if(fecParte.isSameOrBefore(pFecha)) {
-                                    maxFecExec = part.creationDate
+                                    fecMaxExec = part.creationDate
                                     const keyFecha = fecParte.format("DD-MM-YYYY")
                                     const initTurno = moment(part.turno.creationDate)
                                     let hour = Math.ceil((part.creationDate - part.turno.creationDate) / 1000 / 3600)
@@ -391,12 +391,21 @@ const Dashboard = ({currentUser}) => {
                             })
                         }
                         if(task.finishDate && fecTask.isSameOrBefore(pFecha)) {
-                            maxFecExec = task.finishDate
+                            fecMaxExec = task.finishDate
                             turnosExec[task.turnoStart.id] = task.turnoStart.id
                             turnosExec[task.turnoFinish.id] = task.turnoFinish.id
                         }
                     }
                 })
+                if(s.events) {
+                    const events = s.events.filter(e => e.type === 'INTERRUPTION' && e.finishDate && e.finishDate <= pFecha.valueOf())
+                    if(events && events.length > 0) {
+                        const lastEv = events.pop()
+                        if(!fecMaxExec || lastEv.finishDate > fecMaxExec) {
+                            fecMaxExec = lastEv.finishDate
+                        }
+                    }
+                }
             }
         })
 
@@ -454,8 +463,8 @@ const Dashboard = ({currentUser}) => {
         }
         
         let durationExec = 0
-        if(fecIniExec && maxFecExec) {
-            durationExec = (maxFecExec - fecIniExec) / 1000
+        if(fecIniExec && fecMaxExec) {
+            durationExec = (fecMaxExec - fecIniExec) / 1000
         }
 
         const giros = listValues.reduce((accumulator, current) => accumulator + (current.giros ? current.giros : 0), 0)
@@ -522,7 +531,6 @@ const Dashboard = ({currentUser}) => {
     }
 
     const handleChangeAvance = (value) => {
-        debugger
         let f = value
         if(value === null) {
             f = moment()
