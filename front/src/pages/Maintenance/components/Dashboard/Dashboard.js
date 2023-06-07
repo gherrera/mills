@@ -132,6 +132,7 @@ const Dashboard = ({currentUser}) => {
         let sched = 0
         let schedExec = 0
         let mounted = 0
+        let schedTurn = 0
         const keyTurno = turnos[turnos.length-1].key
         const filteredTurnos = movs.filter(m => m.turn === keyTurno)
         for(let i=0;i<movs.length;i++) {
@@ -142,6 +143,9 @@ const Dashboard = ({currentUser}) => {
                 }
                 if(movs[i].mounted) {
                     mounted += movs[i].mounted
+                }
+                if(movs[i].twists) {
+                    schedTurn += movs[i].twists
                 }
             }else {
                 break;
@@ -156,11 +160,14 @@ const Dashboard = ({currentUser}) => {
                 if(filteredTurnos[i].mounted) {
                     mounted += filteredTurnos[i].mounted
                 }
+                if(filteredTurnos[i].twists) {
+                    schedTurn += filteredTurnos[i].twists
+                }
             }else {
                 break
             }
         }
-        return { sched, schedExec, mounted }
+        return { sched, schedExec, mounted, schedTurn }
     }
 
     const getAbreviadoTurno = (turno) => {
@@ -182,6 +189,7 @@ const Dashboard = ({currentUser}) => {
                 o.scheduled = s.sched
                 o.scheduledExec = s.schedExec
                 o.scheduledMounted = s.mounted
+                o.schedTurn = s.schedTurn
             }
         }
         listValues.push(o)
@@ -273,6 +281,7 @@ const Dashboard = ({currentUser}) => {
                                     entry.scheduled = s.sched
                                     entry.scheduledExec = s.schedExec
                                     entry.scheduledMounted = s.mounted
+                                    entry.schedTurn = s.schedTurn
                                 }
                             }
                         }
@@ -332,6 +341,7 @@ const Dashboard = ({currentUser}) => {
                                         entry.scheduled = s.sched
                                         entry.scheduledExec = s.schedExec
                                         entry.scheduledMounted = s.mounted
+                                        entry.schedTurn = s.schedTurn
                                     }
                                 }
                             }
@@ -385,6 +395,7 @@ const Dashboard = ({currentUser}) => {
                                             entry.scheduled = s.sched
                                             entry.scheduledExec = s.schedExec
                                             entry.scheduledMounted = s.mounted
+                                            entry.schedTurn = s.schedTurn
                                         }
                                     }
                                 }
@@ -454,6 +465,7 @@ const Dashboard = ({currentUser}) => {
                             entry.scheduled =  s.sched
                             entry.scheduledExec = s.schedExec
                             entry.scheduledMounted = s.mounted
+                            entry.schedTurn = s.schedTurn
                         }else {
                             break
                         }
@@ -493,6 +505,7 @@ const Dashboard = ({currentUser}) => {
             }
             listValues.map((l, index) => {
                 if(l.giros > 0) l.ngiros = l.movs
+                if(l.schedTurn && l.schedTurn > 0) l.nSchedTurn = l.scheduled
                 if(groupBy === 'turno') l.ejeX = l.ejeX + "-" + (index+1)
             })
 
@@ -525,7 +538,7 @@ const Dashboard = ({currentUser}) => {
         }else {
             setMaxGraph(movMax)
         }
-
+        debugger
         setDataGraph(vGraph)
         setAvances(avObj)
     }
@@ -974,11 +987,11 @@ const Dashboard = ({currentUser}) => {
                                                                 */
                                                                 name: 'Avance programado'
                                                             },
-                                                            // Giros
+                                                            // Giros Realizados
                                                             {
                                                                 x: dataGraph.map(d => d.ejeX),
                                                                 y: dataGraph.map(d => d.ngiros / totalHoras * 100),
-                                                                hovertemplate: '%{text} Giro(s)',
+                                                                hovertemplate: '%{text} Giro(s) realizados',
                                                                 //hoverinfo: "label+percent+name+text",
                                                                 text: dataGraph.map(d  => (d.ejeX + ": " + d.giros)),
                                                                 type: 'scatter',
@@ -990,7 +1003,24 @@ const Dashboard = ({currentUser}) => {
                                                                         width: 3
                                                                     }
                                                                 },
-                                                                name: 'Giro'
+                                                                name: 'Giro Realizado'
+                                                            },
+                                                            // Giros Realizados
+                                                            {
+                                                                x: dataGraph.map(d => d.ejeX),
+                                                                y: dataGraph.map(d => d.nSchedTurn / totalHoras * 100),
+                                                                hovertemplate: '%{text} Giro(s) programados',
+                                                                text: dataGraph.map(d  => (d.ejeX + ": " + d.schedTurn)),
+                                                                type: 'scatter',
+                                                                mode: 'markers',
+                                                                marker: {
+                                                                    size: 12,
+                                                                    color: 'rgba(255, 255, 255, 0)',
+                                                                    line: {
+                                                                        width: 3
+                                                                    }
+                                                                },
+                                                                name: 'Giro Programado'
                                                             }
                                                         ]
                                                     }

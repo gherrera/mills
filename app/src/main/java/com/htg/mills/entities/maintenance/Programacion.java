@@ -10,6 +10,7 @@ public class Programacion {
 	private Integer movs;
 	private Integer total;
 	private Integer mounted;
+	private Integer twists;
 	
 	public String getTurn() {
 		return turn;
@@ -58,5 +59,11 @@ public class Programacion {
 	}
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	public Integer getTwists() {
+		return twists;
+	}
+	public void setTwists(Integer twists) {
+		this.twists = twists;
 	}
 }

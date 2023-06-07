@@ -850,7 +850,9 @@ public class App {
 					if(data.length > 6 && data[6] != null && !data[6].isEmpty() && !data[6].isBlank()) {
 						schedule.setMounted(getIntFromStr(data[6]));
 					}
-					
+					if(data.length > 7 && data[7] != null && !data[7].isEmpty() && !data[7].isBlank()) {
+						schedule.setTwists(getIntFromStr(data[7]));
+					}
 					scheduled.add(schedule);
 				}
 			}

@@ -174,6 +174,10 @@ public class ExcelController extends AbstractXlsxView implements InitializingBea
 		cell.setCellStyle(cellStyleSkyBlue);
 		cell.setCellValue("Piezas montadas");
 		
+		cell = header.createCell(col++);
+		cell.setCellStyle(cellStyleSkyBlue);
+		cell.setCellValue("Giros");
+		
 		if(scheduled != null && scheduled.getMovs() != null) {
 			int rowNum = 1;
 			for(Programacion programado : scheduled.getMovs()) {
@@ -199,6 +203,9 @@ public class ExcelController extends AbstractXlsxView implements InitializingBea
 
 				cell = row.createCell(col++);
 				if(programado.getMounted() != null) cell.setCellValue(programado.getMounted());
+				
+				cell = row.createCell(col++);
+				if(programado.getTwists() != null) cell.setCellValue(programado.getTwists());
 			}
 		}
 		

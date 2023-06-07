@@ -172,6 +172,7 @@
 		<result property="movs" column="movimientos"/>
 		<result property="total" column="total"/>
 		<result property="mounted" column="montadas"/>
+		<result property="twists" column="giros"/>
 	</resultMap>
 
 	<insert id="insertToken">
@@ -402,7 +403,7 @@
 	</select>
 	
 	<select id="getProgramacionById" resultMap="Programacion">
-		select id, turno, hora_corr, hora_turno, unidad_esfuerzo, movimientos, total, montadas
+		select id, turno, hora_corr, hora_turno, unidad_esfuerzo, movimientos, total, montadas, giros
 		from programacion
 		where molino_id = #value#
 		order by id
@@ -664,8 +665,8 @@
 	</delete>
 	
 	<insert id="insertSchedule">
-		insert into programacion(molino_id, turno, hora_corr, hora_turno, unidad_esfuerzo, movimientos, total, montadas)
-			values(#molinoId#, #schedule.turn#, #schedule.corrHour#, #schedule.turnHour#, #schedule.unit#, #schedule.movs#, #schedule.total#, #schedule.mounted#)
+		insert into programacion(molino_id, turno, hora_corr, hora_turno, unidad_esfuerzo, movimientos, total, montadas, giros)
+			values(#molinoId#, #schedule.turn#, #schedule.corrHour#, #schedule.turnHour#, #schedule.unit#, #schedule.movs#, #schedule.total#, #schedule.mounted#, #schedule.twists#)
 	</insert>
 	
 	<update id="updateScheduleTask">
