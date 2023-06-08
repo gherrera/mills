@@ -117,6 +117,9 @@ const Step5 = ({ form, prevStep, saveFaena, mode, readOnly, molino, scheduled, n
             },{
                 title: "Piezas montadas",
                 dataIndex: "mounted"
+            },{
+                title: "Giros",
+                dataIndex: "twists"
             }
         ]
 

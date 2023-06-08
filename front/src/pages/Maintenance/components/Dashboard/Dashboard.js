@@ -145,7 +145,7 @@ const Dashboard = ({currentUser}) => {
                     mounted += movs[i].mounted
                 }
                 if(movs[i].twists) {
-                    schedTurn += movs[i].twists
+                    //schedTurn += movs[i].twists
                 }
             }else {
                 break;
@@ -160,7 +160,7 @@ const Dashboard = ({currentUser}) => {
                 if(filteredTurnos[i].mounted) {
                     mounted += filteredTurnos[i].mounted
                 }
-                if(filteredTurnos[i].twists) {
+                if((i === (hour-1) || groupGraph !== 'hora') && filteredTurnos[i].twists) {
                     schedTurn += filteredTurnos[i].twists
                 }
             }else {
@@ -189,7 +189,7 @@ const Dashboard = ({currentUser}) => {
                 o.scheduled = s.sched
                 o.scheduledExec = s.schedExec
                 o.scheduledMounted = s.mounted
-                o.schedTurn = s.schedTurn
+                if(!o.schedTurn || s.schedTurn > 0) o.schedTurn = s.schedTurn
             }
         }
         listValues.push(o)
@@ -281,7 +281,7 @@ const Dashboard = ({currentUser}) => {
                                     entry.scheduled = s.sched
                                     entry.scheduledExec = s.schedExec
                                     entry.scheduledMounted = s.mounted
-                                    entry.schedTurn = s.schedTurn
+                                    if(!entry.schedTurn || s.schedTurn > 0) entry.schedTurn = s.schedTurn
                                 }
                             }
                         }
@@ -341,7 +341,7 @@ const Dashboard = ({currentUser}) => {
                                         entry.scheduled = s.sched
                                         entry.scheduledExec = s.schedExec
                                         entry.scheduledMounted = s.mounted
-                                        entry.schedTurn = s.schedTurn
+                                        if(!entry.schedTurn || s.schedTurn > 0) entry.schedTurn = s.schedTurn
                                     }
                                 }
                             }
@@ -395,7 +395,7 @@ const Dashboard = ({currentUser}) => {
                                             entry.scheduled = s.sched
                                             entry.scheduledExec = s.schedExec
                                             entry.scheduledMounted = s.mounted
-                                            entry.schedTurn = s.schedTurn
+                                            if(!entry.schedTurn || s.schedTurn > 0) entry.schedTurn = s.schedTurn
                                         }
                                     }
                                 }
@@ -465,7 +465,7 @@ const Dashboard = ({currentUser}) => {
                             entry.scheduled =  s.sched
                             entry.scheduledExec = s.schedExec
                             entry.scheduledMounted = s.mounted
-                            entry.schedTurn = s.schedTurn
+                            if(!entry.schedTurn || s.schedTurn > 0) entry.schedTurn = s.schedTurn
                         }else {
                             break
                         }
@@ -1000,7 +1000,8 @@ const Dashboard = ({currentUser}) => {
                                                                     size: 12,
                                                                     color: 'rgba(255, 255, 255, 0)',
                                                                     line: {
-                                                                        width: 3
+                                                                        width: 3,
+                                                                        color: '#407C81'
                                                                     }
                                                                 },
                                                                 name: 'Giro Realizado'
@@ -1017,7 +1018,8 @@ const Dashboard = ({currentUser}) => {
                                                                     size: 12,
                                                                     color: 'rgba(255, 255, 255, 0)',
                                                                     line: {
-                                                                        width: 3
+                                                                        width: 3,
+                                                                        color: '#893508'
                                                                     }
                                                                 },
                                                                 name: 'Giro Programado'
