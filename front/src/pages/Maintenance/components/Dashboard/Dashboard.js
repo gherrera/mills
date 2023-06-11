@@ -227,8 +227,10 @@ const Dashboard = ({currentUser}) => {
         let turnos = []
         let fecIniExec
         let fecMaxExec
+        let fecStart
 
         pMolino.stages && pMolino.stages.map(s => {
+            if(!fecStart) fecStart = s.creationDate
             if(s.stage === 'BEGINNING' || s.stage === 'FINISHED') {
                 s.tasks && s.tasks.map(task => {
                     if(task.finishDate) {
@@ -478,6 +480,10 @@ const Dashboard = ({currentUser}) => {
         if(fecIniExec && fecMaxExec) {
             durationExec = (fecMaxExec - fecIniExec) / 1000
         }
+        let durationTotal = 0
+        if(fecStart && fecMaxExec) {
+            durationTotal = (fecMaxExec - fecStart) / 1000
+        }
 
         const giros = listValues.reduce((accumulator, current) => accumulator + (current.giros ? current.giros : 0), 0)
         const movs = listValues.reduce((accumulator, current) => accumulator + (current.movs ? current.movs : 0), 0)
@@ -515,6 +521,8 @@ const Dashboard = ({currentUser}) => {
         avObj.promMovTurno = nTurnos === 0 ? 0 : Math.round(movsExec/nTurnos)
         avObj.promMinPieza = montadas === 0 ? 0 : (durationExec / 60 / montadas).toFixed(1)
         avObj.promMinMov = movsExec === 0 ? 0 : (durationExec / 60 / movsExec).toFixed(1)
+        avObj.promMinPiezaGlobal = montadas === 0 ? 0 : (durationTotal / 60 / montadas).toFixed(1)
+        avObj.promMinMovGlobal = movsExec === 0 ? 0 : (durationTotal / 60 / movsExec).toFixed(1)
         avObj.hasRetraso = movs < scheduled ? 'Sí' : 'No'
 
         avObj.movimientosReal = movsExec
@@ -538,7 +546,6 @@ const Dashboard = ({currentUser}) => {
         }else {
             setMaxGraph(movMax)
         }
-        debugger
         setDataGraph(vGraph)
         setAvances(avObj)
     }
@@ -847,19 +854,25 @@ const Dashboard = ({currentUser}) => {
                                                 </Col>
                                             </Row>
                                             <Row style={{padding:10}}>
-                                                <Col xs={8} lg={5}>
+                                                <Col xs={8} lg={3}>
                                                     <Statistic title="Prom Mov/Turno" value={avances.promMovTurno}/>
                                                 </Col>
-                                                <Col xs={8} lg={5}>
+                                                <Col xs={8} lg={4}>
+                                                    <Statistic title="Prom Min/Pieza Global" value={avances.promMinPiezaGlobal}/>
+                                                </Col>
+                                                <Col xs={8} lg={4}>
+                                                    <Statistic title="Prom Min/Mov Global" value={avances.promMinMovGlobal}/>
+                                                </Col>
+                                                <Col xs={6} lg={3}>
                                                     <Statistic title="Prom Min/Pieza" value={avances.promMinPieza}/>
                                                 </Col>
-                                                <Col xs={8} lg={5}>
+                                                <Col xs={6} lg={3}>
                                                     <Statistic title="Prom Min/Mov" value={avances.promMinMov}/>
                                                 </Col>
-                                                <Col xs={12} lg={5}>
+                                                <Col xs={6} lg={3}>
                                                     <Statistic title="Giros" value={avances.giros}/>
                                                 </Col>
-                                                <Col xs={12} lg={4}>
+                                                <Col xs={6} lg={4}>
                                                     <Statistic title="Retraso esperado" value={avances.hasRetraso}/>
                                                 </Col>
                                             </Row>
