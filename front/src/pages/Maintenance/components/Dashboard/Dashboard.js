@@ -291,6 +291,15 @@ const Dashboard = ({currentUser}) => {
                         }
                     }
                 })
+                if(s.events) {
+                    const events = s.events.filter(e => e.type === 'INTERRUPTION' && e.finishDate && e.finishDate <= pFecha.valueOf())
+                    if(events && events.length > 0) {
+                        const lastEv = events.pop()
+                        if(!fecMaxFin || lastEv.finishDate > fecMaxFin) {
+                            fecMaxFin = lastEv.finishDate
+                        }
+                    }
+                }
             }else if(s.stage === 'EXECUTION') {
                 fecIniExec = s.creationDate
                 s.tasks && s.tasks.map(task => {
