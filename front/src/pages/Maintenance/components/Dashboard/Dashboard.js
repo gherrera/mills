@@ -227,6 +227,7 @@ const Dashboard = ({currentUser}) => {
         let turnos = []
         let fecIniExec
         let fecMaxExec
+        let fecMaxFin
         let fecStart
 
         pMolino.stages && pMolino.stages.map(s => {
@@ -237,6 +238,7 @@ const Dashboard = ({currentUser}) => {
                         let fecTask = moment(task.finishDate)
 
                         if(fecTask.isSameOrBefore(pFecha)) {
+                            fecMaxFin = task.finishDate
                             const initTurno = moment(task.turnoFinish.creationDate)
                             let hour = Math.ceil((task.finishDate - task.turnoFinish.creationDate) / 1000 / 3600)
                             if(hour > 12) hour = 12
@@ -482,7 +484,11 @@ const Dashboard = ({currentUser}) => {
         }
         let durationTotal = 0
         if(fecStart && fecMaxExec) {
-            durationTotal = (fecMaxExec - fecStart) / 1000
+            if(fecMaxFin && fecMaxFin > fecMaxExec) {
+                durationTotal = (fecMaxFin - fecStart) / 1000
+            }else {
+                durationTotal = (fecMaxExec - fecStart) / 1000
+            }
         }
 
         const giros = listValues.reduce((accumulator, current) => accumulator + (current.giros ? current.giros : 0), 0)
