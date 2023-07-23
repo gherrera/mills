@@ -135,7 +135,7 @@ public class Molino extends Entity {
 		float movs = 0;
 		if(stages != null && scheduled != null) {
 			if(scheduled.getMovs() != null) {
-				total = scheduled.getMovs().stream().mapToInt(Programacion::getTotal).sum();
+				total = scheduled.getMovs().stream().filter(p -> p != null && p.getTotal() != null).mapToInt(Programacion::getTotal).sum();
 			}
 			
 			for(Etapa stage : stages) {
