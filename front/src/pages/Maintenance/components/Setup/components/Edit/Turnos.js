@@ -119,18 +119,16 @@ const Turnos = ({molino, updateTurnoHistorial}) => {
                     <Descriptions.Item label="Turno">{ t('messages.mills.turno.' + turnoEdit.turno.name) }</Descriptions.Item>
                     <Descriptions.Item label="Controlador">{ turnoEdit.turno?.personas?.find(p => p.role === 'CONTROLLER')?.name }</Descriptions.Item>
                     <Descriptions.Item label="Inicio">
-                    <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
-                        allowClear={false} showToday={false}
-                        defaultValue={moment(turnoEdit.creationDate)}
-                        onOk={(d) => changeDateTimeTurno('creationDate', new Date(d))} />
+                        <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
+                            allowClear={false} showToday={false}
+                            defaultValue={moment(turnoEdit.creationDate)}
+                            onOk={(d) => changeDateTimeTurno('creationDate', new Date(d))} />
                     </Descriptions.Item>
                     <Descriptions.Item label="Termino">
-                    { turnoEdit.closedDate &&
                         <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
-                        allowClear={false} showToday={false}
-                        defaultValue={moment(turnoEdit.closedDate)}
-                        onOk={(d) => changeDateTimeTurno('closedDate', new Date(d))} />
-                    }
+                            allowClear={false} showToday={false}
+                            defaultValue={turnoEdit.closedDate && moment(turnoEdit.closedDate)}
+                            onOk={(d) => changeDateTimeTurno('closedDate', new Date(d))} />
                     </Descriptions.Item>
                 </Descriptions>
             </Modal>
