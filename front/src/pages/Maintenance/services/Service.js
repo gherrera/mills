@@ -105,5 +105,12 @@ export default {
       method: 'post',
       body: stage
     })
+  },
+  updateTurnoHistorial: (turno) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/updateTurnoHistorial',
+      method: 'post',
+      body: turno
+    })
   }
 }

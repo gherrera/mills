@@ -43,6 +43,7 @@ import com.htg.mills.entities.maintenance.Programacion;
 import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.TareaParte;
 import com.htg.mills.entities.maintenance.Turno;
+import com.htg.mills.entities.maintenance.TurnoHistorial;
 import com.htg.mills.exceptions.HTGException;
 import com.htg.mills.reader.ExcelReader;
 import com.htg.mills.reader.IReader;
@@ -878,5 +879,10 @@ public class App {
 	public Etapa updateStage(Etapa etapa) {
 		dao.updateStage(etapa);
 		return dao.getEtapaById(etapa.getId());
+	}
+	
+	public TurnoHistorial updateTurnoHistorial(TurnoHistorial turno) {
+		dao.updateTurnoHistorial(turno);
+		return dao.getHistorialTurnoById(turno.getId());
 	}
 }

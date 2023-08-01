@@ -4,6 +4,9 @@
    "messages.mills.stage.FINISHED":"Término",
    "messages.mills.stage.DELIVERY":"Entrega",
 
+   "messages.mills.status.OPEN":"Abierto",
+   "messages.mills.status.CLOSED":"Cerrado",
+ 
    "messages.mills.task.DET_PLANTA":"Detención de Planta",
    "messages.mills.task.BLOQUEO_PRUEBA_ENERGIA_0":"Bloqueo Prueba de Energia Cero",
    "messages.mills.task.RETIRO_CHUTE":"Retiro Chute",

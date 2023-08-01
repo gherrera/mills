@@ -11,6 +11,7 @@ import uploadSchedule from './uploadSchedule'
 import updatePartTask from './updatePartTask'
 import updateTask from './updateTask'
 import updateStage from './updateStage'
+import updateTurnoHistorial from './updateTurnoHistorial'
 
 export const getMolinosPromise = getMolinos
 export const getMolinoPromise = getMolino
@@ -25,3 +26,4 @@ export const uploadSchedulePromise = uploadSchedule
 export const updatePartTaskPromise = updatePartTask
 export const updateTaskPromise = updateTask
 export const updateStagePromise = updateStage
+export const updateTurnoHistorialPromise = updateTurnoHistorial

@@ -675,4 +675,13 @@
 		where id = #id#
 	</update>
 	
+	<update id="updateTurnoHistorial">
+		update turno_historial
+			set fecha_inicio = #creationDate#
+			<isNotNull property="closedDate">
+				, fecha_termino = #closedDate#
+			</isNotNull>
+		where id = #id#
+	</update>
+	
 </sqlMap>

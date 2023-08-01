@@ -4,6 +4,9 @@
   "messages.mills.stage.FINISHED":"Finished",
   "messages.mills.stage.DELIVERY":"Delivery",
 
+  "messages.mills.status.OPEN":"Open",
+  "messages.mills.status.CLOSED":"Closed",
+
   "messages.mills.task.DET_PLANTA":"Plant Stop",
   "messages.mills.task.BLOQUEO_PRUEBA_ENERGIA_0":"Zero Energy Test Lock",
   "messages.mills.task.RETIRO_CHUTE":"Chute Retreat",

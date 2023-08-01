@@ -8,6 +8,7 @@ import Personal from './Personal'
 import Piezas from './Piezas'
 import Avance from './Avance'
 import Programado from './Programado'
+import Turnos from './Turnos'
 
 import { saveMolinoPromise, getMolinoPromise } from '../../../../promises'
 
@@ -181,6 +182,12 @@ const Edit = ({molino, action, loadMolinos }) => {
     setProgramado(p)
   }
 
+  const updateTurnoHistorial = (turnoHistorial) => {
+    let molinoObj = {...molinoVar}
+    molinoObj.turnoHistorial = turnoHistorial
+    setMolinoVar(molinoObj)
+  }
+
   return (
     <div className='edit'>
         { (action === 'new' || action === 'setup') &&
@@ -203,6 +210,9 @@ const Edit = ({molino, action, loadMolinos }) => {
         </Row>
         <Row className="section">
           <Programado key={action+"-"+mode} molino={molinoVar} action={action} readOnly={readOnly} mode={mode} handleChangeProgramado={handleChangeProgramado} initForm={initFormScheduled} />
+        </Row>
+        <Row className="section">
+          <Turnos key={action+"-"+mode} molino={molinoVar} updateTurnoHistorial={updateTurnoHistorial} />
         </Row>
 
         { (action === "STARTED" || action === "FINISHED") &&

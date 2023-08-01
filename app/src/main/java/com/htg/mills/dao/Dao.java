@@ -963,4 +963,21 @@ public class Dao {
 			return null;
 		}
 	}
+	
+	public void updateTurnoHistorial(TurnoHistorial turno) {
+		try {
+			sqlMap.update("updateTurnoHistorial", turno);
+		} catch (SQLException e) {
+			log.error("Error al modificar datos", e);
+		}
+	}
+	
+	public TurnoHistorial getHistorialTurnoById(String id) {
+		try {
+			return (TurnoHistorial)sqlMap.queryForObject("getHistorialTurnoById", id);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
 }
