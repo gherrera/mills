@@ -78,13 +78,13 @@ const Turnos = ({molino, updateTurnoHistorial}) => {
         title: 'Fecha de Inicio',
         dataIndex: 'creationDate',
         render: (creationDate, record) => {
-            return <Button type="link" onClick={() => editTurno(record)}>{ moment(creationDate).format("DD/MM/YYYY HH:mm") }</Button>
+            return <Button type="link" size='small' onClick={() => editTurno(record)}>{ moment(creationDate).format("DD/MM/YYYY HH:mm") }</Button>
         }
     }, {
         title: 'Fecha de Término',
         dataIndex: 'closedDate',
         render: (closedDate, record) => {
-            return closedDate && <Button type="link" onClick={() => editTurno(record)}>{ moment(closedDate).format("DD/MM/YYYY HH:mm") }</Button>
+            return closedDate && <Button type="link" size='small' onClick={() => editTurno(record)}>{ moment(closedDate).format("DD/MM/YYYY HH:mm") }</Button>
         }
     }
   ]
@@ -98,7 +98,7 @@ const Turnos = ({molino, updateTurnoHistorial}) => {
             </Col>
         </Row>
         { showAll &&
-            <Table dataSource={molino.turnoHistorial} columns={columnsTurnos} size='small' />
+            <Table dataSource={molino.turnoHistorial} columns={columnsTurnos} size='small' pagination={molino.turnoHistorial.length > 10} />
         }
         { turnoEdit &&
             <Modal
