@@ -53,7 +53,7 @@ const Turnos = ({molino, updateTurnoHistorial}) => {
   }
 
   const changeDateTimeTurno = (attr, d) => {
-    setTurnoEdit({ ...turnoEdit, save: true, [attr]: d.getTime()})
+    setTurnoEdit({ ...turnoEdit, save: true, [attr]: d ? d.getTime() : null})
   }
 
   const columnsTurnos = [
@@ -126,9 +126,10 @@ const Turnos = ({molino, updateTurnoHistorial}) => {
                     </Descriptions.Item>
                     <Descriptions.Item label="Termino">
                         <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
-                            allowClear={false} showToday={false}
+                            allowClear={true} showToday={false}
                             defaultValue={turnoEdit.closedDate && moment(turnoEdit.closedDate)}
-                            onOk={(d) => changeDateTimeTurno('closedDate', new Date(d))} />
+                            onChange={(d) => changeDateTimeTurno('closedDate', d ? new Date(d) : null)} 
+                            />
                     </Descriptions.Item>
                 </Descriptions>
             </Modal>
