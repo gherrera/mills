@@ -187,7 +187,7 @@ class AdminUsers extends React.Component {
             return 'Controlador'
           case 'DASHBOARD':
             return 'Dashboard'
-            default:
+          default:
             return text
         }
       })

@@ -196,6 +196,36 @@ const Step4 = ({form, personal, prevStep, nextStep, usuarios, notifPersonal, mod
                                 <Select.Option value="CONTROLLER">Controlador</Select.Option>
                                 <Select.Option value="Operario">Operario</Select.Option>
                                 <Select.Option value="Ayudante">Ayudante</Select.Option>
+                                <Select.Option value="Torchador/Carrero/Mecánico">Torchador/Carrero/Mecánico</Select.Option>
+                                <Select.Option value="Torchador/Mecánico">Torchador/Mecánico</Select.Option>
+                                <Select.Option value="Oxigenista/Mecánico">Oxigenista/Mecánico</Select.Option>
+                                <Select.Option value="Armador/Mecánico">Armador/Mecánico</Select.Option>
+                                <Select.Option value="Lider Mecánico">Lider Mecánico</Select.Option>
+                                <Select.Option value="Supervisor de Torque">Supervisor de Torque</Select.Option>
+                                <Select.Option value="Mecánico">Mecánico</Select.Option>
+                                <Select.Option value="Señalero/Mecánico">Señalero/Mecánico</Select.Option>
+                                <Select.Option value="Control Pieza">Control Pieza</Select.Option>
+                                <Select.Option value="Asesor en prevención de riesgo">Asesor en prevención de riesgo</Select.Option>
+                                <Select.Option value="Prevencionista de Riesgos">Prevencionista de Riesgos</Select.Option>
+                                <Select.Option value="Mecánico/Bodeguero">Mecánico/Bodeguero</Select.Option>
+                                <Select.Option value="Mecánico/Conductor Camión Pañol">Mecánico/Conductor Camión Pañol</Select.Option>
+                                <Select.Option value="Conductor de Buses">Conductor de Buses</Select.Option>
+                                <Select.Option value="Mecánico/Vigía del fuego">Mecánico/Vigía del fuego</Select.Option>
+                                <Select.Option value="Mecánico/Vigía Espacios Confinados">Mecánico/Vigía Espacios Confinados</Select.Option>
+                                <Select.Option value="Mecánico/Operador Grúa Horquilla">Mecánico/Operador Grúa Horquilla</Select.Option>
+                                <Select.Option value="Mecánico/Operador máquina Lainera">Mecánico/Operador máquina Lainera</Select.Option>
+                                <Select.Option value="Mecánico/Operador Puente Grúa">Mecánico/Operador Puente Grúa</Select.Option>
+                                <Select.Option value="Planificador/Mecánico">Planificador/Mecánico</Select.Option>
+                                <Select.Option value="Supervisor de cambio de revestimiento">Supervisor de cambio de revestimiento</Select.Option>
+                                <Select.Option value="Mecánico/Soldador">Mecánico/Soldador</Select.Option>
+                                <Select.Option value="Rigger/Mecánico">Rigger/Mecánico</Select.Option>
+                                <Select.Option value="Gerente General">Gerente General</Select.Option>
+                                <Select.Option value="Mecánico/Andamiero">Mecánico/Andamiero</Select.Option>
+                                <Select.Option value="Supervisor de Andamios">Supervisor de Andamios</Select.Option>
+                                <Select.Option value="Administrador de Contrato">Administrador de Contrato</Select.Option>
+                                <Select.Option value="Administración & Logística">Administración & Logística</Select.Option>
+                                <Select.Option value="Gerente Operacional">Gerente Operacional</Select.Option>
+                                <Select.Option value="Ingeniero en Gestión">Ingeniero en Gestión</Select.Option>
                               </Select>
                           )}
                       </Form.Item>
