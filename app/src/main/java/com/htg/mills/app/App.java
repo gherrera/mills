@@ -37,6 +37,7 @@ import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
 import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
+import com.htg.mills.entities.maintenance.Evento;
 import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Persona;
 import com.htg.mills.entities.maintenance.Programacion;
@@ -884,5 +885,10 @@ public class App {
 	public TurnoHistorial updateTurnoHistorial(TurnoHistorial turno) {
 		dao.updateTurnoHistorial(turno);
 		return dao.getHistorialTurnoById(turno.getId());
+	}
+	
+	public Evento updateEvento(Evento evento) {
+		dao.updateEvento(evento);
+		return dao.getEventoById(evento.getId());
 	}
 }

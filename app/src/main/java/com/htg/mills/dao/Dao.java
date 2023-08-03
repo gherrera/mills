@@ -972,6 +972,23 @@ public class Dao {
 		}
 	}
 	
+	public void updateEvento(Evento evento) {
+		try {
+			sqlMap.update("updateEventoEtapa", evento);
+		} catch (SQLException e) {
+			log.error("Error al modificar datos", e);
+		}
+	}
+	
+	public Evento getEventoById(Integer id) {
+		try {
+			return (Evento)sqlMap.queryForObject("getEventosById", id);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+	
 	public TurnoHistorial getHistorialTurnoById(String id) {
 		try {
 			return (TurnoHistorial)sqlMap.queryForObject("getHistorialTurnoById", id);

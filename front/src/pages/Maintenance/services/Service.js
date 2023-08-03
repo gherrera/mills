@@ -112,5 +112,12 @@ export default {
       method: 'post',
       body: turno
     })
+  },
+  updateEvento: (evento) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/updateEvento',
+      method: 'post',
+      body: evento
+    })
   }
 }

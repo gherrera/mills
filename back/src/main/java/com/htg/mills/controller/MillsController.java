@@ -44,6 +44,7 @@ import com.htg.mills.entities.ScheduleStatus;
 import com.htg.mills.entities.Usuario;
 import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
+import com.htg.mills.entities.maintenance.Evento;
 import com.htg.mills.entities.maintenance.Molino;
 import com.htg.mills.entities.maintenance.Tarea;
 import com.htg.mills.entities.maintenance.TareaParte;
@@ -518,6 +519,12 @@ public class MillsController {
 	@ResponseBody
 	public TurnoHistorial updateTurnoHistorial(@RequestBody TurnoHistorial turno) {
 		return app.updateTurnoHistorial(turno);
+	}
+	
+	@PostMapping("updateEvento")
+	@ResponseBody
+	public Evento updateEvento(@RequestBody Evento evento) {
+		return app.updateEvento(evento);
 	}
 
 }

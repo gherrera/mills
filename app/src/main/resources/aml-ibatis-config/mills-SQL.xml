@@ -352,6 +352,19 @@
 		order by fecha_inicio
 	</select>
 	
+	<update id="updateEventoEtapa">
+		update 	etapa_eventos
+			set fecha_inicio = #startDate#,
+				fecha_termino = #finishDate#
+		where id = #id#
+	</update>
+	
+	<select id="getEventosById" resultMap="Evento">
+		select id, fecha_inicio, tipo, comentarios, fecha_termino, user_inicio, user_termino
+		from etapa_eventos
+		where id = #value#
+	</select>
+
 	<select id="getTareasByEtapa" resultMap="Tarea">
 		select id, fecha_inicio, tarea, fecha_termino, user_inicio, user_termino, turno_id_inicio, turno_id_termino
 		from etapa_tareas
@@ -493,9 +506,7 @@
 	<update id="updateTarea">
 		update etapa_tareas
 			set fecha_inicio = #creationDate#
-			<isNotNull property="finishDate">
 				, fecha_termino = #finishDate#
-			</isNotNull>
 		where id = #id#
 	</update>
 	

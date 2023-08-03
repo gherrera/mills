@@ -5,7 +5,7 @@ import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoon, faSun } from '@fortawesome/free-regular-svg-icons'
-import { updatePartTaskPromise, updateTaskPromise, updateStagePromise } from '../../../../promises'
+import { updatePartTaskPromise, updateTaskPromise, updateStagePromise, updateEventoPromise } from '../../../../promises'
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -21,6 +21,7 @@ const AvanceFase = ({molino, stage}) => {
     const [ recordTask, setRecordTask ] = useState(null)
     const [ tasks, setTasks ] = useState(stage.tasks)
     const [ vstage, setVstage ] = useState(stage)
+    const [ eventoEdit, setEventoEdit ] = useState(null)
 
   useEffect(() => {
     if(stage.stage === 'EXECUTION') {
@@ -237,39 +238,77 @@ const AvanceFase = ({molino, stage}) => {
   const onCancelModalInterruptions = () => {
     setInterruptions(null)
   }
+  
+  const editEvento = (evento) => {
+    setEventoEdit(evento)
+  }
+  
+  const onCancelModalEvento = () => {
+    setEventoEdit(null)
+  }
+
+  const saveEvento = () => {
+    confirm({
+        title: 'Está seguro de modificar la Fecha/Hora del Evento?',
+        onOk() {
+            updateEventoPromise(eventoEdit).then(evento => {
+                onCancelModalEvento()
+    
+                notification.success({
+                    message: 'Evento',
+                    description: 'Fechas actualizadas'
+                })
+                let _interruptions = [...interruptions]
+                _interruptions.map(t => {
+                    if(t.id === evento.id) {
+                      t.startDate = evento.startDate
+                      t.finishDate = evento.finishDate
+                    }
+                  })
+                setInterruptions(_interruptions)
+            })
+        }
+      });
+  }
+
+  const changeDateTimeEvento = (attr, d) => {
+    setEventoEdit({ ...eventoEdit, save: true, [attr]: d ? d.getTime() : null})
+  }
+
+  const getDescTypeEvento = (type) => {
+    if(type === 'INTERRUPTION') return 'Interrupción'
+    else if(type === 'COMMENT') return 'Comentario'
+  }
 
   const interruptionsColumns = [
     {
       title: 'Tipo',
       dataIndex: 'type',
-      width: '15%',
-      render: (type) => {
-          if(type === 'INTERRUPTION') return 'Interrupción'
-          else if(type === 'COMMENT') return 'Comentario'
-        }
+      width: '10%',
+      render: (type) => getDescTypeEvento(type)
     },
     {
       title: 'Fecha Inicio',
       dataIndex: 'startDate',
       width: '15%',
-      render: (startDate) => moment(startDate).format('DD/MM/YYYY HH:mm')
+      render: (startDate, record) => <Button type="link" size='small' onClick={() => editEvento(record)}>{ moment(startDate).format("DD/MM/YYYY HH:mm") }</Button>
     },
     {
       title: 'Fecha Término',
       dataIndex: 'finishDate',
       width: '15%',
-      render: (finishDate) => finishDate && moment(finishDate).format('DD/MM/YYYY HH:mm')
+      render: (finishDate, record) => finishDate && <Button type="link" size='small' onClick={() => editEvento(record)}>{ moment(finishDate).format("DD/MM/YYYY HH:mm") }</Button>
     },
     {
       title: 'Observaciones',
       dataIndex: 'comments',
-      width: '55%',
+      width: '60%',
       render: (text) => <pre>{text}</pre>
     }
   ]
 
   const changeDateTimeTask = (attr, d) => {
-    setRecordTask({ ...recordTask, save: true, [attr]: d.getTime()})
+    setRecordTask({ ...recordTask, save: true, [attr]: d ? d.getTime() : null})
   }
 
   const changeDateTimePartTask = (d) => {
@@ -475,7 +514,7 @@ const AvanceFase = ({molino, stage}) => {
           <Modal
             title="Eventos"
             visible={true}
-            width={900}
+            width={1200}
             wrapClassName="modalInterruptions"
             onCancel={onCancelModalInterruptions}
             footer={ [
@@ -513,12 +552,10 @@ const AvanceFase = ({molino, stage}) => {
                     onOk={(d) => changeDateTimeTask('creationDate', new Date(d))} />
                 </Descriptions.Item>
                 <Descriptions.Item label="Termino">
-                  { recordTask.finishDate &&
                     <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
-                      allowClear={false} showToday={false}
-                      defaultValue={moment(recordTask.finishDate)}
-                      onOk={(d) => changeDateTimeTask('finishDate', new Date(d))} />
-                  }
+                      allowClear={true} showToday={false}
+                      defaultValue={recordTask.finishDate && moment(recordTask.finishDate)}
+                      onChange={(d) => changeDateTimeTask('finishDate', d ? new Date(d) : null)} />
                 </Descriptions.Item>
               </Descriptions>
           </Modal>
@@ -552,6 +589,40 @@ const AvanceFase = ({molino, stage}) => {
               </Descriptions.Item>
             </Descriptions>
           </Modal>
+        }
+        { eventoEdit &&
+            <Modal
+                title="Detalle de Evento"
+                visible={true}
+                width={800}
+                onCancel={onCancelModalEvento}
+                footer={ [
+                    <Button disabled={!eventoEdit.save} onClick={saveEvento}>
+                      Guardar
+                    </Button>,
+                    <Button onClick={onCancelModalEvento}>
+                      Cerrar
+                    </Button>
+                  ]}
+            >
+                <Descriptions bordered size="small" layout="vertical" column={2}>
+                    <Descriptions.Item label="Tipo">{ getDescTypeEvento(eventoEdit.type) }</Descriptions.Item>
+                    <Descriptions.Item label=""></Descriptions.Item>
+                    <Descriptions.Item label="Inicio">
+                        <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
+                            allowClear={false} showToday={false}
+                            defaultValue={moment(eventoEdit.startDate)}
+                            onOk={(d) => changeDateTimeEvento('startDate', new Date(d))} />
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Termino">
+                        <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
+                            allowClear={true} showToday={false}
+                            defaultValue={eventoEdit.finishDate && moment(eventoEdit.finishDate)}
+                            onChange={(d) => changeDateTimeEvento('finishDate', d ? new Date(d) : null)} 
+                            />
+                    </Descriptions.Item>
+                </Descriptions>
+            </Modal>
         }
     </div>
   )
