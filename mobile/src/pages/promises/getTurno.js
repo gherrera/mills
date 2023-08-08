@@ -1,9 +1,9 @@
 import services from '../services/services'
 
-export default (id) => {
+export default (id, validateErrors=true) => {
   return new Promise((resolve, reject) => {
-    services.getTurno(id)
+    services.getTurno(id, validateErrors)
       .then(response => resolve(response.data))
-      .catch(err => reject(err))
+      .catch(err => resolve({ error: true }))
   })
 }

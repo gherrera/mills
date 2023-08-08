@@ -344,14 +344,17 @@ export default class Turno extends Component {
             for(let i=0;i<requestPending.length;i++) {
                 const config = requestPending[i]
                 config.url = config.url.replace('Task1','Task')
-                const response = await new Promise((resolve, reject) => apiRequestorHelper({ cfg: config }).then(r => resolve(r)).catch(e => resolve({error:true})));
+                const response = await new Promise((resolve, reject) => apiRequestorHelper({ cfg: config }, false).then(r => resolve(r)).catch(e => resolve({error:true})));
                 if(response.error) {
                     errores = true
                     break;
                 }else {
                     pending[i].success = true;
                     this.setState({requestPending: pending})
-                    _turno = await getTurnoPromise(this.state.turno.id);
+                    const t = await getTurnoPromise(this.state.turno.id, false);
+                    if(t && !t.error) {
+                        _turno = t
+                    }
                 }
             }
             const pendingNotSuccess = pending.filter(p => p.success === undefined)

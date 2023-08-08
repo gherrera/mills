@@ -8,14 +8,14 @@ export default {
       method: 'post'
     })
   },
-  getTurno: (id) => {
+  getTurno: (id, validateErrors=true) => {
     return apiRequestorHelper({
       url: apiConfig.url + '/getTurno',
       method: 'post',
       body: {
         id
       }
-    })
+    }, validateErrors)
   },
   inicioTurno: (id, online) => {
     return apiRequestorHelper({
