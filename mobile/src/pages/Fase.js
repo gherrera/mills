@@ -215,10 +215,10 @@ export default class Fase extends Component {
                                     }
                                     this.setTurno(response.data)
                                     handleConnection({ status: true })
-                                    this.setState({ isLoadingGlobal: false })
                                 }else {
                                     this.finishTaskOnError(response.config)
                                 }
+                                this.setState({ isLoadingGlobal: false })
                             })
                             .catch(e => {
                                this.finishTaskOnError(e.config)
@@ -509,7 +509,6 @@ export default class Fase extends Component {
     }
 
     render() {
-        const { currentUser, returnMenu } = this.props
         const { turno, isModalVisible, isModalStartExecution, currentStage, isLoadingButton, showModalReapriete, showRepriete, isLoadingGlobal } = this.state
         const {t, i18n} = this.props.screenProps; 
         const molino = turno.molino
