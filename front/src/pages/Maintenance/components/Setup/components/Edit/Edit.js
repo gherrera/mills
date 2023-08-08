@@ -9,6 +9,7 @@ import Piezas from './Piezas'
 import Avance from './Avance'
 import Programado from './Programado'
 import Turnos from './Turnos'
+import Actividades from './Actividades'
 
 import { saveMolinoPromise, getMolinoPromise } from '../../../../promises'
 
@@ -220,6 +221,9 @@ const Edit = ({molino, action, loadMolinos }) => {
               <Avance key={action+"-"+mode} molino={molinoVar} action={action} mode={mode} />
           </Row>
         }
+        <Row className="section">
+            <Actividades key={action+"-"+mode} molino={molinoVar} />
+        </Row>
     </div>
   )
 }

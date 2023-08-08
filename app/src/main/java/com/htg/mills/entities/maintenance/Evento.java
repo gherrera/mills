@@ -2,6 +2,8 @@ package com.htg.mills.entities.maintenance;
 
 import java.sql.Timestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Evento {
 
 	public enum Type {
@@ -15,6 +17,8 @@ public class Evento {
 	private Timestamp finishDate;
 	private String userStart;
 	private String userFinish;
+	@JsonIgnore
+	private Etapa stage;
 
 	public Type getType() {
 		return type;
@@ -57,6 +61,12 @@ public class Evento {
 	}
 	public void setStartDate(Timestamp startDate) {
 		this.startDate = startDate;
+	}
+	public Etapa getStage() {
+		return stage;
+	}
+	public void setStage(Etapa stage) {
+		this.stage = stage;
 	}
 	
 	

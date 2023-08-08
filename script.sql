@@ -176,3 +176,31 @@ rut VARCHAR(20),
 nombre VARCHAR(200),
 fecha TIMESTAMP
 );
+
+CREATE TABLE log_operacion(
+id INT NOT NULL AUTO_INCREMENT,
+molino_id VARCHAR(50) NOT NULL,
+fecha TIMESTAMP,
+fecha_log TIMESTAMP,
+usuario VARCHAR(50),
+turno VARCHAR(20),
+entidad VARCHAR(20),
+ext_id VARCHAR(50),
+operacion VARCHAR(50),
+params VARCHAR(255),
+FOREIGN KEY(molino_id) REFERENCES molinos(id),
+PRIMARY KEY(id)
+);
+
+CREATE TABLE log_auditoria(
+id INT NOT NULL AUTO_INCREMENT,
+molino_id VARCHAR(50) NOT NULL,
+fecha TIMESTAMP,
+fecha_log TIMESTAMP,
+usuario VARCHAR(50),
+turno VARCHAR(20),
+operacion VARCHAR(50),
+params VARCHAR(255),
+FOREIGN KEY(molino_id) REFERENCES molinos(id),
+PRIMARY KEY(id)
+);

@@ -12,11 +12,12 @@ import {
 } from 'react-native';
 import { Button, Tab, TabView, CheckBox } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
-
+import Spinner from 'react-native-loading-spinner-overlay';
 import { inicioTurnoPromise, finTurnoPromise, getTurnoPromise, startInterruptionPromise, finishInterruptionPromise } from './promises';
 import { FasePage } from '.';
-
 import StylesGlobal from './StylesGlobal';
+import { apiRequestorHelper } from '../helpers';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const styles = StyleSheet.create({
     primaryButton: {
@@ -57,7 +58,12 @@ export default class Turno extends Component {
         isVisibleInterruption: false,
         comments: null,
         stopFaena: true,
-        isLoadingInterruption: false
+        isLoadingInterruption: false,
+        isLoadingApi: false,
+        modoOnline: true,
+        requestPending: [],
+        attemptingCalls: false,
+        keyFase: Math.random()
     }
 
     constructor(props) {
@@ -69,7 +75,8 @@ export default class Turno extends Component {
         t.return = this.props.turno.return
         t.molino.activeStage = t.molino.stages.length - 1
         this.setState({
-            turno: t
+            turno: t,
+            keyFase: Math.random()
         })
     }
 
@@ -85,12 +92,32 @@ export default class Turno extends Component {
         })
     }
 
+    async verifyPendingTasks() {
+        const rp = await AsyncStorage.getItem('requestPending')
+        const t = await AsyncStorage.getItem('turno')
+        if(rp && rp !== "" && t && t !== "") {
+            const requestPending = JSON.parse(rp);
+            const _turno = JSON.parse(t);
+            if(requestPending && requestPending.length > 0) {
+                this.setState({ modoOnline: false, requestPending})
+                this.setTurno(_turno)
+                this.setState({isLoadingApi: true})
+                const t = await this.handleConnectionInit(false, requestPending)
+                this.setState({isLoadingApi: false})
+                if(t.turno) {
+                    this.setTurno(t.turno)
+                }
+            }
+        }
+    }
+
     componentDidMount() {
         this.init()
         BackHandler.addEventListener(
             "hardwareBackPress",
             this.backActionHandler
         );
+        this.verifyPendingTasks();
     }
 
     componentWillUnmount() {
@@ -115,6 +142,12 @@ export default class Turno extends Component {
         })
     }
 
+    inicioTurnoOnError(turno, config) {
+        const t = { ...turno, open: true}
+        this.setTurno(t)
+        this.handleConnection({ status: false, config, turno: t })
+    }
+
     handleInicioTurnoClick() {
         const { turno, isVisibleInterruption } = this.state
         if(turno.status !== 'OPEN') {
@@ -127,26 +160,55 @@ export default class Turno extends Component {
                     onPress: () => console.log("Cancel Pressed"),
                     style: "cancel"
                   },
-                  { text: "Iniciar Turno", onPress: () => {
-                        inicioTurnoPromise(turno.id).then(r => {
-                            r.open = true
-                            this.setTurno(r)
+                  { text: "Iniciar Turno", onPress: async () => {
+                        const conn = await this.handleConnection();
+                        if(!conn.errores && conn.turno) {
+                            this.setTurno(conn.turno)
+                        }
+                        inicioTurnoPromise(turno.id, !conn.errores).then(r => {
+                            if(r.data) {
+                                r.data.open = true
+                                this.setTurno(r.data)
+                                this.handleConnection({ status: true })
+                            }else {
+                                this.inicioTurnoOnError(turno, r.config)
+                            }
+                        })
+                        .catch(e => {
+                            this.inicioTurnoOnError(turno, e.config)
                         })
                     }
                   }
                 ]
             );
         }else {
-            turno.open = true
-            this.setTurno(turno)
+            this.setTurno({ ...turno, open: true })
         }
     }
 
-    finTurno() {
+    finTurnoOnError(turno, config) {
+        const t = { ...turno, open: false }
+        this.setTurno(t)
+        this.handleConnection({ status: false, config, turno: t })
+    }
+
+    async finTurno() {
         const { turno } = this.state
-        finTurnoPromise(turno.id).then(r => {
-            this.setTurno(r)
+        const conn = await this.handleConnection();
+        if(!conn.errores && conn.turno) {
+            this.setTurno(conn.turno)
+        }
+        await finTurnoPromise(turno.id, !conn.errores).then(r => {
+            if(r.data) {
+                this.setTurno(r.data)
+                this.handleConnection({ status: true })
+            }else {
+                this.finTurnoOnError(turno, r.config)
+            }
         })
+        .catch(e => {
+            this.finTurnoOnError(turno, e.config)
+        });
     }
 
     handleInterrupcionClick() {
@@ -161,32 +223,82 @@ export default class Turno extends Component {
         })
     }
 
-    handleStartInterruption() {
+    startInterruptionOnError(turno, config) {
+        let _turno = { ...turno, open: true }
+        _turno.molino.currentStage.hasInterruption = true
+        _turno.molino.currentStage.events.push({type: 'INTERRUPTION', finishDate: null})
+        this.setTurno(_turno)
+        this.handleConnection({ status: false, config, turno: _turno })
+    }
+
+    async handleStartInterruption() {
         const { turno, comments, stopFaena } = this.state
         this.setState({isLoadingInterruption:true})
-        startInterruptionPromise(turno.id, stopFaena, comments).then(t => {
-            t.open = true
-            this.setTurno(t)
+        const conn = await this.handleConnection();
+        if(!conn.errores && conn.turno) {
+            this.setTurno(conn.turno)
+        }
+        startInterruptionPromise(turno.id, stopFaena, comments, !conn.errores).then(t => {
             this.setState({
                 comments: null,
                 stopFaena: true,
                 isLoadingInterruption: false,
                 isVisibleInterruption: stopFaena
             })
+            if(t.data) {
+                this.setTurno({ ...t.data, open: true })
+                this.handleConnection({ status: true })
+            }else {
+                this.startInterruptionOnError(turno, t.config)
+            }
         })
+        .catch(e => {
+            this.setState({
+                comments: null,
+                stopFaena: true,
+                isLoadingInterruption: false,
+                isVisibleInterruption: stopFaena
+            })
+            this.startInterruptionOnError(turno, e.config)
+        });
     }
 
-    handleFinishInterruption() {
+    finishInterruptionOnError(turno, config) {
+        const _turno = { ...turno, open: true }
+        _turno.molino.currentStage.hasInterruption = false
+        _turno.molino.currentStage.events.filter(e => e.type === 'INTERRUPTION' && e.finishDate === null).map(e => {
+            e.finishDate = Date.now()
+        })
+        this.setTurno(_turno)
+        this.handleConnection({ status: false, config, turno: _turno })
+    }
+
+    async handleFinishInterruption() {
         const { turno } = this.state
         this.setState({isLoadingInterruption:true})
-        finishInterruptionPromise(turno.id).then(t => {
-            t.open = true
-            this.setTurno(t)
+        const conn = await this.handleConnection();
+        if(!conn.errores && conn.turno) {
+            this.setTurno(conn.turno)
+        }
+        finishInterruptionPromise(turno.id, !conn.errores).then(t => {
             this.setState({
                 isVisibleInterruption: false,
                 isLoadingInterruption: false
             })
+            if(t.data) {
+                this.setTurno({ ...t.data, open: true })
+                this.handleConnection({ status: true })
+            }else {
+                this.finishInterruptionOnError(turno, t.config)
+            }
         })
+        .catch(e => {
+            this.setState({
+                isVisibleInterruption: false,
+                isLoadingInterruption: false
+            })
+            this.finishInterruptionOnError(turno, e.config)
+        });
     }
 
     handleFinTurnoClick() {
@@ -222,13 +334,94 @@ export default class Turno extends Component {
         else return role
     }
 
+    async handleConnectionInit(modoOnline, requestPending) {
+        if(!modoOnline && requestPending.length > 0) {
+            console.log('Intenta liberar pendientes: ' + requestPending.length);
+            this.setState({attemptingCalls: true})
+            let errores = false
+            let pending = [...requestPending]
+            let _turno = null
+            for(let i=0;i<requestPending.length;i++) {
+                const config = requestPending[i]
+                config.url = config.url.replace('Task1','Task')
+                const response = await new Promise((resolve, reject) => apiRequestorHelper({ cfg: config }).then(r => resolve(r)).catch(e => resolve({error:true})));
+                if(response.error) {
+                    errores = true
+                    break;
+                }else {
+                    pending[i].success = true;
+                    this.setState({requestPending: pending})
+                    _turno = await getTurnoPromise(this.state.turno.id);
+                }
+            }
+            const pendingNotSuccess = pending.filter(p => p.success === undefined)
+            this.setState({requestPending: pendingNotSuccess, modoOnline: !errores, attemptingCalls: false})
+
+            AsyncStorage.setItem('requestPending', JSON.stringify(pendingNotSuccess))
+
+            if(!errores && pendingNotSuccess.length === 0) {
+                Alert.alert('Información', 'Conexión restaurada, activa modo ONLINE');
+                AsyncStorage.removeItem('requestPending')
+                AsyncStorage.removeItem('turno')
+            }
+
+            this.setState({isLoadingApi: false})
+            return { errores, turno: _turno };
+        }else {
+            this.setState({isLoadingApi: false})
+            return { errores: requestPending.length > 0 };
+        }
+    }
+
+    async handleConnection({ status, config, turno } = {} ) {
+        const { requestPending, modoOnline } = this.state
+        
+        this.setState({isLoadingApi: true})
+        if(status === undefined) {
+            return this.handleConnectionInit(modoOnline, requestPending)
+        }else {
+            if(!status) {
+                let pending = [...requestPending]
+                pending.push(config)
+                if(modoOnline) {
+                    Alert.alert('Error', 'Se produjo un error de Conexion, activa modo OFFLINE');
+                }
+                this.setState({modoOnline: false, requestPending: pending})
+
+                AsyncStorage.setItem('requestPending', JSON.stringify(pending))
+                AsyncStorage.setItem('turno', JSON.stringify(turno))
+            }else if(!modoOnline) {
+                this.setState({modoOnline: true})
+                Alert.alert('Información', 'Conexión restaurada, activa modo ONLINE');
+
+                AsyncStorage.removeItem('requestPending')
+                AsyncStorage.removeItem('turno')
+            }
+            this.setState({isLoadingApi: false})
+        }
+    }
+
     render() {
         const { currentUser } = this.props
-        const { tabIndex, turno, isVisibleInterruption, isLoadingInterruption, stopFaena } = this.state
+        const { tabIndex, turno, isVisibleInterruption, isLoadingInterruption, stopFaena, modoOnline, isLoadingApi, requestPending, attemptingCalls } = this.state
         const {t, i18n} = this.props.screenProps; 
 
         return (
             <View style={{height: this.props.height}}>
+                { isLoadingApi && <Spinner visible={true} /> }
+                <Text style={{color: modoOnline ? 'green' : 'red', textAlign:'center'}}>
+                { modoOnline ?
+                    'Modo Online'
+                    : attemptingCalls ?
+                    <>
+                        Enviando: {requestPending.filter(p => p.success).length}/{requestPending.length}
+                    </>
+                    :
+                    <>
+                        Modo Offline: {requestPending.length}
+                    </>
+                }
+                </Text>
                 { isVisibleInterruption &&
                     <Modal
                         animationType="fade"
@@ -308,7 +501,7 @@ export default class Turno extends Component {
                 }
                 <View style={{padding:5, height: this.props.height-styles.footer.height+5}}>
                     { turno.open === true ?
-                        <FasePage key={Math.random()} currentUser={currentUser} turno={turno} finTurno={this.finTurno.bind(this)} returnMenu={this.returnMenuFase.bind(this)}  screenProps={this.props.screenProps} />
+                        <FasePage key={this.state.keyFase} currentUser={currentUser} turno={turno} finTurno={this.finTurno.bind(this)} returnMenu={this.returnMenuFase.bind(this)}  screenProps={this.props.screenProps} handleConnection={this.handleConnection.bind(this)} />
                     :
                     <>
                         <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">

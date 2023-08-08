@@ -1,9 +1,18 @@
 import services from '../services/services'
 
-export default (id, stopFaena, comments) => {
+export default (id, stopFaena, comments, online) => {
+  const req = services.startInterruption(id, stopFaena, comments, online);
   return new Promise((resolve, reject) => {
-    services.startInterruption(id, stopFaena, comments)
-      .then(response => resolve(response.data))
-      .catch(err => reject({ error: true }))
+    if(req.axiosResult) {
+      req.axiosResult
+        .then(response => {
+          resolve({data: response.data, config: req.config})
+        })
+        .catch(err => {
+          reject({ err, config: req.config })
+        })
+    }else {
+      resolve(req)
+    }
   })
 }

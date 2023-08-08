@@ -4,6 +4,6 @@ export default (id) => {
   return new Promise((resolve, reject) => {
     services.getTurno(id)
       .then(response => resolve(response.data))
-      .catch(err => reject({ error: true }))
+      .catch(err => reject(err))
   })
 }

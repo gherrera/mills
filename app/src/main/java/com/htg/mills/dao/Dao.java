@@ -16,6 +16,7 @@ import org.joda.time.DateTimeZone;
 
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Activity;
 import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Evento;
@@ -418,7 +419,57 @@ public class Dao {
 		}
 	}
 	
-	public void inicioTurno(Usuario user, Turno turno) throws SQLException {
+	private void insLogAudit(Usuario user, Timestamp ts, Molino molino, String turno, String entidad, String extId, String operacion, String params) throws SQLException {
+		Calendar c = Calendar.getInstance(TimeZone.getDefault());
+		Date date = c.getTime();
+		Timestamp fecha = new Timestamp(date.getTime());
+		
+		Map<String, Object> _params = new HashMap<String, Object>();
+		_params.put("user", user.getLogin());
+		_params.put("fecha", fecha);
+		_params.put("ts", ts);
+		_params.put("molinoId", molino.getId());
+		_params.put("turno", turno);
+		_params.put("entidad", entidad);
+		_params.put("extId", extId);
+		_params.put("operacion", operacion);
+		_params.put("params", params);
+		
+		sqlMap.insert("insLogAudit", _params);
+	}
+	
+	private void insLogOperacion(Usuario user, Timestamp ts, Molino molino, String turno, String entidad, String extId, String operacion, String params) throws SQLException {
+		Calendar c = Calendar.getInstance(TimeZone.getDefault());
+		Date date = c.getTime();
+		Timestamp fecha = new Timestamp(date.getTime());
+		
+		Map<String, Object> _params = new HashMap<String, Object>();
+		_params.put("user", user.getLogin());
+		_params.put("fecha", fecha);
+		_params.put("ts", ts);
+		_params.put("molinoId", molino.getId());
+		_params.put("turno", turno);
+		_params.put("entidad", entidad);
+		_params.put("extId", extId);
+		_params.put("operacion", operacion);
+		_params.put("params", params);
+		
+		sqlMap.insert("insLogOperacion", _params);
+		
+		insLogAudit(user, ts, molino, turno, entidad, extId, operacion, params);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Activity> getActivityByMolino(String molinoId) {
+		try {
+			return sqlMap.queryForList("getActivityByMolino", molinoId);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+	
+	public void inicioTurno(Usuario user, Turno turno, Date timestamp) throws SQLException {
 		try {
 			sqlMap.startTransaction();
 
@@ -426,6 +477,7 @@ public class Dao {
 
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
+			if(timestamp != null) date = timestamp;
 			Timestamp fecha = new Timestamp(date.getTime());
 			
 			Map<String, Object> params = new HashMap<String, Object>();
@@ -447,6 +499,9 @@ public class Dao {
 				sqlMap.update("updateStatusMolino", turno.getMolino());
 			}
 			
+			//registro de logs
+			insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "TURNO", id, "iniciaTurno", Turno.Status.OPEN.toString());
+			
 			sqlMap.commitTransaction();
 		} catch (SQLException e) {
 			throw e;
@@ -455,25 +510,30 @@ public class Dao {
 		}
 	}
 	
-	private void finTurnoPrivate(Usuario user, Turno turno) throws SQLException {
+	private void finTurnoPrivate(Usuario user, Turno turno, Date timestamp) throws SQLException {
 		Calendar c = Calendar.getInstance(TimeZone.getDefault());
 		Date date = c.getTime();
+		Timestamp fecha = new Timestamp(date.getTime());
 		
+		String turnoId = turno.getTurnoId();
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("turnoId", turno.getTurnoId());
-		params.put("fecha", new Timestamp(date.getTime()));
+		params.put("turnoId", turnoId);
+		params.put("fecha", fecha);
 		sqlMap.insert("finTurnoHistorial", params);
 
 		turno.setStatus(Turno.Status.CLOSED);
 		turno.setTurnoId(null);
 		sqlMap.update("updateStatusTurno", turno);
+		
+		//registro de logs
+		insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "TURNO", turnoId, "finTurno", Turno.Status.CLOSED.toString());
 	}
 	
-	public void finTurno(Usuario user, Turno turno) throws SQLException {
+	public void finTurno(Usuario user, Turno turno, Date timestamp) throws SQLException {
 		try {
 			sqlMap.startTransaction();
 
-			finTurnoPrivate(user, turno);
+			finTurnoPrivate(user, turno, timestamp);
 			
 			sqlMap.commitTransaction();
 		} catch (SQLException e) {
@@ -530,7 +590,7 @@ public class Dao {
 		}
 	}
 	
-	public void startTask(Usuario user, Turno turno, Etapa.EtapaEnum stage) throws SQLException {
+	public void startTask(Usuario user, Turno turno, Etapa.EtapaEnum stage, Date timestamp) throws SQLException {
 		Molino molino = turno.getMolino();
 		Etapa etapa = null;
 		if(turno.getMolino().getStages() != null) {
@@ -543,10 +603,12 @@ public class Dao {
 		if(next != null) {
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
+			if(timestamp != null) date = timestamp;
+			Timestamp fecha = new Timestamp(date.getTime());
 			
 			Tarea tarea = new Tarea();
 			tarea.setId(UUID.randomUUID().toString());
-			tarea.setCreationDate(new Timestamp(date.getTime()));
+			tarea.setCreationDate(fecha);
 			tarea.setTask(next);
 			tarea.setUserStart(user.getLogin());
 			
@@ -560,10 +622,13 @@ public class Dao {
 			molino.setUpdateDate(new Timestamp(date.getTime()));
 			molino.setUpdateUser(user.getLogin());
 			sqlMap.update("updateMolino", molino);
-			
+
+			//registro de logs
+			insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "TAREA", tarea.getId(), "iniciaTarea", next.getText());
+
 			if(next.equals(Tarea.TareaEnum.LIMPIEZA)) {
 				turno = getTurnoById(turno.getId());
-				startTask(user, turno, stage);
+				startTask(user, turno, stage, timestamp);
 			}else if(task != null && task.getTask().equals(Tarea.TareaEnum.GIRO)) {
 				sqlMap.update("updateGiro", turno.getMolino().getId());
 			}
@@ -584,6 +649,9 @@ public class Dao {
 		molino.setUpdateDate(finishDate);
 		molino.setUpdateUser(user.getLogin());
 		sqlMap.update("updateMolino", molino);
+		
+		//registro de logs
+		insLogOperacion(user, finishDate, turno.getMolino(), turno.getName().toString(), "ETAPA", etapa.getId(), "finEtapa", etapa.getStage().name());
 	}
 	
 	private void finishTarea(Turno turno, Etapa etapa, Tarea task, Usuario user) throws SQLException {
@@ -594,6 +662,9 @@ public class Dao {
 		
 		sqlMap.update("finishTarea", task);
 
+		//registro de logs
+		insLogOperacion(user, task.getFinishDate(), turno.getMolino(), turno.getName().toString(), "TAREA", task.getId(), "finTarea", task.getTask().getText());
+
 		Molino molino = turno.getMolino();
 		Tarea.TareaEnum next = molino.getNextTask(etapa);
 		if(next == null) {
@@ -601,7 +672,7 @@ public class Dao {
 		}
 	}
 	
-	public void finishTask(Usuario user, Turno turno, Etapa.EtapaEnum stage) throws SQLException {
+	public void finishTask(Usuario user, Turno turno, Etapa.EtapaEnum stage, Date timestamp) throws SQLException {
 		try {
 			sqlMap.startTransaction();
 			
@@ -616,6 +687,7 @@ public class Dao {
 				if(task != null && task.getFinishDate() == null) {
 					Calendar c = Calendar.getInstance(TimeZone.getDefault());
 					Date date = c.getTime();
+					if(timestamp != null) date = timestamp;
 					Timestamp fecha = new Timestamp(date.getTime());
 					
 					task.setFinishDate(fecha);
@@ -654,15 +726,19 @@ public class Dao {
 		molino.setUpdateUser(user.getLogin());
 		sqlMap.update("updateMolino", molino);
 		
+		//registro de logs
+		insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "ETAPA", etapa.getId(), "iniciaEtapa", stage.name());
+
 		return etapa;
 	}
 	
-	public void finishEtapa(Usuario user, Turno turno) throws SQLException {
+	public void finishEtapa(Usuario user, Turno turno, Date timestamp) throws SQLException {
 		try {
 			sqlMap.startTransaction();
 
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
+			if(timestamp != null) date = timestamp;
 			Timestamp fecha = new Timestamp(date.getTime());
 			
 			Etapa etapa = turno.getMolino().getCurrentStage();
@@ -676,12 +752,13 @@ public class Dao {
 		}
 	}
 	
-	public void startEtapa(Usuario user, Turno turno) throws SQLException {
+	public void startEtapa(Usuario user, Turno turno, Date timestamp) throws SQLException {
 		try {
 			sqlMap.startTransaction();
 
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
+			if(timestamp != null) date = timestamp;
 			Timestamp fecha = new Timestamp(date.getTime());
 			
 			if(Etapa.EtapaEnum.BEGINNING.equals(turno.getMolino().getStage()) && turno.getMolino().getStages().size() == 1) {
@@ -708,7 +785,7 @@ public class Dao {
 					turno.getMolino().setFinishDate(fecha);
 					sqlMap.update("updateStatusMolino", turno.getMolino());
 					
-					finTurnoPrivate(user, turno);
+					finTurnoPrivate(user, turno, timestamp);
 				}
 			}
 			
@@ -720,12 +797,13 @@ public class Dao {
 		}
 	}
 	
-	public void addParte(Usuario user, Turno turno, Tarea.TareaEnum task, String parteId, int cant) throws SQLException {
+	public void addParte(Usuario user, Turno turno, Tarea.TareaEnum task, String parteId, int cant, Date timestamp) throws SQLException {
 		try {
 			sqlMap.startTransaction();
 
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
+			if(timestamp != null) date = timestamp;
 			Timestamp fecha = new Timestamp(date.getTime());
 			
 			if(Etapa.EtapaEnum.EXECUTION.equals(turno.getMolino().getStage())) {
@@ -771,6 +849,10 @@ public class Dao {
 							}
 						}
 						if(success) {
+							String id = UUID.randomUUID().toString();
+							//registro de logs
+							insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), task.name(), id, "agregaParte", parte.getName());
+
 							if(tarea.getFinishDate() != null) finishTarea(turno, etapa, tarea, user);
 							
 							sqlMap.update("updatePartes", parte);
@@ -779,7 +861,7 @@ public class Dao {
 							t.setId(turno.getTurnoId());
 							
 							TareaParte tParte = new TareaParte();
-							tParte.setId(UUID.randomUUID().toString());
+							tParte.setId(id);
 							tParte.setCreationDate(fecha);
 							tParte.setPart(parte);
 							tParte.setQty(cant);
@@ -806,18 +888,18 @@ public class Dao {
 		}
 	}
 	
-	public void startInterruption(Usuario user, Turno turno, boolean stopFaena, String comments) throws SQLException {
+	public void startInterruption(Usuario user, Turno turno, boolean stopFaena, String comments, Date timestamp) throws SQLException {
 		Molino molino = turno.getMolino();
 
 		Etapa current = molino.getCurrentStage();
 		if(!current.getHasInterruption()) {
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
-			
-			Map<String, Object> params = new HashMap<String, Object>();
+			if(timestamp != null) date = timestamp;
+			Timestamp fecha = new Timestamp(date.getTime());
 	
 			Evento evt = new Evento();
-			evt.setStartDate(new Timestamp(date.getTime()));
+			evt.setStartDate(fecha);
 			evt.setType(stopFaena ? Evento.Type.INTERRUPTION : Evento.Type.COMMENT);
 			evt.setComments(comments);
 			evt.setUserStart(user.getLogin());
@@ -826,25 +908,32 @@ public class Dao {
 				evt.setUserFinish(user.getLogin());
 				
 			}
-			params.put("evt", evt);
-			params.put("stage", current);
+			evt.setStage(current);
 	
-			sqlMap.insert("insertInterruption", params);
+			sqlMap.insert("insertInterruption", evt);
+
+			//registro de logs
+			insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "EVENTO", String.valueOf(evt.getId()), "iniciaInterrupcion", null);
 		}
 	}
 	
-	public void finishInterruption(Usuario user, Turno turno) throws SQLException {
+	public void finishInterruption(Usuario user, Turno turno, Date timestamp) throws SQLException {
 		Molino molino = turno.getMolino();
 		Etapa current = molino.getCurrentStage();
 		if(current.getHasInterruption()) {
 			Calendar c = Calendar.getInstance(TimeZone.getDefault());
 			Date date = c.getTime();
+			if(timestamp != null) date = timestamp;
+			Timestamp fecha = new Timestamp(date.getTime());
 			
 			for(Evento evt : current.getEvents()) {
 				if(evt.getType().equals(Evento.Type.INTERRUPTION) && evt.getFinishDate() == null) {
-					evt.setFinishDate(new Timestamp(date.getTime()));
+					evt.setFinishDate(fecha);
 					evt.setUserFinish(user.getLogin());
 					sqlMap.insert("finishInterruption", evt);
+					
+					//registro de logs
+					insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "EVENTO", String.valueOf(evt.getId()), "finInterrupcion", null);
 				}
 			}
 		}

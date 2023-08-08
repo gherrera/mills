@@ -17,91 +17,109 @@ export default {
       }
     })
   },
-  inicioTurno: (id) => {
+  inicioTurno: (id, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/inicioTurno',
+      url: apiConfig.url + '/mobile/inicioTurno',
       method: 'post',
       body: {
         id
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   },
-  finTurno: (id) => {
+  finTurno: (id, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/finTurno',
+      url: apiConfig.url + '/mobile/finTurno',
       method: 'post',
       body: {
         id
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   },
-  startTask: (id, stage) => {
+  startTask: (id, stage, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/startTask',
+      url: apiConfig.url + '/mobile/startTask1',
       method: 'post',
       body: {
         id,
         stage
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   },
-  finishTask: (id, stage) => {
+  finishTask: (id, stage, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/finishTask',
+      url: apiConfig.url + '/mobile/finishTask',
       method: 'post',
       body: {
         id,
         stage
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   },
-  startEtapa: (id) => {
+  startEtapa: (id, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/startEtapa',
+      url: apiConfig.url + '/mobile/startEtapa',
       method: 'post',
       body: {
         id
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   },
-  finishEtapa: (id) => {
+  finishEtapa: (id, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/finishEtapa',
+      url: apiConfig.url + '/mobile/finishEtapa',
       method: 'post',
       body: {
         id
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   },
-  addParte: (id, stage, parteId) => {
+  addParte: (id, stage, parteId, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/addParte',
+      url: apiConfig.url + '/mobile/addParte',
       method: 'post',
       body: {
         id,
         stage,
         parteId
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   },
-  startInterruption: (id, stopFaena, comments) => {
+  startInterruption: (id, stopFaena, comments, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/startInterruption',
+      url: apiConfig.url + '/mobile/startInterruption',
       method: 'post',
       body: {
         id,
         stopFaena,
         comments
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   },
-  finishInterruption: (id) => {
+  finishInterruption: (id, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/finishInterruption',
+      url: apiConfig.url + '/mobile/finishInterruption',
       method: 'post',
       body: {
         id
-      }
+      },
+      getParams: true,
+      noCall: !online
     })
   }
 }

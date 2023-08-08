@@ -1,9 +1,18 @@
 import services from '../services/services'
 
-export default (id) => {
+export default (id, online) => {
+  const req = services.finishInterruption(id, online);
   return new Promise((resolve, reject) => {
-    services.finishInterruption(id)
-      .then(response => resolve(response.data))
-      .catch(err => reject({ error: true }))
+    if(req.axiosResult) {
+      req.axiosResult
+        .then(response => {
+          resolve({data: response.data, config: req.config})
+        })
+        .catch(err => {
+          reject({ err, config: req.config })
+        })
+    }else {
+      resolve(req)
+    }
   })
 }

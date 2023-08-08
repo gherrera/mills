@@ -42,6 +42,7 @@ import com.htg.mills.entities.CurrentUser;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.ScheduleStatus;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Activity;
 import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Evento;
@@ -297,12 +298,6 @@ public class MillsController {
 		return app.getMolinoById(params.get("id"));
 	}
 	
-	@PostMapping("inicioTurno")
-    @ResponseBody Turno inicioTurno(@RequestBody Map<String, String> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.inicioTurno(currentUser.getUser(), params.get("id"));
-	}
-	
 	@PostMapping("saveMolino")
     @ResponseBody Molino saveMolino(@RequestBody Molino molino) {
 		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -312,54 +307,6 @@ public class MillsController {
 	@PostMapping("getTurno")
     @ResponseBody Turno getTurno(@RequestBody Map<String, String> params) {
 		return app.getTurnoById(params.get("id"));
-	}
-	
-	@PostMapping("finTurno")
-    @ResponseBody Turno finTurno(@RequestBody Map<String, String> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.finTurno(currentUser.getUser(), params.get("id"));
-	}
-	
-	@PostMapping("startTask")
-    @ResponseBody Turno startTask(@RequestBody Map<String, String> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.startTask(currentUser.getUser(), params.get("id"), Etapa.EtapaEnum.valueOf(params.get("stage")));
-	}
-	
-	@PostMapping("finishTask")
-    @ResponseBody Turno finishTask(@RequestBody Map<String, String> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.finishTask(currentUser.getUser(), params.get("id"), Etapa.EtapaEnum.valueOf(params.get("stage")));
-	}
-	
-	@PostMapping("startEtapa")
-    @ResponseBody Turno startEtapa(@RequestBody Map<String, String> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.startEtapa(currentUser.getUser(), params.get("id"));
-	}
-	
-	@PostMapping("finishEtapa")
-    @ResponseBody Turno finishEtapa(@RequestBody Map<String, String> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.finishEtapa(currentUser.getUser(), params.get("id"));
-	}
-	
-	@PostMapping("addParte")
-    @ResponseBody Turno addParte(@RequestBody Map<String, String> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.addParte(currentUser.getUser(), params.get("id"), Tarea.TareaEnum.valueOf(params.get("stage")), params.get("parteId"), 1);
-	}
-	
-	@PostMapping("startInterruption")
-    @ResponseBody Turno startInterruption(@RequestBody Map<String, Object> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.startInterruption(currentUser.getUser(), (String)params.get("id"), (Boolean)params.get("stopFaena"), (String)params.get("comments"));
-	}
-	
-	@PostMapping("finishInterruption")
-    @ResponseBody Turno finishInterruption(@RequestBody Map<String, String> params) {
-		CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return app.finishInterruption(currentUser.getUser(), params.get("id"));
 	}
 	
 	@PostMapping("getTiposEquipo")
@@ -525,6 +472,12 @@ public class MillsController {
 	@ResponseBody
 	public Evento updateEvento(@RequestBody Evento evento) {
 		return app.updateEvento(evento);
+	}
+	
+	@PostMapping("getActivityByMolino")
+	@ResponseBody
+	public List<Activity> getActivityByMolino(@RequestBody Molino molino) {
+		return app.getActivityByMolino(molino.getId());
 	}
 
 }

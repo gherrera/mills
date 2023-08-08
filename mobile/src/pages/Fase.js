@@ -9,8 +9,8 @@ import {
     Alert
 } from 'react-native';
 import {  Button } from 'react-native-elements';
-
-import { startTaskPromise, finishTaskPromise, startEtapaPromise, addPartePromise, finishEtapaPromise } from './promises';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { startEtapaPromise, finishEtapaPromise, startTaskPromise, finishTaskPromise, addPartePromise } from './promises';
 import StylesGlobal from './StylesGlobal';
 
 const styles = StyleSheet.create({
@@ -33,7 +33,8 @@ export default class Fase extends Component {
        currentStage: this.props.turno.molino.stages[this.props.turno.molino.activeStage],
        isLoadingButton: false,
        showModalReapriete: false,
-       showRepriete: false
+       showRepriete: false,
+       isLoadingGlobal: false
     }
 
     componentDidMount() {
@@ -50,6 +51,25 @@ export default class Fase extends Component {
         }
     }
 
+    startTaskOnError(config) {
+        const { turno } = this.state
+        const { handleConnection } = this.props
+
+        let t = {...turno}
+        if(t.molino.stages[this.state.activeStage].stage === 'EXECUTION' && t.molino.stages[this.state.activeStage].currentTask && t.molino.stages[this.state.activeStage].currentTask.task === 'GIRO') {
+            t.molino.partsByType.map(t => {
+                t.parts.map(p => {
+                    p.botadas = 0
+                    p.limpiadas = 0
+                    p.montadas = 0
+                })
+            })
+        }
+        t.molino.stages[this.state.activeStage].currentTask = { task: this.state.currentStage.nextTask, finishDate: null}
+        this.setTurno(t)
+        handleConnection({ status: false, config, turno: t })
+    }
+
     startTask() {
         const {t} = this.props.screenProps; 
         const molino = this.state.turno.molino
@@ -63,16 +83,95 @@ export default class Fase extends Component {
                     onPress: () => console.log("Cancel Pressed"),
                     style: "cancel"
                   },
-                  { text: "Iniciar Tarea", onPress: () => {
+                  { text: "Iniciar Tarea", onPress: async () => {
                         const { turno } = this.state
-                        startTaskPromise(turno.id, this.state.currentStage.stage).then(t => {
-                            this.setTurno(t)
+                        const { handleConnection } = this.props
+
+                        this.setState({ isLoadingGlobal: true })
+                        const conn = await handleConnection();
+                        if(!conn.errores && conn.turno) {
+                            this.setTurno(conn.turno)
+                        }
+                        startTaskPromise(turno.id, this.state.currentStage.stage, !conn.errores).then(response => {
+                            if(response.data) {
+                                handleConnection({ status: true })
+                                this.setTurno(response.data)
+                            }else {
+                                this.startTaskOnError(response.config)
+                            }
+                            this.setState({ isLoadingGlobal: false })
+                        })
+                        .catch(e => {
+                            this.startTaskOnError(e.config)
+                            this.setState({ isLoadingGlobal: false })
                         })
                     }
                   }
                 ]
             );
         }
+    }
+
+    finishTaskOnError(config) {
+        let { turno, currentStage } = this.state
+        const { handleConnection } = this.props
+
+        if(currentStage.stage === 'BEGINNING') {
+            if(currentStage.nextTask === 'RETIRO_CHUTE') {
+                this.setState({
+                    isModalStartExecution: true
+                })
+            }
+        }
+        let _turno = {...turno}
+        _turno.molino.stages[this.state.activeStage].currentTask.finishDate = Date.now()
+        const ct = _turno.molino.stages[this.state.activeStage].currentTask
+        if(currentStage.stage === 'BEGINNING') {
+            if(ct.task === 'DET_PLANTA') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'BLOQUEO_PRUEBA_ENERGIA_0'
+            }else if(ct.task === 'BLOQUEO_PRUEBA_ENERGIA_0') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'RETIRO_CHUTE'
+            }else if(ct.task === 'RETIRO_CHUTE') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'ING_LAINERA'
+            }else {
+                _turno.molino.stages[this.state.activeStage].nextTask = null
+            }
+        }else  if(currentStage.stage === 'EXECUTION') {
+            if(ct.task === 'BOTADO') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'LIMPIEZA'
+            }else if(ct.task === 'LIMPIEZA') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'MONTAJE'
+            }else if(ct.task === 'MONTAJE') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'GIRO'
+            }else if(ct.task === 'GIRO') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'BOTADO'
+            }else {
+                _turno.molino.stages[this.state.activeStage].nextTask = null
+            }
+        }else if(currentStage.stage === 'FINISHED') {
+            if(ct.task === 'RET_LAINERA') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'INST_CHUTE'
+            }else if(ct.task === 'INST_CHUTE') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'DESBLOQUEO'
+            }else if(ct.task === 'DESBLOQUEO') {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'REAPRIETE'
+            }else {
+                _turno.molino.stages[this.state.activeStage].nextTask = null
+            }
+        }
+        if(_turno.molino.stages[this.state.activeStage].nextTask === 'GIRO') {
+            if(turno.molino.totalMontadas === turno.molino.piezas) {
+                _turno.molino.stages[this.state.activeStage].nextTask = null
+            }
+        }else if(ct.task === 'GIRO') {
+            if(turno.molino.totalBotadas === turno.molino.piezas) {
+                _turno.molino.stages[this.state.activeStage].nextTask = 'MONTAJE'
+            }
+        }
+
+        _turno.molino.nextTask = _turno.molino.stages[this.state.activeStage].nextTask
+        this.setTurno(_turno)
+        handleConnection({ status: false, config, turno: _turno })
     }
 
     finishTask() {
@@ -94,19 +193,36 @@ export default class Fase extends Component {
                         onPress: () => console.log("Cancel Pressed"),
                         style: "cancel"
                     },
-                    { text: "Finalizar Tarea", onPress: () => {
-                            const { turno, currentStage } = this.state
-                            finishTaskPromise(turno.id, currentStage.stage).then(t => {
-                                if(currentStage.stage === 'BEGINNING') {
-                                    if(currentStage.nextTask === 'RETIRO_CHUTE') {
-                                        this.setState({
-                                            isModalStartExecution: true
-                                        })
-                                    }else if(currentStage.nextTask === null && t.molino.stages[0].status === 'FINISHED' && t.molino.stages.length > 1) {
-                                        this.forwardMenuHandler(t)
+                    { text: "Finalizar Tarea", onPress: async () => {
+                            let { turno, currentStage } = this.state
+                            const { handleConnection } = this.props
+                            
+                            this.setState({ isLoadingGlobal: true })
+                            const conn = await handleConnection();
+                            if(!conn.errores && conn.turno) {
+                                this.setTurno(conn.turno)
+                            }
+                            finishTaskPromise(turno.id, currentStage.stage, !conn.errores).then(response => {
+                                if(response.data) {
+                                    if(currentStage.stage === 'BEGINNING') {
+                                        if(currentStage.nextTask === 'RETIRO_CHUTE') {
+                                            this.setState({
+                                                isModalStartExecution: true
+                                            })
+                                        }else if(currentStage.nextTask === null && response.data.molino.stages[0].status === 'FINISHED' && response.data.molino.stages.length > 1) {
+                                            this.forwardMenuHandler(response.data)
+                                        }
                                     }
+                                    this.setTurno(response.data)
+                                    handleConnection({ status: true })
+                                    this.setState({ isLoadingGlobal: false })
+                                }else {
+                                    this.finishTaskOnError(response.config)
                                 }
-                                this.setTurno(t)
+                            })
+                            .catch(e => {
+                               this.finishTaskOnError(e.config)
+                               this.setState({ isLoadingGlobal: false })
                             })
                         }
                     }
@@ -124,7 +240,7 @@ export default class Fase extends Component {
         this.forwardMenuHandler(t)
     }
 
-    setTurno(t, _activeStage=null) {
+    async setTurno(t, _activeStage=null) {
         const { activeStage } = this.state
         t.open = true
         let cs = t.molino.stages[_activeStage !== null ? _activeStage : activeStage]
@@ -140,31 +256,142 @@ export default class Fase extends Component {
         }
     }
 
+    async startEtapaOnError(config, _turno) {
+        const { currentStage } = this.state
+        const { handleConnection } = this.props
+
+        let newStage
+        let nextTask
+        if(currentStage.stage === 'BEGINNING') {
+            newStage = 'EXECUTION'
+            nextTask = 'BOTADO'
+        }else if(currentStage.stage === 'EXECUTION') {
+            newStage = 'FINISHED'
+            nextTask = 'RET_LAINERA'
+        }else if(currentStage.stage === 'FINISHED') {
+            newStage = 'DELIVERY'
+        }
+        _turno.molino.stage = newStage
+        _turno.molino.nextTask = nextTask
+        _turno.molino.stages.push( { stage: newStage, currentTask: null, tasks: [], nextTask, finishDate: null })
+        
+        handleConnection({ status: false, config, turno: _turno })
+
+        return _turno
+    }
+
     async startEtapa() {
         this.setState({
             isLoadingButton: true
         })
         const { turno } = this.state
-        return await startEtapaPromise(turno.id)
+        const { handleConnection } = this.props
+        let _turno = turno
+
+        this.setState({ isLoadingGlobal: true })
+        const conn = await handleConnection();
+        if(!conn.errores && conn.turno) {
+            this.setTurno(conn.turno)
+        }
+        await startEtapaPromise(turno.id, !conn.errores).then(async (response) => {
+            if(response.data) {
+                handleConnection({ status: true })
+                _turno = response.data
+            }else {
+                _turno = await this.startEtapaOnError(response.config, _turno)
+            }
+            this.setState({ isLoadingGlobal: false })
+        })
+        .catch(async (e) => {
+            _turno = await this.startEtapaOnError(e.config, _turno)
+            this.setState({ isLoadingGlobal: false })
+        });
+        return _turno
     }
 
-    addParte(stage, parteId) {
+    addParteOnError(config, task, parte) {
+        console.log('addParteOnError')
+        const { turno } = this.state
+        const { handleConnection } = this.props
+
+        let _turno = {...turno}
+        let cs = _turno.molino.stages[this.state.activeStage]
+        //_turno.molino.stages[this.state.activeStage].finishDate = Date.now()
+        
+        const tarea = cs.tasks.filter(t => t.task === task)[0];
+        if(task === 'BOTADO') {
+            parte.botadas = parte.botadas+1
+            parte.totalBotadas = parte.totalBotadas+1
+            _turno.molino.botadas = _turno.molino.botadas+1
+            _turno.molino.totalBotadas = _turno.molino.totalBotadas+1
+        }else if(task === 'LIMPIEZA') {
+            parte.limpiadas = parte.limpiadas+1
+            parte.totalLimpiadas = parte.totalLimpiadas+1
+            _turno.molino.limpiadas = _turno.molino.limpiadas+1
+            _turno.molino.totalLimpiadas = _turno.molino.totalLimpiadas+1
+            if(_turno.molino.botadas === _turno.molino.limpiadas) {
+                tarea.finishDate = Date.now()
+            }
+        }else if(task === 'MONTAJE') {
+            parte.montadas = parte.montadas+1
+            parte.totalMontadas = parte.totalMontadas+1
+            _turno.molino.montadas = _turno.molino.montadas+1
+            _turno.molino.totalMontadas = _turno.molino.totalMontadas+1
+            if(_turno.molino.totalBotadas === _turno.molino.totalMontadas) {
+                tarea.finishDate = Date.now()
+            }
+        }
+        let parts = _turno.molino.partsByType.filter(p => p.type === parte.type)[0].parts;
+        parts.map(p => {
+            if(p.id === parte.id) {
+                p = parte;
+            }
+        })
+        this.setTurno(_turno)
+
+        handleConnection({ status: false, config, turno: _turno })
+    }
+    
+    async addParte(task, parte) {
         const { isLoading } = this.state
         const { turno } = this.state
-        isLoading[stage] = true
+        isLoading[task] = true
         this.setState({
             isLoading
         })
-        addPartePromise(turno.id, stage, parteId).then(t => {
-            isLoading[stage] = false
-            this.setTurno(t)
+        const { handleConnection } = this.props
+
+        this.setState({ isLoadingGlobal: true })
+        const conn = await handleConnection();
+        if(!conn.errores && conn.turno) {
+            this.setTurno(conn.turno)
+        }
+        addPartePromise(turno.id, task, parte.id, !conn.errores).then(response => {
+            console.log('addParte', response)
+            if(response.data) {
+                handleConnection({ status: true })
+                this.setTurno(response.data)
+            }else {
+                this.addParteOnError(response.config, task, parte)
+            }
+            isLoading[task] = false
             this.setState({
                 isLoading
             })
+            this.setState({ isLoadingGlobal: false })
         })
+        .catch(e => {
+            this.addParteOnError(e.config, task, parte)
+
+            isLoading[task] = false
+            this.setState({
+                isLoading
+            })
+            this.setState({ isLoadingGlobal: false })
+        });
     }
 
-    getBotonAddParte(stage, parteId) {
+    getBotonAddParte(task, parte) {
         const { isLoading } = this.state
         return (
             <Button
@@ -174,9 +401,9 @@ export default class Fase extends Component {
                     height:27, 
                     padding: 0
                 }}
-                loading={isLoading[stage]}
+                loading={isLoading[task]}
                 type="clear"
-                onPress={() => this.addParte(stage, parteId)}
+                onPress={() => this.addParte(task, parte)}
             />
         )
     }
@@ -226,7 +453,7 @@ export default class Fase extends Component {
     }
 
     async deliveryMolino() {
-        let t = await this.startEtapa()
+        await this.startEtapa()
         this.returnMenuHandler()
     }
 
@@ -238,27 +465,58 @@ export default class Fase extends Component {
         })
     }
 
-    noReapriete() {
+    finishEtapaOnError(turno, config) {
+        const { handleConnection } = this.props
+
+        let _turno = {...turno}
+        _turno.molino.stages[this.state.activeStage].finishDate = Date.now()
+        this.setTurno(_turno)
+
+        handleConnection({ status: false, config, turno: _turno })
+    }
+
+    async noReapriete() {
         this.setState({
             isLoadingButton: true
         })
         const { turno } = this.state
-        finishEtapaPromise(turno.id).then(t => {
-            this.setTurno(t)
+        const { handleConnection } = this.props
+
+        this.setState({ isLoadingGlobal: true })
+        const conn = await handleConnection();
+        if(!conn.errores && conn.turno) {
+            this.setTurno(conn.turno)
+        }
+        finishEtapaPromise(turno.id, !conn.errores).then(response => {
+            if(response.data) {
+                this.setTurno(response.data)
+            }else {
+                this.finishEtapaOnError(turno, response.config)
+            }
             this.setState({
                 showModalReapriete: false
             })
+            this.setState({ isLoadingGlobal: false })
+        })
+        .catch(e => {
+            this.finishEtapaOnError(turno, e.config)
+
+            this.setState({
+                showModalReapriete: false
+            })
+            this.setState({ isLoadingGlobal: false })
         })
     }
 
     render() {
         const { currentUser, returnMenu } = this.props
-        const { turno, isModalVisible, isModalStartExecution, currentStage, isLoadingButton, showModalReapriete, showRepriete } = this.state
+        const { turno, isModalVisible, isModalStartExecution, currentStage, isLoadingButton, showModalReapriete, showRepriete, isLoadingGlobal } = this.state
         const {t, i18n} = this.props.screenProps; 
         const molino = turno.molino
 
         return (
             <View style={{height:'100%'}}>
+                { isLoadingGlobal && <Spinner visible={true} /> }
                 <View style={{flexDirection: "row", flexWrap: "wrap"}} textAlign="flex-start">
                     <View style={{ ...styles.col, width: '10%', textAlign:'center'}}>
                         <Button
@@ -486,6 +744,7 @@ export default class Fase extends Component {
                                 type={"solid"}
                                 buttonStyle={{padding:5, borderColor: StylesGlobal.colorGray, borderWidth:1.4, borderRadius:5, backgroundColor: "rgba(0,0,0,0.85)"}}
                                 titleStyle={{fontSize:20}}
+                                loading={isLoadingButton}
                                 onPress={this.finishTask.bind(this)}
                             />
                         </View>
@@ -724,7 +983,7 @@ export default class Fase extends Component {
                                         { currentStage.currentTask && currentStage.currentTask.task === 'BOTADO' 
                                             && currentStage.currentTask.finishDate === null 
                                             && part.totalBotadas < part.qty &&
-                                            this.getBotonAddParte('BOTADO', part.id)
+                                            this.getBotonAddParte('BOTADO', part)
                                         }
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', padding:5}}>
@@ -748,7 +1007,7 @@ export default class Fase extends Component {
                                     <View style={{ ...styles.col, width: '15%', textAlign:'center', padding:5}}>
                                         { currentStage.currentTask && currentStage.currentTask.task !== 'BOTADO' 
                                             && part.limpiadas < part.botadas &&
-                                            this.getBotonAddParte('LIMPIEZA', part.id)
+                                            this.getBotonAddParte('LIMPIEZA', part)
                                         }
                                     </View>
                                     <View style={{ ...styles.col, width: '20%', textAlign:'center', padding:5}}>
@@ -766,7 +1025,7 @@ export default class Fase extends Component {
                                         { currentStage.currentTask && (currentStage.currentTask.task === 'LIMPIEZA' || currentStage.currentTask.task === 'MONTAJE' )
                                             && currentStage.currentTask.finishDate === null
                                             && (part.botadas === part.limpiadas && part.totalMontadas < part.totalLimpiadas) && 
-                                            this.getBotonAddParte('MONTAJE', part.id)
+                                            this.getBotonAddParte('MONTAJE', part)
                                         }
                                         
                                     </View>

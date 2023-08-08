@@ -35,6 +35,7 @@ import com.htg.mills.dao.Dao;
 import com.htg.mills.entities.Results;
 import com.htg.mills.entities.Token;
 import com.htg.mills.entities.Usuario;
+import com.htg.mills.entities.maintenance.Activity;
 import com.htg.mills.entities.maintenance.Cliente;
 import com.htg.mills.entities.maintenance.Etapa;
 import com.htg.mills.entities.maintenance.Evento;
@@ -453,7 +454,7 @@ public class App {
 		}
 	}
 	
-	public Turno inicioTurno(Usuario user, String id) {
+	public Turno inicioTurno(Usuario user, String id, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -467,7 +468,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.inicioTurno(user, turno);
+						dao.inicioTurno(user, turno, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar turno", e);
@@ -480,7 +481,7 @@ public class App {
 		return turno;
 	}
 	
-	public Turno finTurno(Usuario user, String id) {
+	public Turno finTurno(Usuario user, String id, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -494,7 +495,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.finTurno(user, turno);
+						dao.finTurno(user, turno, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar turno", e);
@@ -507,7 +508,7 @@ public class App {
 		return turno;
 	}
 	
-	public Turno startTask(Usuario user, String id, Etapa.EtapaEnum stage) {
+	public Turno startTask(Usuario user, String id, Etapa.EtapaEnum stage, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -521,7 +522,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.startTask(user, turno, stage);
+						dao.startTask(user, turno, stage, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar turno", e);
@@ -534,7 +535,7 @@ public class App {
 		return turno;
 	}
 	
-	public Turno finishTask(Usuario user, String id, Etapa.EtapaEnum stage) {
+	public Turno finishTask(Usuario user, String id, Etapa.EtapaEnum stage, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -548,7 +549,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.finishTask(user, turno, stage);
+						dao.finishTask(user, turno, stage, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar turno", e);
@@ -582,7 +583,7 @@ public class App {
 		return turno;
 }
 	
-	public Turno startEtapa(Usuario user, String id) {
+	public Turno startEtapa(Usuario user, String id, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -596,7 +597,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.startEtapa(user, turno);
+						dao.startEtapa(user, turno, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar etapa", e);
@@ -609,7 +610,7 @@ public class App {
 		return turno;
 	}
 	
-	public Turno finishEtapa(Usuario user, String id) {
+	public Turno finishEtapa(Usuario user, String id, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -623,7 +624,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.finishEtapa(user, turno);
+						dao.finishEtapa(user, turno, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar etapa", e);
@@ -636,7 +637,7 @@ public class App {
 		return turno;
 	}
 	
-	public Turno addParte(Usuario user, String id, Tarea.TareaEnum task, String parteId, int cant) {
+	public Turno addParte(Usuario user, String id, Tarea.TareaEnum task, String parteId, int cant, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -650,7 +651,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.addParte(user, turno, task, parteId, cant);
+						dao.addParte(user, turno, task, parteId, cant, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar etapa", e);
@@ -663,7 +664,7 @@ public class App {
 		return turno;
 	}
 	
-	public Turno startInterruption(Usuario user, String id, boolean stopFaena, String comments) {
+	public Turno startInterruption(Usuario user, String id, boolean stopFaena, String comments, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 
 		Turno turno = getTurnoById(id);
@@ -677,7 +678,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.startInterruption(user, turno, stopFaena, comments);
+						dao.startInterruption(user, turno, stopFaena, comments, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al iniciar interrupcion", e);
@@ -690,7 +691,7 @@ public class App {
 		return turno;
 	}
 	
-	public Turno finishInterruption(Usuario user, String id) {
+	public Turno finishInterruption(Usuario user, String id, Date timestamp) {
 		long lStartTime = System.currentTimeMillis();
 		
 		Turno turno = getTurnoById(id);
@@ -704,7 +705,7 @@ public class App {
 				}
 				if(existe) {
 					try {
-						dao.finishInterruption(user, turno);
+						dao.finishInterruption(user, turno, timestamp);
 						turno = getTurnoById(id);
 					} catch (SQLException e) {
 						log.error("Error al finalizar interrupcion", e);
@@ -890,5 +891,9 @@ public class App {
 	public Evento updateEvento(Evento evento) {
 		dao.updateEvento(evento);
 		return dao.getEventoById(evento.getId());
+	}
+	
+	public List<Activity> getActivityByMolino(String molinoId) {
+		return dao.getActivityByMolino(molinoId);
 	}
 }

@@ -13,6 +13,7 @@ import updateTask from './updateTask'
 import updateStage from './updateStage'
 import updateTurnoHistorial from './updateTurnoHistorial'
 import updateEvento from './updateEvento'
+import getActivityByMolino from './getActivityByMolino'
 
 export const getMolinosPromise = getMolinos
 export const getMolinoPromise = getMolino
@@ -29,3 +30,4 @@ export const updateTaskPromise = updateTask
 export const updateStagePromise = updateStage
 export const updateTurnoHistorialPromise = updateTurnoHistorial
 export const updateEventoPromise = updateEvento
+export const getActivityByMolinoPromise = getActivityByMolino

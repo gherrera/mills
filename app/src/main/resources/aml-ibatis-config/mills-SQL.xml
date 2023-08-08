@@ -175,6 +175,18 @@
 		<result property="twists" column="giros"/>
 	</resultMap>
 
+	<resultMap id="Activity" class="com.htg.mills.entities.maintenance.Activity">
+		<result property="id" column="id"/>
+		<result property="creationDate" column="fecha"/>
+		<result property="dateLog" column="fecha_log"/>
+		<result property="user" column="usuario"/>
+		<result property="turno" column="turno"/>
+		<result property="entity" column="entidad"/>
+		<result property="extId" column="ext_id"/>
+		<result property="operation" column="operacion"/>
+		<result property="params" column="params"/>
+	</resultMap>
+
 	<insert id="insertToken">
 		insert into tokens(id, user_id, token, expiration, creation)
 			values(#id#, #user.id#, #token#, #expiration#, #creation#)
@@ -554,7 +566,10 @@
 	
 	<insert id="insertInterruption">
 		insert into etapa_eventos(tipo, comentarios, fecha_inicio, fecha_termino, user_inicio, user_termino, etapa_id)
-			values(#evt.type#, #evt.comments#, #evt.startDate#, #evt.finishDate#, #evt.userStart#, #evt.userFinish#, #stage.id#)
+			values(#type#, #comments#, #startDate#, #finishDate#, #userStart#, #userFinish#, #stage.id#)
+		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as id
+		</selectKey>
 	</insert>
 	
 	<update id="finishInterruption">
@@ -693,4 +708,21 @@
 		where id = #id#
 	</update>
 	
+	<insert id="insLogOperacion">
+		insert into log_operacion(molino_id, fecha, fecha_log, usuario, turno, entidad, ext_id, operacion, params)
+			values(#molinoId#, #ts#, #fecha#, #user#, #turno#, #entidad#, #extId#, #operacion#, #params#)
+	</insert>
+	
+	<insert id="insLogAudit">
+		insert into log_auditoria(molino_id, fecha, fecha_log, usuario, turno, operacion, params)
+			values(#molinoId#, #ts#, #fecha#, #user#, #turno#, #operacion#, #params#)
+	</insert>
+	
+	<select id="getActivityByMolino" resultMap="Activity">
+		select id, fecha, fecha_log, usuario, turno, entidad, ext_id, operacion, params
+		from log_operacion
+		where molino_id = #value#
+		order by id desc
+	</select>
+
 </sqlMap>

@@ -119,5 +119,14 @@ export default {
       method: 'post',
       body: evento
     })
+  },
+  getActivityByMolino: (id) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/getActivityByMolino',
+      method: 'post',
+      body: {
+        id
+      }
+    })
   }
 }

@@ -18,37 +18,58 @@ export default (args, validateErrors=true) => {
     }
   }
 
-  config.url = args.url
-  config.method = args.method
+  if(args.cfg) {
+    config.url = args.cfg.url
+    config.method = args.cfg.method
+    if(args.cfg.responseType) config.responseType = args.cfg.responseType
+    if(args.cfg.data) {
+      config.data = args.cfg.data
+      if(args.cfg.timestamp) {
+        config.data.timestamp = args.cfg.timestamp
+      }
+    }
+  }else {
+    config.url = args.url
+    config.method = args.method
+    config.timestamp = Date.now()
 
-  //console.log(args.url);
-  //Alert.alert("URL", args.url)
+    //console.log(args.url);
+    //Alert.alert("URL", args.url)
 
-  if ('responseType' in args) {
-    config.responseType = args.responseType
-  }
+    if ('responseType' in args) {
+      config.responseType = args.responseType
+    }
 
-  if ('body' in args) {
-    config.data = args.body
+    if ('body' in args) {
+      config.data = args.body
+    }
   }
 
   SessionStorageService.update("latestApiRequestDate", new Date().getTime())
 
-  return axios(config).catch(error => {
-    console.error(error)
-    //if (validateErrors && error.message === 'Network Error') {
-    if (validateErrors) {
-      SessionStorageService.delete('authToken')
-      SessionStorageService.delete('latestApiRequestDate')
-      SessionStorageService.delete('authTokenExpirationDate')
-      SessionStorageService.delete('latest_Query')
-      SessionStorageService.delete('latest_QueryId')
-      SessionStorageService.delete('latest_QueryResultsFromNum')
-      SessionStorageService.delete('latest_QueryResultsTotalNum')
-      SessionStorageService.delete('latest_QueryResultsCurrentPage')
+  let axiosResult = null;
+  if(args.noCall !== true) {
+    axiosResult = axios(config)
+      .catch(error => {
+        console.log("Error de conexion:", error.message)
+        if (validateErrors && error.message === 'Network Error') {
+        //if (validateErrors) {
+          SessionStorageService.delete('authToken')
+          SessionStorageService.delete('latestApiRequestDate')
+          SessionStorageService.delete('authTokenExpirationDate')
+          SessionStorageService.delete('latest_Query')
+          SessionStorageService.delete('latest_QueryId')
+          SessionStorageService.delete('latest_QueryResultsFromNum')
+          SessionStorageService.delete('latest_QueryResultsTotalNum')
+          SessionStorageService.delete('latest_QueryResultsCurrentPage')
 
-      Alert.alert("Error", "Sesión expirada")
-      RNRestart.Restart();
-    }
-  })
+          Alert.alert("Error", "Sesión expirada")
+          RNRestart.Restart();
+        } else {
+          throw error;
+        }
+      });
+  }
+  if(args.getParams === true) return { axiosResult, config };
+  else return axiosResult
 }
