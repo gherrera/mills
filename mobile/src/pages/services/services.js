@@ -41,7 +41,7 @@ export default {
   },
   startTask: (id, stage, online) => {
     return apiRequestorHelper({
-      url: apiConfig.url + '/mobile/startTask1',
+      url: apiConfig.url + '/mobile/startTask',
       method: 'post',
       body: {
         id,
