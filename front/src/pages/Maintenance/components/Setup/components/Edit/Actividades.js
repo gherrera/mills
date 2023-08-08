@@ -54,6 +54,17 @@ const Actividades = ({molino}) => {
       title: 'Operacion',
       dataIndex: 'operation',
       with: '15%',
+      render: (operacion, record) => {
+        if(operacion === 'agregaParte' && record.entity === 'BOTADO') {
+          return 'Bota Pieza'
+        }else if(operacion === 'agregaParte' && record.entity === 'LIMPIEZA') {
+          return 'Limpia Pieza'
+        }else if(operacion === 'agregaParte' && record.entity === 'MONTAJE') {
+          return 'Montaje Pieza'
+        }else {
+          return operacion
+        }
+      }
     },
     {
       title: 'Params',
