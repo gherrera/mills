@@ -98,7 +98,7 @@ export default class Turno extends Component {
         if(rp && rp !== "" && t && t !== "") {
             const requestPending = JSON.parse(rp);
             const _turno = JSON.parse(t);
-            if(requestPending && requestPending.length > 0) {
+            if(_turno.id === this.props.turno.id && requestPending && requestPending.length > 0) {
                 this.setState({ modoOnline: false, requestPending})
                 this.setTurno(_turno)
                 this.setState({isLoadingApi: true})

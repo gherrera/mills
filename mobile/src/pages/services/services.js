@@ -26,7 +26,7 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   },
   finTurno: (id, online) => {
     return apiRequestorHelper({
@@ -37,7 +37,7 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   },
   startTask: (id, stage, online) => {
     return apiRequestorHelper({
@@ -49,7 +49,7 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   },
   finishTask: (id, stage, online) => {
     return apiRequestorHelper({
@@ -61,7 +61,7 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   },
   startEtapa: (id, online) => {
     return apiRequestorHelper({
@@ -72,7 +72,7 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   },
   finishEtapa: (id, online) => {
     return apiRequestorHelper({
@@ -83,7 +83,7 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   },
   addParte: (id, stage, parteId, online) => {
     return apiRequestorHelper({
@@ -96,7 +96,7 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   },
   startInterruption: (id, stopFaena, comments, online) => {
     return apiRequestorHelper({
@@ -109,7 +109,7 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   },
   finishInterruption: (id, online) => {
     return apiRequestorHelper({
@@ -120,6 +120,6 @@ export default {
       },
       getParams: true,
       noCall: !online
-    })
+    }, false)
   }
 }
