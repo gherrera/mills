@@ -40,6 +40,7 @@ export default class Fase extends Component {
     componentDidMount() {
         const { turno } = this.props
         const { currentStage } = this.state
+        //console.log('currentStage', currentStage)
         if(currentStage.stage === 'BEGINNING' && (turno.molino.nextTask === 'RETIRO_CHUTE' || turno.molino.nextTask === 'ING_LAINERA') && currentStage.currentTask.finishDate) {
             this.setState({
                 isModalStartExecution: true
@@ -56,16 +57,33 @@ export default class Fase extends Component {
         const { handleConnection } = this.props
 
         let t = {...turno}
-        if(t.molino.stages[this.state.activeStage].stage === 'EXECUTION' && t.molino.stages[this.state.activeStage].currentTask && t.molino.stages[this.state.activeStage].currentTask.task === 'GIRO') {
-            t.molino.partsByType.map(t => {
-                t.parts.map(p => {
-                    p.botadas = 0
-                    p.limpiadas = 0
-                    p.montadas = 0
-                })
-            })
+        
+        const task = { task: this.state.currentStage.nextTask, finishDate: null};
+        
+        if(!(t.molino.stages[this.state.activeStage].tasks)) {
+            t.molino.stages[this.state.activeStage].tasks = []
         }
-        t.molino.stages[this.state.activeStage].currentTask = { task: this.state.currentStage.nextTask, finishDate: null}
+        t.molino.stages[this.state.activeStage].tasks.push(task)
+        t.molino.stages[this.state.activeStage].currentTask = task
+
+        if(t.molino.stages[this.state.activeStage].stage === 'EXECUTION' && t.molino.stages[this.state.activeStage].currentTask) {
+            if(t.molino.stages[this.state.activeStage].currentTask.task === 'GIRO') {
+                t.molino.partsByType.map(t => {
+                    t.parts.map(p => {
+                        p.botadas = 0
+                        p.limpiadas = 0
+                        p.montadas = 0
+                    })
+                })
+            }else if(t.molino.stages[this.state.activeStage].currentTask.task === 'LIMPIEZA') {
+                const taskMontaje = { task: 'MONTAJE', finishDate: null};
+                t.molino.stages[this.state.activeStage].tasks.push(taskMontaje)
+                t.molino.stages[this.state.activeStage].currentTask = taskMontaje
+            }
+        }
+
+        t = this.setNextTask(t)
+
         this.setTurno(t)
         handleConnection({ status: false, config, turno: t })
     }
@@ -112,20 +130,10 @@ export default class Fase extends Component {
         }
     }
 
-    finishTaskOnError(config) {
-        let { turno, currentStage } = this.state
-        const { handleConnection } = this.props
-
-        if(currentStage.stage === 'BEGINNING') {
-            if(currentStage.nextTask === 'RETIRO_CHUTE') {
-                this.setState({
-                    isModalStartExecution: true
-                })
-            }
-        }
-        let _turno = {...turno}
-        _turno.molino.stages[this.state.activeStage].currentTask.finishDate = Date.now()
+    setNextTask(_turno) {
+        let { currentStage } = this.state
         const ct = _turno.molino.stages[this.state.activeStage].currentTask
+    
         if(currentStage.stage === 'BEGINNING') {
             if(ct.task === 'DET_PLANTA') {
                 _turno.molino.stages[this.state.activeStage].nextTask = 'BLOQUEO_PRUEBA_ENERGIA_0'
@@ -160,16 +168,35 @@ export default class Fase extends Component {
             }
         }
         if(_turno.molino.stages[this.state.activeStage].nextTask === 'GIRO') {
-            if(turno.molino.totalMontadas === turno.molino.piezas) {
+            if(_turno.molino.totalMontadas === _turno.molino.piezas) {
                 _turno.molino.stages[this.state.activeStage].nextTask = null
             }
         }else if(ct.task === 'GIRO') {
-            if(turno.molino.totalBotadas === turno.molino.piezas) {
+            if(_turno.molino.totalBotadas === _turno.molino.piezas) {
                 _turno.molino.stages[this.state.activeStage].nextTask = 'MONTAJE'
             }
         }
 
         _turno.molino.nextTask = _turno.molino.stages[this.state.activeStage].nextTask
+
+        return _turno
+    }
+
+    finishTaskOnError(config) {
+        let { turno, currentStage } = this.state
+        const { handleConnection } = this.props
+
+        if(currentStage.stage === 'BEGINNING') {
+            if(currentStage.nextTask === 'RETIRO_CHUTE') {
+                this.setState({
+                    isModalStartExecution: true
+                })
+            }
+        }
+        let _turno = {...turno}
+        _turno = this.setNextTask(_turno)
+        _turno.molino.stages[this.state.activeStage].currentTask.finishDate = Date.now()
+
         this.setTurno(_turno)
         handleConnection({ status: false, config, turno: _turno })
     }
@@ -310,7 +337,6 @@ export default class Fase extends Component {
     }
 
     addParteOnError(config, task, parte) {
-        console.log('addParteOnError')
         const { turno } = this.state
         const { handleConnection } = this.props
 
@@ -318,17 +344,19 @@ export default class Fase extends Component {
         let cs = _turno.molino.stages[this.state.activeStage]
         //_turno.molino.stages[this.state.activeStage].finishDate = Date.now()
         
+        //console.log('task', task)
+        //console.log('cs.tasks', cs.tasks)
+
         const tarea = cs.tasks.filter(t => t.task === task)[0];
-        if(task === 'BOTADO') {
+        if(task === 'BOTADO' && parte.qty >= (parte.totalBotadas + 1)) {
             parte.botadas = parte.botadas+1
             parte.totalBotadas = parte.totalBotadas+1
             _turno.molino.botadas = _turno.molino.botadas+1
             _turno.molino.totalBotadas = _turno.molino.totalBotadas+1
-        }else if(task === 'LIMPIEZA') {
+        }else if(task === 'LIMPIEZA' && parte.botadas >= (parte.limpiadas + 1)) {
             parte.limpiadas = parte.limpiadas+1
             parte.totalLimpiadas = parte.totalLimpiadas+1
             _turno.molino.limpiadas = _turno.molino.limpiadas+1
-            _turno.molino.totalLimpiadas = _turno.molino.totalLimpiadas+1
             if(_turno.molino.botadas === _turno.molino.limpiadas) {
                 tarea.finishDate = Date.now()
             }
@@ -367,7 +395,6 @@ export default class Fase extends Component {
             this.setTurno(conn.turno)
         }
         addPartePromise(turno.id, task, parte.id, !conn.errores).then(response => {
-            console.log('addParte', response)
             if(response.data) {
                 handleConnection({ status: true })
                 this.setTurno(response.data)

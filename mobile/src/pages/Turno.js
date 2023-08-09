@@ -102,6 +102,7 @@ export default class Turno extends Component {
                 this.setState({ modoOnline: false, requestPending})
                 this.setTurno(_turno)
                 this.setState({isLoadingApi: true})
+
                 const t = await this.handleConnectionInit(false, requestPending)
                 this.setState({isLoadingApi: false})
                 if(t.turno) {
@@ -343,21 +344,24 @@ export default class Turno extends Component {
             let _turno = null
             for(let i=0;i<requestPending.length;i++) {
                 const config = requestPending[i]
-                config.url = config.url.replace('Task1','Task')
-                const response = await new Promise((resolve, reject) => apiRequestorHelper({ cfg: config }, false).then(r => resolve(r)).catch(e => resolve({error:true})));
-                if(response.error) {
-                    errores = true
-                    break;
-                }else {
-                    pending[i].success = true;
-                    this.setState({requestPending: pending})
-                    const t = await getTurnoPromise(this.state.turno.id, false);
-                    if(t && !t.error) {
-                        _turno = t
+                if(config) {
+                    //config.url = config.url.replace('Task1','Task')
+                    //config.url = config.url.replace('Parte1','Parte')
+                    const response = await new Promise((resolve, reject) => apiRequestorHelper({ cfg: config }, false).then(r => resolve(r)).catch(e => resolve({error:true})));
+                    if(response.error) {
+                        errores = true
+                        break;
+                    }else {
+                        pending[i].success = true;
+                        this.setState({requestPending: pending})
+                        const t = await getTurnoPromise(this.state.turno.id, false);
+                        if(t && !t.error) {
+                            _turno = t
+                        }
                     }
                 }
             }
-            const pendingNotSuccess = pending.filter(p => p.success === undefined)
+            const pendingNotSuccess = pending.filter(p => p && p.success === undefined)
             this.setState({requestPending: pendingNotSuccess, modoOnline: !errores, attemptingCalls: false})
 
             AsyncStorage.setItem('requestPending', JSON.stringify(pendingNotSuccess))
@@ -417,7 +421,7 @@ export default class Turno extends Component {
                     'Modo Online'
                     : attemptingCalls ?
                     <>
-                        Enviando: {requestPending.filter(p => p.success).length}/{requestPending.length}
+                        Enviando: {requestPending.filter(p => p && p.success).length}/{requestPending.length}
                     </>
                     :
                     <>

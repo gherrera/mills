@@ -598,39 +598,41 @@ public class Dao {
 				if(et.getStage().equals(stage)) etapa = et;
 			}
 		}
-		Tarea task = etapa.getCurrentTask();
-		Tarea.TareaEnum next = molino.getNextTask(etapa);
-		if(next != null) {
-			Calendar c = Calendar.getInstance(TimeZone.getDefault());
-			Date date = c.getTime();
-			if(timestamp != null) date = timestamp;
-			Timestamp fecha = new Timestamp(date.getTime());
-			
-			Tarea tarea = new Tarea();
-			tarea.setId(UUID.randomUUID().toString());
-			tarea.setCreationDate(fecha);
-			tarea.setTask(next);
-			tarea.setUserStart(user.getLogin());
-			
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("etapa", etapa);
-			params.put("tarea", tarea);
-			params.put("turnoId", turno.getTurnoId());
-
-			sqlMap.insert("insertTarea", params);
-
-			molino.setUpdateDate(new Timestamp(date.getTime()));
-			molino.setUpdateUser(user.getLogin());
-			sqlMap.update("updateMolino", molino);
-
-			//registro de logs
-			insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "TAREA", tarea.getId(), "iniciaTarea", next.getText());
-
-			if(next.equals(Tarea.TareaEnum.LIMPIEZA)) {
-				turno = getTurnoById(turno.getId());
-				startTask(user, turno, stage, timestamp);
-			}else if(task != null && task.getTask().equals(Tarea.TareaEnum.GIRO)) {
-				sqlMap.update("updateGiro", turno.getMolino().getId());
+		if(etapa != null) {
+			Tarea task = etapa.getCurrentTask();
+			Tarea.TareaEnum next = molino.getNextTask(etapa);
+			if(next != null) {
+				Calendar c = Calendar.getInstance(TimeZone.getDefault());
+				Date date = c.getTime();
+				if(timestamp != null) date = timestamp;
+				Timestamp fecha = new Timestamp(date.getTime());
+				
+				Tarea tarea = new Tarea();
+				tarea.setId(UUID.randomUUID().toString());
+				tarea.setCreationDate(fecha);
+				tarea.setTask(next);
+				tarea.setUserStart(user.getLogin());
+				
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("etapa", etapa);
+				params.put("tarea", tarea);
+				params.put("turnoId", turno.getTurnoId());
+	
+				sqlMap.insert("insertTarea", params);
+	
+				molino.setUpdateDate(new Timestamp(date.getTime()));
+				molino.setUpdateUser(user.getLogin());
+				sqlMap.update("updateMolino", molino);
+	
+				//registro de logs
+				insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "TAREA", tarea.getId(), "iniciaTarea", next.getText());
+	
+				if(next.equals(Tarea.TareaEnum.LIMPIEZA)) {
+					turno = getTurnoById(turno.getId());
+					startTask(user, turno, stage, timestamp);
+				}else if(task != null && task.getTask().equals(Tarea.TareaEnum.GIRO)) {
+					sqlMap.update("updateGiro", turno.getMolino().getId());
+				}
 			}
 		}
 	}
