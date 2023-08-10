@@ -36,6 +36,7 @@ export default class Home extends Component {
                     }
                 })
                 t.enable = !otro
+                t.enable = true
                 if(_turnos.filter(t3 => t3.id !== t.id && t3.status === 'OPEN').length > 0) t.enable = false
                 t.return = true
             })

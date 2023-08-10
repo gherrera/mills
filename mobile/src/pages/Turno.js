@@ -98,14 +98,16 @@ export default class Turno extends Component {
         if(rp && rp !== "" && t && t !== "") {
             const requestPending = JSON.parse(rp);
             const _turno = JSON.parse(t);
-            if(_turno.id === this.props.turno.id && requestPending && requestPending.length > 0) {
+            if(_turno.molino.id === this.props.turno.molino.id && requestPending && requestPending.length > 0) {
                 this.setState({ modoOnline: false, requestPending})
-                this.setTurno(_turno)
-                this.setState({isLoadingApi: true})
+                if(_turno.id === this.props.turno.id) {
+                    this.setTurno(_turno)
+                }
 
+                this.setState({isLoadingApi: true})
                 const t = await this.handleConnectionInit(false, requestPending)
                 this.setState({isLoadingApi: false})
-                if(t.turno) {
+                if(t.turno && t.id === this.props.turno.id) {
                     this.setTurno(t.turno)
                 }
             }
@@ -347,6 +349,7 @@ export default class Turno extends Component {
                 if(config) {
                     //config.url = config.url.replace('Task1','Task')
                     //config.url = config.url.replace('Parte1','Parte')
+                    //config.url = config.url.replace('Turno1','Turno')
                     const response = await new Promise((resolve, reject) => apiRequestorHelper({ cfg: config }, false).then(r => resolve(r)).catch(e => resolve({error:true})));
                     if(response.error) {
                         errores = true
