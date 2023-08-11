@@ -469,6 +469,15 @@ public class Dao {
 		}
 	}
 	
+	public Activity getActivityById(Integer id) {
+		try {
+			return (Activity)sqlMap.queryForObject("getActivityById", id);
+		} catch (SQLException e) {
+			log.error("Error al leer datos", e);
+			return null;
+		}
+	}
+
 	public void inicioTurno(Usuario user, Turno turno, Date timestamp) throws SQLException {
 		try {
 			sqlMap.startTransaction();
@@ -489,6 +498,10 @@ public class Dao {
 			params.put("fecha", fecha);
 			sqlMap.update("updateStatusTurno", turno);
 			sqlMap.insert("insertTurnoHistorial", params);
+			
+			//registro de logs
+			insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "TURNO", id, "iniciaTurno", Turno.Status.OPEN.toString());
+
 			if(turno.getMolino().getStatus() == null) {
 				turno.getMolino().setStatus(Molino.Status.STARTED);
 				if(turno.getMolino().getStages().size() == 0) {
@@ -498,9 +511,6 @@ public class Dao {
 				}
 				sqlMap.update("updateStatusMolino", turno.getMolino());
 			}
-			
-			//registro de logs
-			insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "TURNO", id, "iniciaTurno", Turno.Status.OPEN.toString());
 			
 			sqlMap.commitTransaction();
 		} catch (SQLException e) {
@@ -1087,5 +1097,68 @@ public class Dao {
 			log.error("Error al leer datos", e);
 			return null;
 		}
+	}
+	
+	public void deleteActivity(Usuario user, Molino molino, Activity activity) throws SQLException {
+		try {
+			sqlMap.startTransaction();
+			
+			Calendar c = Calendar.getInstance(TimeZone.getDefault());
+			Date date = c.getTime();
+			Timestamp fecha = new Timestamp(date.getTime());
+			
+			boolean delete = false;
+			if(activity.getEntity().equals("TURNO")) {
+				TurnoHistorial turnoHistorial = getHistorialTurnoById(activity.getExtId());
+				Turno turno = turnoHistorial.getTurno();
+				
+				if(activity.getOperation().equals("finTurno")) {
+					if(turno.getStatus().equals(Turno.Status.CLOSED)) {
+						Map<String, Object> params = new HashMap<String, Object>();
+						params.put("turnoId", turnoHistorial.getId());
+						params.put("fecha", null);
+						sqlMap.insert("finTurnoHistorial", params);
+		
+						turno.setStatus(Turno.Status.OPEN);
+						turno.setTurnoId(turnoHistorial.getId());
+						sqlMap.update("updateStatusTurno", turno);
+						
+						delete = true;
+						
+						//registro de logs
+						insLogAudit(user, fecha, molino, "ADMIN", "TURNO", activity.getExtId(), "undoFinTurno", Turno.Status.CLOSED.toString());
+					}
+				}else if(activity.getOperation().equals("iniciaTurno")) {
+					if(turno.getStatus().equals(Turno.Status.OPEN)) {
+						turno.setStatus(Turno.Status.CLOSED);
+						
+						List<TurnoHistorial> historial = molino.getTurnoHistorial();
+						if(historial.size() > 1) {
+							turno.setTurnoId(historial.get(historial.size()-2).getId());
+						}else {
+							turno.setTurnoId(null);
+						}
+
+						sqlMap.update("updateStatusTurno", turno);
+						sqlMap.delete("deleteTurnoHistorial", turnoHistorial.getId());
+
+						delete = true;
+						
+						//registro de logs
+						insLogAudit(user, fecha, molino, "ADMIN", "TURNO", activity.getExtId(), "undoIniciaTurno", Turno.Status.OPEN.toString());
+					}
+				}
+			}
+			
+			if(delete) {
+				sqlMap.delete("deleteActivity", activity.getId());
+			}
+			
+			sqlMap.commitTransaction();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {sqlMap.endTransaction();}catch(Exception e){}
+		}		
 	}
 }

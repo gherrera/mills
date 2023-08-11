@@ -128,5 +128,15 @@ export default {
         id
       }
     })
+  },
+  deleteActivity: (idMolino, idActivity) => {
+    return apiRequestorHelper({
+      url: apiConfig.url + '/deleteActivity',
+      method: 'post',
+      body: {
+        idMolino,
+        idActivity
+      }
+    })
   }
 }

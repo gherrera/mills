@@ -896,4 +896,15 @@ public class App {
 	public List<Activity> getActivityByMolino(String molinoId) {
 		return dao.getActivityByMolino(molinoId);
 	}
+	
+	public void deleteActivity(Usuario user, String idMolino, String idActivity) throws SQLException {
+		Molino molino = getMolinoById(idMolino);
+		if(molino != null) {
+			List<Activity> activities = getActivityByMolino(idMolino);
+			if(activities.size() > 0 && activities.get(0).getId().equals(idActivity)) {
+				Activity activity = activities.get(0);
+				dao.deleteActivity(user, molino, activity);
+			}
+		}
+	}
 }

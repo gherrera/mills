@@ -2,6 +2,7 @@ package com.htg.mills.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -480,4 +481,17 @@ public class MillsController {
 		return app.getActivityByMolino(molino.getId());
 	}
 
+	@PostMapping("deleteActivity")
+	@ResponseBody
+	public String deleteActivity(@RequestBody Map<String, String> params) {
+		try {
+			CurrentUser currentUser = (CurrentUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+			app.deleteActivity(currentUser.getUser(), params.get("idMolino"), params.get("idActivity"));
+			return "OK";
+		} catch (SQLException e) {
+			log.error("Error al eliminar registro de actividad: " + params.get("idActivity"), e);
+			return "ERROR";
+		}
+	}
 }

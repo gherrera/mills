@@ -1,21 +1,45 @@
 import './Personal.scss'
 import React, { useEffect, useState } from 'react'
-import { Row, Col, Table } from 'antd'
-import { getActivityByMolinoPromise } from '../../../../promises'
+import { Row, Col, Table, Button, Modal } from 'antd'
+import { getActivityByMolinoPromise, deleteActivityPromise } from '../../../../promises'
 import moment from 'moment'
 
+const { confirm } = Modal;
+
 const Actividades = ({molino}) => {
-    const [actividades, setActividades] = useState(null)
-    const [ showAll, setShowAll ] = useState(false)
+  const [actividades, setActividades] = useState(null)
+  const [firstElement, setFirstElement] = useState(null)
+  const [isModalVisibleDelete, setIsModalVisibleDelete] = useState(false)
+  const [ showAll, setShowAll ] = useState(false)
 
   useEffect(() => {
+    init();
+  }, [])
+
+  const init = () => {
     getActivityByMolinoPromise(molino.id).then(r => {
       setActividades(r)
+      if(r.length > 0) {
+        setFirstElement(r[0])
+      }
     })
-  }, [])
+  }
 
   const toogleShowAll = () => {
     setShowAll(!showAll)
+  }
+
+  const deleteActivity = (record) => {
+    confirm({
+      title: 'Eliminar Actividad',
+      content: 'Está seguro de borrar la actividad?',
+      onOk() {
+        deleteActivityPromise(molino.id, record.id).then(r => {
+          setActividades(null);
+          init();
+        })
+      }
+    });
   }
 
   const columnActivity = [
@@ -27,13 +51,13 @@ const Actividades = ({molino}) => {
     {
       title: 'Fecha Real',
       dataIndex: 'creationDate',
-      with: '15%',
+      with: '12%',
       render: (creationDate) => moment(creationDate).format("DD/MM/YYYY HH:mm:ss")
     },
     {
       title: 'Fecha Log',
       dataIndex: 'dateLog',
-      with: '15%',
+      with: '12%',
       render: (dateLog) => moment(dateLog).format("DD/MM/YYYY HH:mm:ss")
     },
     {
@@ -86,6 +110,12 @@ const Actividades = ({molino}) => {
       render: (record) => {
         return <span className={"modo-act-" + ((record.creationDate === record.dateLog) ? 'online' : 'offline')}>{ (record.creationDate === record.dateLog) ? 'Online' : 'Offline' }</span>
       }
+    },
+    {
+      title: 'Eliminar',
+      width: '6%',
+      dataIndex: 'id',
+      render: (id, record, index) => index === 0 && firstElement.id === id && <Button icon='delete' size="small" onClick={() => deleteActivity(record)} />
     }
   ]
 

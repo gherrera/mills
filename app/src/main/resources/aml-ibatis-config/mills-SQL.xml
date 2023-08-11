@@ -474,6 +474,11 @@
 		values(#id#, #turno.id#, #fecha#)
 	</insert>
 	
+	<delete id="deleteTurnoHistorial">
+		delete from turno_historial
+		where id = #value#
+	</delete>
+	
 	<update id="updateStatusMolino">
 		update molinos
 			set estado = #status#,
@@ -724,5 +729,16 @@
 		where molino_id = #value#
 		order by id desc
 	</select>
+
+	<select id="getActivityById" resultMap="Activity">
+		select id, fecha, fecha_log, usuario, turno, entidad, ext_id, operacion, params
+		from log_operacion
+		where id = #value#
+	</select>
+	
+	<delete id="deleteActivity">
+		delete from log_operacion
+		where id = #value# 
+	</delete>
 
 </sqlMap>
