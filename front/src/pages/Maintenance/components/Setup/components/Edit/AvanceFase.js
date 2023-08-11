@@ -390,7 +390,14 @@ const AvanceFase = ({molino, stage}) => {
           { vstage.stage === 'DELIVERY' ?
             <Col span={21} className="data-title" style={{paddingRight:'777px'}}>
               <label>Fecha</label>
-              <span className="info datetime">{moment(vstage.creationDate).format("DD/MM/YYYY HH:mm")}</span>
+              <span className="info datetime">
+                <DatePicker showTime={{format: 'HH:mm'}} format="DD-MM-YYYY HH:mm" 
+                  size="small"
+                  style={{minWidth:'unset'}}
+                  allowClear={false} showToday={false}
+                  defaultValue={moment(vstage.creationDate)}
+                  onOk={(d) => changeDateTimeStage('creationDate', new Date(d))} />
+              </span>
             </Col>
             :
             <Col span={21} className="data-title">
