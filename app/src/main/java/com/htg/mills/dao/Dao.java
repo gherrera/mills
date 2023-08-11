@@ -1148,6 +1148,52 @@ public class Dao {
 						insLogAudit(user, fecha, molino, "ADMIN", "TURNO", activity.getExtId(), "undoIniciaTurno", Turno.Status.OPEN.toString());
 					}
 				}
+			}else if(activity.getEntity().equals("ETAPA")) {
+				Etapa stage = getEtapaById(activity.getExtId());
+				
+				if(activity.getOperation().equals("iniciaEtapa")) {
+					if(stage.getStatus().equals(Etapa.Status.STARTED)) {
+						if(stage.getStage().equals(Etapa.EtapaEnum.DELIVERY)) {
+							molino.setStage(Etapa.EtapaEnum.FINISHED);
+							sqlMap.update("updateStatusMolino", molino);
+						} else if(stage.getStage().equals(Etapa.EtapaEnum.FINISHED)) {
+							molino.setStage(Etapa.EtapaEnum.EXECUTION);
+							sqlMap.update("updateStatusMolino", molino);
+						} else if(stage.getStage().equals(Etapa.EtapaEnum.EXECUTION)) {
+							molino.setStage(Etapa.EtapaEnum.BEGINNING);
+							sqlMap.update("updateStatusMolino", molino);
+						} else if(stage.getStage().equals(Etapa.EtapaEnum.BEGINNING)) {
+							molino.setStage(null);
+							molino.setStatus(null);
+							sqlMap.update("updateStatusMolino", molino);
+						}
+						sqlMap.delete("deleteEtapa", stage.getId());
+						
+						delete = true;
+						
+						//registro de logs
+						insLogAudit(user, fecha, molino, "ADMIN", "ETAPA", activity.getExtId(), "undoIniciaEtapa", Etapa.Status.STARTED.toString());
+					}
+				}else if(activity.getOperation().equals("finEtapa")) {
+					if(stage.getStatus().equals(Etapa.Status.FINISHED)) {
+						stage.setTurnoFinish(new TurnoHistorial());
+						stage.setStatus(Etapa.Status.STARTED);
+						stage.setFinishDate(null);
+						stage.setUserFinish(null);
+						sqlMap.update("finishEtapa", stage);
+						
+						if(stage.getStage().equals(Etapa.EtapaEnum.DELIVERY)) {
+							molino.setStage(Etapa.EtapaEnum.FINISHED);
+							molino.setStatus(Molino.Status.STARTED);
+							molino.setFinishDate(null);
+							sqlMap.update("updateStatusMolino", molino);
+						}
+						delete = true;
+
+						//registro de logs
+						insLogAudit(user, fecha, molino, "ADMIN", "ETAPA", activity.getExtId(), "undoFinEtapa", Etapa.Status.FINISHED.toString());
+					}
+				}
 			}
 			
 			if(delete) {

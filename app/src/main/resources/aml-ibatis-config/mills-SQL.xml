@@ -483,9 +483,7 @@
 		update molinos
 			set estado = #status#,
 				etapa = #stage#
-				<isNotNull property="finishDate">
-					, fecha_termino = #finishDate#
-				</isNotNull>
+				, fecha_termino = #finishDate#
 		where id = #id#
 	</update>
 	
@@ -544,6 +542,11 @@
 			</isNotNull>
 		where id = #id#
 	</update>
+	
+	<delete id="deleteEtapa">
+		delete from molino_etapas
+		where id = #value#
+	</delete>
 	
 	<update id="updatePartes">
 		update molino_partes
