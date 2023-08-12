@@ -564,6 +564,11 @@
 			values(#id#, #creationDate#, #user#, #qty#, #tareaId#, #part.id#, #turno.id#)
 	</insert>
 	
+	<delete id="deleteTarea">
+		delete from tarea_partes
+		where id = #value#
+	</delete>
+	
 	<update id="updateGiro">
 		update molino_partes
 			set botadas = 0,

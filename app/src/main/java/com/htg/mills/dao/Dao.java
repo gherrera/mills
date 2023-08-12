@@ -1194,6 +1194,36 @@ public class Dao {
 						insLogAudit(user, fecha, molino, "ADMIN", "ETAPA", activity.getExtId(), "undoFinEtapa", Etapa.Status.FINISHED.toString());
 					}
 				}
+			}else if(activity.getEntity().equals("TAREA")) {
+				Tarea task = getTareaById(activity.getExtId());
+				
+				if(activity.getOperation().equals("iniciaTarea")) {
+					if(task.getFinishDate() == null) {
+						sqlMap.delete("deleteTarea", task.getId());
+
+						delete = true;
+
+						//registro de logs
+						insLogAudit(user, fecha, molino, "ADMIN", "TAREA", activity.getExtId(), "undoIniciaTarea", "START");
+					}
+				}else if(activity.getOperation().equals("finTarea")) {
+					if(task.getFinishDate() != null) {
+						task.setUserFinish(null);
+						task.setTurnoFinish(new TurnoHistorial());
+						task.setFinishDate(null);
+						
+						sqlMap.update("finishTarea", task);
+						
+						if(task.getTask().equals(Tarea.TareaEnum.GIRO)) {
+							sqlMap.update("updateGiro", molino.getId());
+						}
+
+						delete = true;
+
+						//registro de logs
+						insLogAudit(user, fecha, molino, "ADMIN", "TAREA", activity.getExtId(), "undoFinTarea", "FINISH");
+					}
+				}
 			}
 			
 			if(delete) {

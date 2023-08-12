@@ -44,7 +44,7 @@ const Actividades = ({molino}) => {
 
   const columnActivity = [
     {
-      title: '#',
+      title: 'Nro.',
       with: '5%',
       dataIndex: 'id'
     },
