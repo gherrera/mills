@@ -942,7 +942,7 @@ public class Dao {
 				if(evt.getType().equals(Evento.Type.INTERRUPTION) && evt.getFinishDate() == null) {
 					evt.setFinishDate(fecha);
 					evt.setUserFinish(user.getLogin());
-					sqlMap.insert("finishInterruption", evt);
+					sqlMap.update("finishInterruption", evt);
 					
 					//registro de logs
 					insLogOperacion(user, fecha, turno.getMolino(), turno.getName().toString(), "EVENTO", String.valueOf(evt.getId()), "finInterrupcion", null);
@@ -1083,7 +1083,7 @@ public class Dao {
 	
 	public Evento getEventoById(Integer id) {
 		try {
-			return (Evento)sqlMap.queryForObject("getEventosById", id);
+			return (Evento)sqlMap.queryForObject("getEventoById", id);
 		} catch (SQLException e) {
 			log.error("Error al leer datos", e);
 			return null;
@@ -1224,7 +1224,7 @@ public class Dao {
 						insLogAudit(user, fecha, molino, "ADMIN", "TAREA", activity.getExtId(), "undoFinTarea", "FINISH");
 					}
 				}
-			}if(activity.getOperation().equals("agregaParte")) {
+			}else if(activity.getOperation().equals("agregaParte")) {
 				TareaParte tareaParte = getParteTareaById(activity.getExtId());
 				
 				Parte parte = tareaParte.getPart();
@@ -1246,6 +1246,22 @@ public class Dao {
 
 				//registro de logs
 				insLogAudit(user, fecha, molino, "ADMIN", activity.getEntity(), activity.getExtId(), "undoAgregaParte", parte.getName());
+			}else if(activity.getEntity().equals("EVENTO")) {
+				Evento evento = getEventoById(Integer.valueOf(activity.getExtId()));
+				if(activity.getOperation().equals("iniciaInterrupcion")) {
+					sqlMap.delete("deleteInterruption", evento.getId());
+
+					//registro de logs
+					insLogAudit(user, fecha, molino, "ADMIN", "EVENTO", activity.getExtId(), "undoIniciaInterrupcion", null);
+				}else if(activity.getOperation().equals("finInterrupcion")) {
+					evento.setFinishDate(null);
+					evento.setUserFinish(null);
+					sqlMap.update("finishInterruption", evento);					
+
+					//registro de logs
+					insLogAudit(user, fecha, molino, "ADMIN", "EVENTO", activity.getExtId(), "undoFinInterrupcion", null);
+				}
+				delete = true;
 			}
 			
 			if(delete) {

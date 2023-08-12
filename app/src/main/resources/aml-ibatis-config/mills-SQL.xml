@@ -371,7 +371,7 @@
 		where id = #id#
 	</update>
 	
-	<select id="getEventosById" resultMap="Evento">
+	<select id="getEventoById" resultMap="Evento">
 		select id, fecha_inicio, tipo, comentarios, fecha_termino, user_inicio, user_termino
 		from etapa_eventos
 		where id = #value#
@@ -589,6 +589,11 @@
 			select last_insert_id() as id
 		</selectKey>
 	</insert>
+	
+	<delete id="deleteInterruption">
+		delete from etapa_eventos
+		where id = #value#
+	</delete>
 	
 	<update id="finishInterruption">
 		update etapa_eventos
