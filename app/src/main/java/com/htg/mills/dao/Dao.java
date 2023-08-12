@@ -1224,6 +1224,8 @@ public class Dao {
 						insLogAudit(user, fecha, molino, "ADMIN", "TAREA", activity.getExtId(), "undoFinTarea", "FINISH");
 					}
 				}
+			}if(activity.getOperation().equals("agregaParte")) {
+				
 			}
 			
 			if(delete) {

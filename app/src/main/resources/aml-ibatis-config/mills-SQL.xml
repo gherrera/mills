@@ -565,7 +565,7 @@
 	</insert>
 	
 	<delete id="deleteTarea">
-		delete from tarea_partes
+		delete from etapa_tareas
 		where id = #value#
 	</delete>
 	
