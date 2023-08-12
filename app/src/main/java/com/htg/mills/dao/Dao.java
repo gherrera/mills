@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -1201,6 +1202,58 @@ public class Dao {
 					if(task.getFinishDate() == null) {
 						sqlMap.delete("deleteTarea", task.getId());
 
+						if(task.getTask().equals(Tarea.TareaEnum.GIRO)) {
+							Etapa stage = molino.getCurrentStage();
+							Tarea previousGiro = null;
+							for(Tarea t : stage.getTasks()) {
+								if(t.getTask().equals(Tarea.TareaEnum.GIRO) && !t.getId().equals(task.getId()) && t.getCreationDate().before(task.getCreationDate())) {
+									previousGiro = t;
+								}
+							}
+							for(Parte parte : molino.getParts()) {
+								int botadas = 0;
+								int limpiadas = 0;
+								int montadas = 0;
+								
+								int totalBotadas = 0;
+								int totalLimpiadas = 0;
+								int totalMontadas = 0;
+								
+								for(Tarea t : stage.getTasks()) {
+									if(t.getTask().equals(Tarea.TareaEnum.BOTADO) || t.getTask().equals(Tarea.TareaEnum.LIMPIEZA) || t.getTask().equals(Tarea.TareaEnum.MONTAJE)) {
+										List<TareaParte> partes = t.getParts().stream().filter(tp -> tp.getPart().getId().equals(parte.getId())).collect(Collectors.toList());
+										int total = partes.stream().mapToInt(TareaParte::getQty).sum();
+										if(t.getTask().equals(Tarea.TareaEnum.BOTADO)) {
+											totalBotadas += total;
+										}else if(t.getTask().equals(Tarea.TareaEnum.LIMPIEZA)) {
+											totalLimpiadas += total;
+										}else if(t.getTask().equals(Tarea.TareaEnum.MONTAJE)) {
+											totalMontadas += total;
+										}
+										
+										if(previousGiro == null || t.getCreationDate().after(previousGiro.getCreationDate())) {
+											if(t.getTask().equals(Tarea.TareaEnum.BOTADO)) {
+												botadas += total;
+											}else if(t.getTask().equals(Tarea.TareaEnum.LIMPIEZA)) {
+												limpiadas += total;
+											}else if(t.getTask().equals(Tarea.TareaEnum.MONTAJE)) {
+												montadas += total;
+											}
+										}
+									}
+								}
+								parte.setBotadas(botadas);
+								parte.setLimpiadas(limpiadas);
+								parte.setMontadas(montadas);
+
+								parte.setTotalBotadas(totalBotadas);
+								parte.setTotalLimpiadas(totalLimpiadas);
+								parte.setTotalMontadas(totalMontadas);
+
+								sqlMap.update("updatePartes", parte);
+							}
+						}
+						
 						delete = true;
 
 						//registro de logs
@@ -1273,6 +1326,6 @@ public class Dao {
 			throw e;
 		} finally {
 			try {sqlMap.endTransaction();}catch(Exception e){}
-		}		
+		}
 	}
 }
