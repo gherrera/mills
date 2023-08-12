@@ -1225,7 +1225,27 @@ public class Dao {
 					}
 				}
 			}if(activity.getOperation().equals("agregaParte")) {
+				TareaParte tareaParte = getParteTareaById(activity.getExtId());
 				
+				Parte parte = tareaParte.getPart();
+				if(activity.getEntity().equals("BOTADO")) {
+					parte.setBotadas(parte.getBotadas() - tareaParte.getQty());
+					parte.setTotalBotadas(parte.getTotalBotadas() - tareaParte.getQty());
+				}else if(activity.getEntity().equals("LIMPIEZA")) {
+					parte.setLimpiadas(parte.getLimpiadas() - tareaParte.getQty());
+					parte.setTotalLimpiadas(parte.getTotalLimpiadas() - tareaParte.getQty());
+				}else if(activity.getEntity().equals("MONTAJE")) {
+					parte.setMontadas(parte.getMontadas() - tareaParte.getQty());
+					parte.setTotalMontadas(parte.getTotalMontadas() - tareaParte.getQty());
+				}
+				
+				sqlMap.update("updatePartes", parte);
+				sqlMap.delete("deleteTareaParte", tareaParte.getId());
+
+				delete = true;
+
+				//registro de logs
+				insLogAudit(user, fecha, molino, "ADMIN", activity.getEntity(), activity.getExtId(), "undoAgregaParte", parte.getName());
 			}
 			
 			if(delete) {

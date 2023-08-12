@@ -564,6 +564,11 @@
 			values(#id#, #creationDate#, #user#, #qty#, #tareaId#, #part.id#, #turno.id#)
 	</insert>
 	
+	<delete id="deleteTareaParte">
+		delete from tarea_partes
+		where id = #value#
+	</delete>
+	
 	<delete id="deleteTarea">
 		delete from etapa_tareas
 		where id = #value#

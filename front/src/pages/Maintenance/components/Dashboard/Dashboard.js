@@ -946,7 +946,7 @@ const Dashboard = ({currentUser}) => {
                                             </Row>
                                         </Row>
                                     </Col>
-                                    <Col xs={24} xxl={12}>
+                                    <Col span={24}>
                                         <Row style={{backgroundColor:'rgba(255,255,255,.9)', padding: 4, height: '100%'}}>
                                             { (currentUser.type !== 'DASHBOARD' || !currentUser.client) &&
                                                 <Col style={{textAlign:'right'}}>
