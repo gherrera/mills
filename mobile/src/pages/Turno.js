@@ -74,7 +74,7 @@ export default class Turno extends Component {
     setTurno(t, refresh=true) {
         t.return = this.props.turno.return
         t.molino.activeStage = t.molino.stages.length - 1
-        //console.log('t', t)
+        //console.log('setTurno molino', t.molino)
         this.setState({turno: t})
         if(refresh) {
             this.setState({ keyFase: Math.random() })
@@ -107,8 +107,9 @@ export default class Turno extends Component {
 
                 this.setState({isLoadingApi: true})
                 const t = await this.handleConnectionInit(false, requestPending)
+                //console.log('t handleConnectionInit', t.turno.molino)
                 this.setState({isLoadingApi: false})
-                if(t.turno && t.id === this.props.turno.id) {
+                if(t.turno && t.turno.id === this.props.turno.id) {
                     this.setTurno(t.turno)
                 }
             }
@@ -352,7 +353,8 @@ export default class Turno extends Component {
                     //config.url = config.url.replace('Task1','Task')
                     //config.url = config.url.replace('Parte1','Parte')
                     //config.url = config.url.replace('Turno1','Turno')
-                    const response = await new Promise((resolve, reject) => apiRequestorHelper({ cfg: config }, false).then(r => resolve(r)).catch(e => resolve({error:true})));
+                    const response = await new Promise((resolve, reject) => apiRequestorHelper({ cfg: config }, false).then(r => resolve(r.data)).catch(e => resolve({error:true})));
+                    //console.log('response molino', response.molino)
                     if(response.error) {
                         errores = true
                         break;
@@ -360,6 +362,8 @@ export default class Turno extends Component {
                         pending[i].success = true;
                         this.setState({requestPending: pending})
                         const t = await getTurnoPromise(this.state.turno.id, false);
+                        //console.log('response t', t.molino)
+                        //console.log('response t molino', t.molino)
                         if(t && !t.error) {
                             _turno = t
                         }
