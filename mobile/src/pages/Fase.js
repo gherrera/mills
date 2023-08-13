@@ -344,9 +344,6 @@ export default class Fase extends Component {
         let cs = _turno.molino.stages[this.state.activeStage]
         //_turno.molino.stages[this.state.activeStage].finishDate = Date.now()
         
-        //console.log('task', task)
-        //console.log('cs.tasks', cs.tasks)
-
         const tarea = cs.tasks.filter(t => t.task === task)[0];
         if(task === 'BOTADO' && parte.qty >= (parte.totalBotadas + 1)) {
             parte.botadas = parte.botadas+1

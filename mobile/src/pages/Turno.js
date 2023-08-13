@@ -71,13 +71,14 @@ export default class Turno extends Component {
         this.backAction = this.backActionHandler.bind(this);
     }
 
-    setTurno(t) {
+    setTurno(t, refresh=true) {
         t.return = this.props.turno.return
         t.molino.activeStage = t.molino.stages.length - 1
-        this.setState({
-            turno: t,
-            keyFase: Math.random()
-        })
+        //console.log('t', t)
+        this.setState({turno: t})
+        if(refresh) {
+            this.setState({ keyFase: Math.random() })
+        }
     }
 
     init() {
@@ -230,6 +231,7 @@ export default class Turno extends Component {
         let _turno = { ...turno, open: true }
         _turno.molino.currentStage.hasInterruption = true
         _turno.molino.currentStage.events.push({type: 'INTERRUPTION', finishDate: null})
+
         this.setTurno(_turno)
         this.handleConnection({ status: false, config, turno: _turno })
     }
@@ -400,6 +402,8 @@ export default class Turno extends Component {
 
                 AsyncStorage.setItem('requestPending', JSON.stringify(pending))
                 AsyncStorage.setItem('turno', JSON.stringify(turno))
+
+                this.setTurno(turno, false)
             }else if(!modoOnline) {
                 this.setState({modoOnline: true})
                 Alert.alert('Información', 'Conexión restaurada, activa modo ONLINE');
